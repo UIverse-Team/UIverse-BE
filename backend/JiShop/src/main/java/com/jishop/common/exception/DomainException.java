@@ -1,6 +1,5 @@
 package com.jishop.common.exception;
 
-import com.example.log.common.exception.ErrorType;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
