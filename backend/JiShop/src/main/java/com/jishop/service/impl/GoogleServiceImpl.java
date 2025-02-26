@@ -21,26 +21,24 @@ public class GoogleServiceImpl implements GoogleService {
     @Value("${google.redirect-uri}")
     private String redirectUri;
 
-    private final WebClient webClient;
+    private final WebClient googleAuthWebClient;
+    private final WebClient googleApiWebClient;
 
-    public GoogleServiceImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://oauth2.googleapis.com").build();
+    public GoogleServiceImpl() {
+        this.googleAuthWebClient = WebClient.builder().baseUrl("https://oauth2.googleapis.com").build();
+        this.googleApiWebClient = WebClient.builder().baseUrl("https://www.googleapis.com").build();
     }
 
     public GoogleUserInfo authenticateUserWithGoogle(String code) {
         GoogleTokenResponse tokenResponse = getGoogleAccessToken(code);
-
         return getGoogleUserInfo(tokenResponse.getAccessToken());
     }
 
     private GoogleTokenResponse getGoogleAccessToken(String code) {
-
-        System.out.println("CODE : " + code);
-
         try {
-            return webClient.post()
+            return googleAuthWebClient.post()
                     .uri("/token")
-                    .headers(headers -> headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED))
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(BodyInserters.fromFormData("client_id", clientId)
                             .with("client_secret", clientSecret)
                             .with("code", code)
@@ -57,9 +55,7 @@ public class GoogleServiceImpl implements GoogleService {
     }
 
     private GoogleUserInfo getGoogleUserInfo(String accessToken) {
-
-        return WebClient.create("https://www.googleapis.com")
-                .get()
+        return googleApiWebClient.get()
                 .uri("/oauth2/v2/userinfo")
                 .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
