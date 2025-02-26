@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Login</title>
+</head>
+<body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clientId = '639931952690-sankot35an8om2acih5pu684pdqlsa9c.apps.googleusercontent.com\n';
+        const redirectUri = 'http://localhost:8080/auth/google';
+        const scope = 'email profile';
+
+        const button = document.createElement('button');
+        button.textContent = 'Login with Google';
+        button.addEventListener('click', function() {
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+            window.location.href = authUrl;
+        });
+
+        document.body.appendChild(button);
+    });
+
+</script>
+</body>
+</html>
