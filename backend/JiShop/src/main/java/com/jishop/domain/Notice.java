@@ -21,7 +21,7 @@ public class Notice extends BaseEntity {
     private String content;
 
     // 공지사항 중요도
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private NoticePriority priority;
 }

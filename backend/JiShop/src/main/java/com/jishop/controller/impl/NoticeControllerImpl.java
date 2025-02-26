@@ -22,7 +22,7 @@ public class NoticeControllerImpl implements NoticeController {
     @Override
     @GetMapping
     public PagedModel<NoticeResponse> getAllNotices(
-            @PageableDefault(page = 0, size = 15,sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(page = 0, size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return noticeService.getAllNotices(pageable);
     }
 }
