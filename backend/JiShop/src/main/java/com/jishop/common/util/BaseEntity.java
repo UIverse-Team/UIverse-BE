@@ -13,18 +13,18 @@ public class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "created_at")
     @CreationTimestamp
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "delete_status", nullable = false)
-    boolean deleteStatus;
+    private boolean deleteStatus;
 
     public void delete() {
         this.deleteStatus = true;
