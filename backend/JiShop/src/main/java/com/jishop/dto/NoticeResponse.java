@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 public record NoticeResponse(
 
         String title,
-        String content,
         String priority,
         LocalDateTime createdDate
 
@@ -15,7 +14,6 @@ public record NoticeResponse(
     public static NoticeResponse from(Notice notice) {
         return new NoticeResponse(
                 notice.getTitle(),
-                notice.getContent(),
                 notice.getPriority().name(),
                 notice.getCreatedAt()
         );
