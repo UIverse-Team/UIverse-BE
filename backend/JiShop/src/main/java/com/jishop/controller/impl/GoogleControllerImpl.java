@@ -20,6 +20,7 @@ public class GoogleControllerImpl implements GoogleController {
     @GetMapping("/google")
     public ResponseEntity<GoogleUserInfo> authenticateUser(@RequestParam String code) {
         GoogleUserInfo userInfo = googleService.authenticateUserWithGoogle(code);
+
         return ResponseEntity.ok(userInfo);
     }
 }

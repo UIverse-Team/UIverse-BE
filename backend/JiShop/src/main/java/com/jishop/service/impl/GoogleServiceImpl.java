@@ -3,12 +3,14 @@ package com.jishop.service.impl;
 import com.jishop.dto.GoogleTokenResponse;
 import com.jishop.dto.GoogleUserInfo;
 import com.jishop.service.GoogleService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Slf4j
 @Service
 public class GoogleServiceImpl implements GoogleService {
 
@@ -31,6 +33,7 @@ public class GoogleServiceImpl implements GoogleService {
 
     public GoogleUserInfo authenticateUserWithGoogle(String code) {
         GoogleTokenResponse tokenResponse = getGoogleAccessToken(code);
+
         return getGoogleUserInfo(tokenResponse.getAccessToken());
     }
 
@@ -48,9 +51,10 @@ public class GoogleServiceImpl implements GoogleService {
                     .bodyToMono(GoogleTokenResponse.class)
                     .block();
         } catch (Exception e) {
-            System.err.println("Error getting Google access token: " + e.getMessage());
+            log.error("Error getting Google access token: {}", e.getMessage(), e);
             e.printStackTrace();
-            return null;
+
+            throw new RuntimeException("구글 Access Token 가져오는 데 오류가 발생했습니다");
         }
     }
 

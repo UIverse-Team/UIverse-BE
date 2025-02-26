@@ -1,9 +1,9 @@
 package com.jishop.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class GoogleTokenResponse {
 
     @JsonProperty("access_token")
