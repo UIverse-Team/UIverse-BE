@@ -14,12 +14,12 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "crated_at")
     @CreationTimestamp
+    @Column(name = "crated_at")
     LocalDateTime cratedAt;
 
-    @Column(name = "updated_at")
     @CreationTimestamp
+    @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
     @Column(name = "delete_status", nullable = false)
