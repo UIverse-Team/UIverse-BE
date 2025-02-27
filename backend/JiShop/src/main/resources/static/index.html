@@ -30,11 +30,18 @@
 
         document.body.appendChild(googleButton);
 
-        const kakaoButton = document.createElement('a');
-        kakaoButton.href = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(kakaoRedirectUri)}&response_type=code&scope=profile_nickname`;
+        const kakaoButton = document.createElement('button');
         kakaoButton.textContent = "카카오톡으로 로그인";
         kakaoButton.style.display = "block";
         kakaoButton.style.marginTop = "10px";
+        kakaoButton.addEventListener('click', function() {
+            fetch('/auth/kakao/login')
+                .then(response => response.text())
+                .then(authUrl => {
+                    window.location.href = authUrl;
+                })
+                .catch(error => console.error('Error:', error));
+        });
 
         document.body.appendChild(kakaoButton);
     });

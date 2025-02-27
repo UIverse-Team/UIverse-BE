@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 public class KakaoServiceImpl implements OauthService {
@@ -27,6 +29,9 @@ public class KakaoServiceImpl implements OauthService {
 
     private final WebClient kakaoAuthWebClient; //토쿤
     private final WebClient kakaoApiWebClient; //사용자정보
+
+    @Autowired
+    private HttpSession httpSession;
 
     public KakaoServiceImpl(){
         this.kakaoApiWebClient = WebClient.builder().baseUrl("https://kapi.kakao.com").build();
