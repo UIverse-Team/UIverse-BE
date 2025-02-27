@@ -1,6 +1,9 @@
 package com.jishop.controller.impl;
 
 import com.jishop.controller.KakaoController;
+import com.jishop.dto.KakaoUserInfo;
+import com.jishop.service.impl.KakaoServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,9 +17,20 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.json.JSONObject;
 
 @RestController
-@RequestMapping("/kakao")
-@CrossOrigin(origins = "*") // 모든 출처에서 요청을 허용
+@RequiredArgsConstructor
+@RequestMapping("/auth")
 public class KakaoControllerImpl implements KakaoController {
+
+    private final KakaoServiceImpl kakaoService;
+
+    @GetMapping("/kakao")
+    public ResponseEntity<KakaoUserInfo> authenticateUser(@RequestParam String code){
+        KakaoUserInfo userInfo = kakaoService.authenticateUserWithKakao(code);
+
+        return ResponseEntity.ok(userInfo);
+    }
+
+
 
     // 카카오 로그인 리디렉션 처리
     @GetMapping("/code")
