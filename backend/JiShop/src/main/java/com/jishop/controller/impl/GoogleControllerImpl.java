@@ -2,6 +2,7 @@ package com.jishop.controller.impl;
 
 import com.jishop.controller.GoogleController;
 import com.jishop.dto.GoogleUserInfo;
+import com.jishop.service.GoogleService;
 import com.jishop.service.impl.GoogleServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class GoogleControllerImpl implements GoogleController {
 
-    private final GoogleServiceImpl googleService;
+    private final GoogleService googleService;
 
     @GetMapping("/google")
     public ResponseEntity<GoogleUserInfo> authenticateUser(@RequestParam String code) {

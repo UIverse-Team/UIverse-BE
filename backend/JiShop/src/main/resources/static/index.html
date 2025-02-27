@@ -1,28 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Login</title>
+    <title>소셜 로그인</title>
 </head>
 <body>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const clientId = '639931952690-sankot35an8om2acih5pu684pdqlsa9c.apps.googleusercontent.com\n';
-        const redirectUri = 'http://localhost:8080/auth/google';
-        const scope = 'email profile';
+        const googleClientId = '639931952690-sankot35an8om2acih5pu684pdqlsa9c.apps.googleusercontent.com\n';
+        const googleRedirectUri = 'http://localhost:8080/auth/google';
+        const googleScope = 'email profile';
 
-        const button = document.createElement('button');
-        button.textContent = 'Login with Google';
-        button.addEventListener('click', function() {
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+        const kakaoClientId = '6fbfbaabc852675644980a7fcdae981d';
+        const kakaoRedirectUri = 'http://localhost:8080/auth/kakao';
+
+        const googleButton = document.createElement('button');
+        googleButton.textContent = 'Google로 로그인';
+        googleButton.addEventListener('click', function() {
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=${encodeURIComponent(googleScope)}`;
             window.location.href = authUrl;
         });
 
-        document.body.appendChild(button);
-    });
+        document.body.appendChild(googleButton);
 
+        const kakaoButton = document.createElement('a');
+        kakaoButton.href = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(kakaoRedirectUri)}&response_type=code&scope=profile_nickname`;
+        kakaoButton.textContent = "카카오톡으로 로그인";
+        kakaoButton.style.display = "block";
+        kakaoButton.style.marginTop = "10px";
+
+        document.body.appendChild(kakaoButton);
+    });
 </script>
+
 </body>
 </html>
