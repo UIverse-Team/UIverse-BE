@@ -15,23 +15,33 @@
         const googleRedirectUri = 'http://localhost:8080/auth/google';
         const googleScope = 'email profile';
 
-        const kakaoClientId = '6fbfbaabc852675644980a7fcdae981d';
-        const kakaoRedirectUri = 'http://localhost:8080/auth/kakao';
-
         const googleButton = document.createElement('button');
-        googleButton.textContent = 'Google로 로그인';
+        googleButton.textContent = "구글으로 로그인";
+        googleButton.style.display = "block";
+        googleButton.style.marginTop = "10px";
         googleButton.addEventListener('click', function() {
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=${encodeURIComponent(googleScope)}`;
-            window.location.href = authUrl;
+            fetch('/auth/google/login')
+                .then(response => response.text())
+                .then(authUrl => {
+                    window.location.href = authUrl;
+                })
+                .catch(error => console.error('Error:', error));
         });
 
         document.body.appendChild(googleButton);
 
-        const kakaoButton = document.createElement('a');
-        kakaoButton.href = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(kakaoRedirectUri)}&response_type=code&scope=profile_nickname`;
+        const kakaoButton = document.createElement('button');
         kakaoButton.textContent = "카카오톡으로 로그인";
         kakaoButton.style.display = "block";
         kakaoButton.style.marginTop = "10px";
+        kakaoButton.addEventListener('click', function() {
+            fetch('/auth/kakao/login')
+                .then(response => response.text())
+                .then(authUrl => {
+                    window.location.href = authUrl;
+                })
+                .catch(error => console.error('Error:', error));
+        });
 
         document.body.appendChild(kakaoButton);
     });
@@ -42,7 +52,7 @@
         const redirectUri = encodeURIComponent("http://localhost:8080/auth/naver"); // 실제 등록된 리다이렉트 URI
         const state = "RANDOM_STATE_STRING"; // CSRF 방지를 위한 랜덤 문자열
         const responseType = "code";
-        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}`;
 
         // 네이버 인가 URL로 리다이렉트
         window.location.href = naverAuthUrl;
