@@ -6,6 +6,8 @@
     <title>소셜 로그인</title>
 </head>
 <body>
+<h1>네이버 로그인</h1>
+<button id="naverLoginBtn">네이버로 로그인</button>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -33,7 +35,19 @@
 
         document.body.appendChild(kakaoButton);
     });
-</script>
 
+    document.getElementById('naverLoginBtn').addEventListener('click', function() {
+        // 네이버 OAuth 인가 요청 URL 구성
+        const clientId = "J2ditR1bWjGGWjHEytbY"; // 실제 네이버 클라이언트 아이디로 교체
+        const redirectUri = encodeURIComponent("http://localhost:8080/auth/naver"); // 실제 등록된 리다이렉트 URI
+        const state = "RANDOM_STATE_STRING"; // CSRF 방지를 위한 랜덤 문자열
+        const responseType = "code";
+        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+
+        // 네이버 인가 URL로 리다이렉트
+        window.location.href = naverAuthUrl;
+    });
+
+</script>
 </body>
 </html>
