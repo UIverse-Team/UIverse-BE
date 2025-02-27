@@ -36,6 +36,8 @@ dependencies {
 
 	// naver 구현 요청을 위한 의존성 주입
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	// 네이버 최종 구현을 위한 주입
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 // naver 구현 요청을 위한 의존성 주입
