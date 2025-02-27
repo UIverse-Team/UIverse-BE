@@ -1,33 +1,37 @@
 package com.jishop.controller.impl;
 
-import com.jishop.controller.KakaoController;
-import com.jishop.dto.KakaoUserInfo;
-import com.jishop.service.KakaoService;
-import com.jishop.service.impl.KakaoServiceImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import com.jishop.controller.OauthController;
+import com.jishop.dto.SocialUserInfo;
+import com.jishop.service.OauthService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.json.JSONObject;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/auth")
-public class KakaoControllerImpl implements KakaoController {
+public class KakaoControllerImpl implements OauthController {
 
-    private final KakaoService kakaoService;
+    private final OauthService kakaoService;
+
+    public KakaoControllerImpl(@Qualifier("kakaoServiceImpl") OauthService kakaoService) {
+        this.kakaoService = kakaoService;
+    }
+
+    @GetMapping("/kakao/login")
+    public ResponseEntity<String> getKakaoAuthUrl() {
+        String authUrl = kakaoService.generateStateAndGetAuthUrl();
+        return ResponseEntity.ok(authUrl);
+    }
 
     @GetMapping("/kakao")
-    public ResponseEntity<KakaoUserInfo> authenticateUser(@RequestParam String code){
-        KakaoUserInfo userInfo = kakaoService.authenticateUserWithKakao(code);
-
+    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code, @RequestParam String state) {
+        SocialUserInfo userInfo = kakaoService.authenticateUser(code, state);
         return ResponseEntity.ok(userInfo);
     }
 }

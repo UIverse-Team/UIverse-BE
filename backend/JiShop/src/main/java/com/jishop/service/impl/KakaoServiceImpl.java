@@ -1,9 +1,11 @@
 package com.jishop.service.impl;
 
-import com.jishop.dto.KakaoTokenResponse;
-import com.jishop.dto.KakaoUserInfo;
-import com.jishop.service.KakaoService;
+import com.jishop.dto.SocialUserInfo;
+import com.jishop.dto.TokenResponse;
+import com.jishop.service.OauthService;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
 @Service
-public class KakaoServiceImpl implements KakaoService {
+public class KakaoServiceImpl implements OauthService {
 
     @Value("${kakao.client.id}")
     private String clientId;
@@ -31,13 +33,28 @@ public class KakaoServiceImpl implements KakaoService {
         this.kakaoAuthWebClient = WebClient.builder().baseUrl("https://kauth.kakao.com/oauth").build();
     }
 
-    public KakaoUserInfo authenticateUserWithKakao(String code){
-        KakaoTokenResponse tokenResponse = getKakaoAccessToken(code);
+    public String generateStateAndGetAuthUrl() {
+        String state = UUID.randomUUID().toString();
+        httpSession.setAttribute("oauth2State", state);
 
+        return "https://kauth.kakao.com/oauth/authorize" +
+                "?client_id=" + clientId +
+                "&redirect_uri=" + redirectUri +
+                "&response_type=code" +
+                "&state=" + state;
+    }
+
+    public SocialUserInfo authenticateUser(String code, String state) {
+        String savedState = (String) httpSession.getAttribute("oauth2State");
+        if (savedState == null || !savedState.equals(state)) {
+            throw new IllegalStateException("Invalid state parameter");
+        }
+
+        TokenResponse tokenResponse = getKakaoAccessToken(code, state);
         return getKakaoUserInfo(tokenResponse.getAccessToken());
     }
 
-    private KakaoTokenResponse getKakaoAccessToken(String code){
+    private TokenResponse getKakaoAccessToken(String code,String state){
         try{
             return kakaoAuthWebClient.post()
                     .uri("/token")
@@ -45,10 +62,11 @@ public class KakaoServiceImpl implements KakaoService {
                     .body(BodyInserters.fromFormData("client_id", clientId)
                             .with("client_secret", clientSecret)
                             .with("code", code)
+                            .with("state", state)
                             .with("grant_type", "authorization_code")
                             .with("redirect_uri", redirectUri))
                     .retrieve()
-                    .bodyToMono(KakaoTokenResponse.class)
+                    .bodyToMono(TokenResponse.class)
                     .block();
         } catch (Exception e){
             log.error("카카오 Access Token을 가져오는 데 오류가 발생했습니다");
@@ -58,12 +76,12 @@ public class KakaoServiceImpl implements KakaoService {
         }
     }
 
-    private KakaoUserInfo getKakaoUserInfo(String accessToken){
+    private SocialUserInfo getKakaoUserInfo(String accessToken){
         return kakaoApiWebClient.get()
                 .uri("/v2/user/me")
                 .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .bodyToMono(KakaoUserInfo.class)
+                .bodyToMono(SocialUserInfo.class)
                 .block();
     }
 }
