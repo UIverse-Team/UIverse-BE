@@ -2,6 +2,7 @@ package com.jishop.controller.impl;
 
 import com.jishop.controller.KakaoController;
 import com.jishop.dto.KakaoUserInfo;
+import com.jishop.service.KakaoService;
 import com.jishop.service.impl.KakaoServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
 @RequestMapping("/auth")
 public class KakaoControllerImpl implements KakaoController {
 
-    private final KakaoServiceImpl kakaoService;
+    private final KakaoService kakaoService;
 
     @GetMapping("/kakao")
     public ResponseEntity<KakaoUserInfo> authenticateUser(@RequestParam String code){
