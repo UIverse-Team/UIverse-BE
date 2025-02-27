@@ -27,13 +27,13 @@ public class GoogleServiceImpl implements OauthService {
     @Value("${google.redirect-uri}")
     private String redirectUri;
 
-    @Autowired
     private HttpSession httpSession;
 
     private final WebClient googleAuthWebClient;
     private final WebClient googleApiWebClient;
 
-    public GoogleServiceImpl() {
+    public GoogleServiceImpl(HttpSession httpSession) {
+        this.httpSession = httpSession;
         this.googleAuthWebClient = WebClient.builder().baseUrl("https://oauth2.googleapis.com").build();
         this.googleApiWebClient = WebClient.builder().baseUrl("https://www.googleapis.com").build();
     }
@@ -56,10 +56,9 @@ public class GoogleServiceImpl implements OauthService {
         if (savedState == null || !savedState.equals(state)) {
             throw new IllegalStateException("Invalid state parameter");
         }
-
         TokenResponse tokenResponse = getGoogleAccessToken(code, state);
 
-        return getGoogleUserInfo(tokenResponse.getAccessToken());
+        return getGoogleUserInfo(tokenResponse.accessToken());
     }
 
     private TokenResponse getGoogleAccessToken(String code, String state) {
@@ -79,7 +78,6 @@ public class GoogleServiceImpl implements OauthService {
         } catch (Exception e) {
             log.error("Error getting Google access token: {}", e.getMessage(), e);
             e.printStackTrace();
-
             throw new RuntimeException("구글 Access Token 가져오는 데 오류가 발생했습니다");
         }
     }

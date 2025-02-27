@@ -1,11 +1,8 @@
 package com.jishop.dto;
 
-import lombok.Getter;
-
-@Getter
-public class SocialUserInfo {
-
-    private String id;
-    private String email;
-    private String name;
+public record SocialUserInfo(
+        String id,
+        String name,
+        String email
+) {
 }

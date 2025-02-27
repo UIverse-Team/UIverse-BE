@@ -26,13 +26,13 @@ public class NaverServiceImpl implements OauthService {
     @Value("${naver.redirect.uri}")
     private String redirectUri;
 
-    @Autowired
     private HttpSession httpSession;
 
     private final WebClient naverAuthWebClient;
     private final WebClient naverApiWebClient;
 
-    public NaverServiceImpl() {
+    public NaverServiceImpl(HttpSession httpSession) {
+        this.httpSession = httpSession;
         this.naverAuthWebClient = WebClient.builder().baseUrl("https://nid.naver.com").build();
         this.naverApiWebClient = WebClient.builder().baseUrl("https://openapi.naver.com").build();
     }
@@ -52,7 +52,7 @@ public class NaverServiceImpl implements OauthService {
     public SocialUserInfo authenticateUser(String code, String state) {
         TokenResponse tokenResponse = getNaverAccessToken(code, state);
 
-        return getNaverUserInfo(tokenResponse.getAccessToken());
+        return getNaverUserInfo(tokenResponse.accessToken());
     }
 
     private TokenResponse getNaverAccessToken(String code, String state) {
@@ -83,7 +83,7 @@ public class NaverServiceImpl implements OauthService {
                 .bodyToMono(NaverUserResponse.class)
                 .block();
 
-        return userResponse.getResponse();
+        return userResponse.response();
     }
 
 

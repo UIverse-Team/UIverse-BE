@@ -1,6 +1,6 @@
 package com.jishop.controller.impl;
 
-import com.jishop.controller.OauthController;
+import com.jishop.controller.OAuthController;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.service.OauthService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-public class NaverControllerImpl implements OauthController {
+public class NaverControllerImpl implements OAuthController {
 
     private final OauthService naverService;
 
@@ -21,7 +21,8 @@ public class NaverControllerImpl implements OauthController {
     }
 
     @GetMapping("/naver")
-    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code, @RequestParam String state) {
+    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
+                                                           @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
 
         return ResponseEntity.ok(userInfo);

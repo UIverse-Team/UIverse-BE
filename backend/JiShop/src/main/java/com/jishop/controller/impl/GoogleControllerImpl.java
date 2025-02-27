@@ -1,6 +1,6 @@
 package com.jishop.controller.impl;
 
-import com.jishop.controller.OauthController;
+import com.jishop.controller.OAuthController;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.service.OauthService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-public class GoogleControllerImpl implements OauthController {
+public class GoogleControllerImpl implements OAuthController {
 
     private final OauthService googleService;
 
@@ -23,11 +23,13 @@ public class GoogleControllerImpl implements OauthController {
     @GetMapping("/google/login")
     public ResponseEntity<String> getKakaoAuthUrl() {
         String authUrl = googleService.generateStateAndGetAuthUrl();
+
         return ResponseEntity.ok(authUrl);
     }
 
     @GetMapping("/google")
-    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,@RequestParam String state) {
+    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
+                                                           @RequestParam String state) {
         SocialUserInfo userInfo = googleService.authenticateUser(code, state);
 
         return ResponseEntity.ok(userInfo);

@@ -30,10 +30,10 @@ public class KakaoServiceImpl implements OauthService {
     private final WebClient kakaoAuthWebClient; //토쿤
     private final WebClient kakaoApiWebClient; //사용자정보
 
-    @Autowired
     private HttpSession httpSession;
 
-    public KakaoServiceImpl(){
+    public KakaoServiceImpl(HttpSession httpSession) {
+        this.httpSession = httpSession;
         this.kakaoApiWebClient = WebClient.builder().baseUrl("https://kapi.kakao.com").build();
         this.kakaoAuthWebClient = WebClient.builder().baseUrl("https://kauth.kakao.com/oauth").build();
     }
@@ -54,9 +54,9 @@ public class KakaoServiceImpl implements OauthService {
         if (savedState == null || !savedState.equals(state)) {
             throw new IllegalStateException("Invalid state parameter");
         }
-
         TokenResponse tokenResponse = getKakaoAccessToken(code, state);
-        return getKakaoUserInfo(tokenResponse.getAccessToken());
+
+        return getKakaoUserInfo(tokenResponse.accessToken());
     }
 
     private TokenResponse getKakaoAccessToken(String code,String state){
@@ -76,7 +76,6 @@ public class KakaoServiceImpl implements OauthService {
         } catch (Exception e){
             log.error("카카오 Access Token을 가져오는 데 오류가 발생했습니다");
             e.printStackTrace();
-
             throw new RuntimeException("카카오 Access Token을 가져오는 데 오류가 발생했습니다");
         }
     }
