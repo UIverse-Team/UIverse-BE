@@ -2,10 +2,8 @@ package com.jishop.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jishop.domain.ProductData;
-import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 지혜 Rest API 상품 리스트
@@ -41,40 +39,38 @@ import java.util.List;
 
 public record ProductDataRequest(
         Long id,
-
-        @NotBlank(message = "botId는 필수 입력 값입니다.")
         String botId,
-
         String storeId,
         String productName,
         Integer originalPrice,
-        Integer dcPrice,
+        String dcPrice,
         String productImgUrl,
         String productCode,
         String detailUrl,
         String description,
         boolean qnaOptionBtn,
-
         @JsonProperty("delete")
         boolean deleteFlag,
-
         String category,
         boolean similarOptionBtn,
         boolean onSales,
         String labels,
-        List<String> sns,
+        Object sns,
+        @JsonProperty("published_at")
         LocalDateTime publishedAt,
+        @JsonProperty("created_by")
         String createdBy,
+        @JsonProperty("updated_by")
         String updatedBy,
+        @JsonProperty("created_at")
         LocalDateTime createdAt,
+        @JsonProperty("updated_at")
         LocalDateTime updatedAt,
         String secret,
         String ecField,
         String guardYn,
-
         @JsonProperty("product_sns")
         String productSns
-
 ) {
     public ProductData toEntity() {
         return new ProductData(

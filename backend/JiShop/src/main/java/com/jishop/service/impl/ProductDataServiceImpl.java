@@ -6,13 +6,17 @@ import com.jishop.repository.ProductRepository;
 import com.jishop.service.ProductDataService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
+@Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ProductDataServiceImpl implements ProductDataService {
 
@@ -23,16 +27,15 @@ public class ProductDataServiceImpl implements ProductDataService {
     private String apiUrl;
 
     @Override
+    @Transactional
     public void fetchAndSaveProductData() {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                .queryParam("start", 0)
-                .queryParam("limit", 100);
-
+                .queryParam("_start", 0)
+                .queryParam("_limit", 100);
         ProductDataRequest[] productDataRequests = restTemplate.getForObject(
                 builder.toUriString(),
                 ProductDataRequest[].class
         );
-
         if (productDataRequests != null) {
             for (ProductDataRequest request : productDataRequests) {
                 productRepository.save(request.toEntity());
