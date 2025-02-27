@@ -2,6 +2,7 @@ package com.jishop.controller.impl;
 
 import com.jishop.controller.NaverController;
 import com.jishop.dto.NaverUserInfo;
+import com.jishop.service.NaverService;
 import com.jishop.service.impl.NaverServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class NaverControllerImpl implements NaverController {
 
-    private final NaverServiceImpl naverService;
+    private final NaverService naverService;
 
     @GetMapping("/naver")
     public ResponseEntity<NaverUserInfo> authenticateUser(@RequestParam String code, @RequestParam String state) {
