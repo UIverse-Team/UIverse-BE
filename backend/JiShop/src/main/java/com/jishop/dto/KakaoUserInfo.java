@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class KakaoUserInfo {
+
     @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
 
@@ -18,4 +19,5 @@ public class KakaoUserInfo {
         private String nickname;
     }
 }
+
 
