@@ -1,0 +1,8 @@
+[submodule "backend/log/src/main/resources/config"]
+	path = backend/log/src/main/resources/config
+	url = https://github.com/UIverse-BE/log-secret.git
+	branch = main
+[submodule "backend/JiShop/src/main/resources/config"]
+	path = backend/JiShop/src/main/resources/config
+	url = https://github.com/UIverse-BE/jishop-secret.git
+	branch = main
