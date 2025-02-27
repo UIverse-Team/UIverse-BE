@@ -5,7 +5,6 @@ import com.jishop.dto.TokenResponse;
 import com.jishop.service.OauthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -27,10 +26,9 @@ public class KakaoServiceImpl implements OauthService {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
-    private final WebClient kakaoAuthWebClient; //토쿤
+    private final HttpSession httpSession;
     private final WebClient kakaoApiWebClient; //사용자정보
-
-    private HttpSession httpSession;
+    private final WebClient kakaoAuthWebClient; //토쿤
 
     public KakaoServiceImpl(HttpSession httpSession) {
         this.httpSession = httpSession;

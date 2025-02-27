@@ -6,7 +6,6 @@ import com.jishop.dto.TokenResponse;
 import com.jishop.service.OauthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -26,10 +25,9 @@ public class NaverServiceImpl implements OauthService {
     @Value("${naver.redirect.uri}")
     private String redirectUri;
 
-    private HttpSession httpSession;
-
-    private final WebClient naverAuthWebClient;
+    private final HttpSession httpSession;
     private final WebClient naverApiWebClient;
+    private final WebClient naverAuthWebClient;
 
     public NaverServiceImpl(HttpSession httpSession) {
         this.httpSession = httpSession;

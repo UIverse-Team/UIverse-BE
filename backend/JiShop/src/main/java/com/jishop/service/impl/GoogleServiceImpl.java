@@ -5,7 +5,6 @@ import com.jishop.dto.TokenResponse;
 import com.jishop.service.OauthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -27,10 +26,9 @@ public class GoogleServiceImpl implements OauthService {
     @Value("${google.redirect-uri}")
     private String redirectUri;
 
-    private HttpSession httpSession;
-
-    private final WebClient googleAuthWebClient;
+    private final HttpSession httpSession;
     private final WebClient googleApiWebClient;
+    private final WebClient googleAuthWebClient;
 
     public GoogleServiceImpl(HttpSession httpSession) {
         this.httpSession = httpSession;

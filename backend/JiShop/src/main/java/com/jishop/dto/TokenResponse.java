@@ -12,7 +12,6 @@ public record TokenResponse(
         Integer expiresIn,
         @JsonProperty("refresh_token")
         String refreshToken
-
 ) {
 
 }
