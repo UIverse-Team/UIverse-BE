@@ -9,6 +9,6 @@ import org.springframework.data.web.PagedModel;
 @Tag(name = "공지사항 API")
 public interface NoticeController {
 
-    public PagedModel<NoticeResponse> getAllNotices(Pageable pageable);
-    public NoticeDetailResponse getNotice(Long id);
+    PagedModel<NoticeResponse> getAllNotices(Pageable pageable);
+    NoticeDetailResponse getNotice(Long id);
 }
