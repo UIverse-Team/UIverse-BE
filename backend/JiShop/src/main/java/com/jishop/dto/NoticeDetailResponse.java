@@ -5,7 +5,6 @@ import com.jishop.domain.Notice;
 import java.time.LocalDateTime;
 
 public record NoticeDetailResponse(
-
         String title,
         String content,
         String priority,
