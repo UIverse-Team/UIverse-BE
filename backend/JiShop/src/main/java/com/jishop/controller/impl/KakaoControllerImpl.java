@@ -27,6 +27,7 @@ public class KakaoControllerImpl implements OAuthController {
         return ResponseEntity.ok(authUrl);
     }
 
+    @Override
     @GetMapping("/kakao")
     public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
                                                            @RequestParam String state) {

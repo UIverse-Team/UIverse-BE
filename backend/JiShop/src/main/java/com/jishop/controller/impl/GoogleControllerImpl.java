@@ -19,7 +19,7 @@ public class GoogleControllerImpl implements OAuthController {
     public GoogleControllerImpl(@Qualifier("googleServiceImpl") OauthService googleService) {
         this.googleService = googleService;
     }
-
+    
     @GetMapping("/google/login")
     public ResponseEntity<String> getKakaoAuthUrl() {
         String authUrl = googleService.generateStateAndGetAuthUrl();
@@ -27,6 +27,7 @@ public class GoogleControllerImpl implements OAuthController {
         return ResponseEntity.ok(authUrl);
     }
 
+    @Override
     @GetMapping("/google")
     public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
                                                            @RequestParam String state) {

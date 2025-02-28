@@ -1,88 +1,69 @@
 package com.jishop.service.impl;
 
-import com.jishop.dto.NaverUserResponse;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.dto.TokenResponse;
-import com.jishop.service.OauthService;
+import com.jishop.service.AbstractOAuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.UUID;
+import org.springframework.web.reactive.function.BodyInserters;
 
 @Slf4j
 @Service
-public class NaverServiceImpl implements OauthService {
+public class NaverServiceImpl extends AbstractOAuthService {
 
-    @Value("${naver.client.id}")
-    private String clientId;
-
-    @Value("${naver.client.secret}")
-    private String clientSecret;
-
-    @Value("${naver.redirect.uri}")
-    private String redirectUri;
-
-    private final HttpSession httpSession;
-    private final WebClient naverApiWebClient;
-    private final WebClient naverAuthWebClient;
-
-    public NaverServiceImpl(HttpSession httpSession) {
-        this.httpSession = httpSession;
-        this.naverAuthWebClient = WebClient.builder().baseUrl("https://nid.naver.com").build();
-        this.naverApiWebClient = WebClient.builder().baseUrl("https://openapi.naver.com").build();
+    public NaverServiceImpl(HttpSession httpSession,
+                             @Value("${naver.client.id}") String clientId,
+                             @Value("${naver.client.secret}") String clientSecret,
+                             @Value("${naver.redirect.uri}") String redirectUri) {
+        super(httpSession,
+                "https://nid.naver.com",
+                "https://openapi.naver.com",
+                clientId,
+                clientSecret,
+                redirectUri
+        );
     }
 
     @Override
-    public String generateStateAndGetAuthUrl() {
-        String state = UUID.randomUUID().toString();
-        httpSession.setAttribute("oauth2State", state);
-
-        return "https://kauth.kakao.com/oauth/authorize" +
+    protected String buildAuthUrl(String state) {
+        return "https://nid.naver.com/oauth2.0/authorize" +
                 "?client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
                 "&response_type=code" +
                 "&state=" + state;
     }
 
-    public SocialUserInfo authenticateUser(String code, String state) {
-        TokenResponse tokenResponse = getNaverAccessToken(code, state);
-
-        return getNaverUserInfo(tokenResponse.accessToken());
-    }
-
-    private TokenResponse getNaverAccessToken(String code, String state) {
+    @Override
+    protected TokenResponse getAccessToken(String code, String state) {
         try {
-            return naverAuthWebClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/oauth2.0/token")
-                            .queryParam("grant_type", "authorization_code")
-                            .queryParam("client_id", clientId)
-                            .queryParam("client_secret", clientSecret)
-                            .queryParam("code", code)
-                            .queryParam("state", state)
-                            .build())
+            return authWebClient.post()
+                    .uri("/oauth2.0/token")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData("client_id", clientId)
+                            .with("client_secret", clientSecret)
+                            .with("code", code)
+                            .with("state", state)
+                            .with("grant_type", "authorization_code")
+                            .with("redirect_uri", redirectUri))
                     .retrieve()
                     .bodyToMono(TokenResponse.class)
                     .block();
         } catch (Exception e) {
-            log.error("Error getting Naver access token: {}", e.getMessage(), e);
+            log.error("Error getting NAVER access token: {}", e.getMessage(), e);
             throw new RuntimeException("네이버 Access Token 가져오는 데 오류가 발생했습니다");
         }
     }
 
-    private SocialUserInfo getNaverUserInfo(String accessToken) {
-        NaverUserResponse userResponse = naverApiWebClient.get()
+    @Override
+    protected SocialUserInfo getUserInfo(String accessToken) {
+        return apiWebClient.get()
                 .uri("/v1/nid/me")
                 .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .bodyToMono(NaverUserResponse.class)
+                .bodyToMono(SocialUserInfo.class)
                 .block();
-
-        return userResponse.response();
     }
-
-
 }
