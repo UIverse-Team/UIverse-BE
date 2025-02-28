@@ -23,10 +23,4 @@ public class BaseEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Column(name = "delete_status", nullable = false)
-    private boolean deleteStatus;
-
-    public void delete() {
-        this.deleteStatus = true;
-    }
 }
