@@ -7,14 +7,9 @@
 </head>
 <body>
 <h1>네이버 로그인</h1>
-<button id="naverLoginBtn">네이버로 로그인</button>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const googleClientId = '639931952690-sankot35an8om2acih5pu684pdqlsa9c.apps.googleusercontent.com\n';
-        const googleRedirectUri = 'http://localhost:8080/auth/google';
-        const googleScope = 'email profile';
-
         const googleButton = document.createElement('button');
         googleButton.textContent = "구글으로 로그인";
         googleButton.style.display = "block";
@@ -46,17 +41,20 @@
         document.body.appendChild(kakaoButton);
     });
 
-    document.getElementById('naverLoginBtn').addEventListener('click', function() {
-        // 네이버 OAuth 인가 요청 URL 구성
-        const clientId = "J2ditR1bWjGGWjHEytbY"; // 실제 네이버 클라이언트 아이디로 교체
-        const redirectUri = encodeURIComponent("http://localhost:8080/auth/naver"); // 실제 등록된 리다이렉트 URI
-        const state = "RANDOM_STATE_STRING"; // CSRF 방지를 위한 랜덤 문자열
-        const responseType = "code";
-        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}`;
-
-        // 네이버 인가 URL로 리다이렉트
-        window.location.href = naverAuthUrl;
+    const naverButton = document.createElement('button');
+    naverButton.textContent = "네이버로 로그인";
+    naverButton.style.display = "block";
+    naverButton.style.marginTop = "10px";
+    naverButton.addEventListener('click', function() {
+        fetch('/auth/naver/login')
+            .then(response => response.text())
+            .then(authUrl => {
+                window.location.href = authUrl;
+            })
+            .catch(error => console.error('Error:', error));
     });
+
+    document.body.appendChild(naverButton);
 
 </script>
 </body>

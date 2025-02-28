@@ -20,7 +20,14 @@ public class NaverControllerImpl implements OAuthController {
         this.naverService = naverService;
     }
 
+    @GetMapping("/naver/login")
+    public ResponseEntity<String> getNaverAuthUrl(){
+        String authUrl = naverService.generateStateAndGetAuthUrl();
+
+        return ResponseEntity.ok(authUrl);
+    }
     @GetMapping("/naver")
+
     public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
                                                            @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
