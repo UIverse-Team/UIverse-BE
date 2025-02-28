@@ -1,5 +1,6 @@
 package com.jishop.service.impl;
 
+import com.jishop.dto.NoticeDetailResponse;
 import com.jishop.dto.NoticeResponse;
 import com.jishop.repository.NoticeRepository;
 import com.jishop.service.NoticeService;
@@ -17,8 +18,15 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public PagedModel<NoticeResponse> getAllNotices(Pageable pageable) {
         return new PagedModel<>(noticeRepository.findAll(pageable)
                 .map(NoticeResponse::from));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public NoticeDetailResponse getNotice(Long id) {
+        return NoticeDetailResponse.from(noticeRepository.findOne(id));
     }
 }
