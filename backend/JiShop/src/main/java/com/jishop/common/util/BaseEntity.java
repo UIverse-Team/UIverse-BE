@@ -3,6 +3,7 @@ package com.jishop.common.util;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -12,18 +13,18 @@ public class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    @Column(name = "crated_at")
     @CreationTimestamp
-    LocalDateTime cratedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
-    @CreationTimestamp
-    LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "delete_status", nullable = false)
-    boolean deleteStatus;
+    private boolean deleteStatus;
 
     public void delete() {
         this.deleteStatus = true;

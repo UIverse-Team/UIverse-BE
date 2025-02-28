@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소셜 로그인</title>
+</head>
+<body>
+<h1>네이버 로그인</h1>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const googleButton = document.createElement('button');
+        googleButton.textContent = "구글으로 로그인";
+        googleButton.style.display = "block";
+        googleButton.style.marginTop = "10px";
+        googleButton.addEventListener('click', function() {
+            fetch('/auth/google/login')
+                .then(response => response.text())
+                .then(authUrl => {
+                    window.location.href = authUrl;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        document.body.appendChild(googleButton);
+
+        const kakaoButton = document.createElement('button');
+        kakaoButton.textContent = "카카오톡으로 로그인";
+        kakaoButton.style.display = "block";
+        kakaoButton.style.marginTop = "10px";
+        kakaoButton.addEventListener('click', function() {
+            fetch('/auth/kakao/login')
+                .then(response => response.text())
+                .then(authUrl => {
+                    window.location.href = authUrl;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        document.body.appendChild(kakaoButton);
+    });
+
+    const naverButton = document.createElement('button');
+    naverButton.textContent = "네이버로 로그인";
+    naverButton.style.display = "block";
+    naverButton.style.marginTop = "10px";
+    naverButton.addEventListener('click', function() {
+        fetch('/auth/naver/login')
+            .then(response => response.text())
+            .then(authUrl => {
+                window.location.href = authUrl;
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.body.appendChild(naverButton);
+
+</script>
+</body>
+</html>

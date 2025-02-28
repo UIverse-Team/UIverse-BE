@@ -3,6 +3,7 @@ package com.example.log.common.util;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -12,18 +13,18 @@ public class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    @Column(name = "crated_at")
+    @Column(name = "created_at")
     @CreationTimestamp
-    LocalDateTime cratedAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    @CreationTimestamp
-    LocalDateTime updatedAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @Column(name = "delete_status", nullable = false)
-    boolean deleteStatus;
+    private boolean deleteStatus;
 
     public void delete() {
         this.deleteStatus = true;
