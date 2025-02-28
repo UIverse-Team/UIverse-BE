@@ -18,7 +18,13 @@ public class KakaoServiceImpl extends AbstractOAuthService {
                             @Value("${kakao.client.id}") String clientId,
                             @Value("${kakao.client.secret}") String clientSecret,
                             @Value("${kakao.redirect-uri}") String redirectUri) {
-        super(httpSession, "https://kauth.kakao.com/oauth", "https://kapi.kakao.com", clientId, clientSecret, redirectUri);
+        super(httpSession,
+                "https://kauth.kakao.com/oauth",
+                "https://kapi.kakao.com",
+                clientId,
+                clientSecret,
+                redirectUri
+        );
     }
 
     @Override

@@ -18,7 +18,14 @@ public class GoogleServiceImpl extends AbstractOAuthService {
                              @Value("${google.client.id}") String clientId,
                              @Value("${google.client.secret}") String clientSecret,
                              @Value("${google.redirect-uri}") String redirectUri) {
-        super(httpSession, "https://oauth2.googleapis.com", "https://www.googleapis.com", clientId, clientSecret, redirectUri);
+        super(httpSession,
+                "https://oauth2.googleapis.com",
+                "https://www.googleapis.com",
+                clientId,
+                clientSecret,
+                redirectUri
+        );
+
     }
 
     @Override

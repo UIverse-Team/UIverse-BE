@@ -18,7 +18,13 @@ public class NaverServiceImpl extends AbstractOAuthService {
                              @Value("${naver.client.id}") String clientId,
                              @Value("${naver.client.secret}") String clientSecret,
                              @Value("${naver.redirect.uri}") String redirectUri) {
-        super(httpSession, "https://nid.naver.com", "https://openapi.naver.com", clientId, clientSecret, redirectUri);
+        super(httpSession,
+                "https://nid.naver.com",
+                "https://openapi.naver.com",
+                clientId,
+                clientSecret,
+                redirectUri
+        );
     }
 
     @Override

@@ -35,18 +35,23 @@ public abstract class AbstractOAuthService implements OauthService {
     public String generateStateAndGetAuthUrl() {
         String state = UUID.randomUUID().toString();
         httpSession.setAttribute("oauth2State", state);
+
         return buildAuthUrl(state);
     }
 
     // 각 서비스에 맞는 인증 URL 생성 로직을 구현하도록 추상 메서드로 선언
     protected abstract String buildAuthUrl(String state);
+
     @Override
     public SocialUserInfo authenticateUser(String code, String state) {
         String savedState = (String) httpSession.getAttribute("oauth2State");
+
         if (savedState == null || !savedState.equals(state)) {
             throw new IllegalStateException("Invalid state parameter");
         }
+
         TokenResponse tokenResponse = getAccessToken(code, state);
+
         return getUserInfo(tokenResponse.accessToken());
     }
 
