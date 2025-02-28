@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @Component
 public class LogQueue {
+
     private final BlockingQueue<Log> queue = new LinkedBlockingQueue<>();
 
     public void addLog(Log log) {

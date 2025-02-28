@@ -18,7 +18,6 @@ public class LogControllerImpl implements LogController {
 
     @PostMapping
     public ResponseEntity<Void> addLog(LogRequest logRequest) {
-
         return ResponseEntity.ok().build();
     }
 }
