@@ -6,6 +6,7 @@ import com.example.log.service.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +18,9 @@ public class LogControllerImpl implements LogController {
     private final LogService logService;
 
     @PostMapping
-    public ResponseEntity<Void> addLog(LogRequest logRequest) {
+    public ResponseEntity<Void> addLog(@RequestBody LogRequest logRequest) {
+        logService.addLog(logRequest);
+
         return ResponseEntity.ok().build();
     }
 }
