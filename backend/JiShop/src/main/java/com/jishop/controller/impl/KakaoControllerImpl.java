@@ -43,9 +43,7 @@ public class KakaoControllerImpl implements OAuthController {
     public ResponseEntity<User> authenticateUser(@RequestParam String code,
                                                  @RequestParam String state) {
         SocialUserInfo userInfo = kakaoService.authenticateUser(code, state);
-
         User user = userService.processOAuthUser(userInfo, LoginType.KAKAO);
-
         httpSession.setAttribute("user", user);
 
         return ResponseEntity.ok(user);

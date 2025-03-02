@@ -44,9 +44,7 @@ public class NaverControllerImpl implements OAuthController {
     public ResponseEntity<User> authenticateUser(@RequestParam String code,
                                                  @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
-
         User user = userService.processOAuthUser(userInfo, LoginType.NAVER);
-
         httpSession.setAttribute("user", user);
 
         return ResponseEntity.ok(user);

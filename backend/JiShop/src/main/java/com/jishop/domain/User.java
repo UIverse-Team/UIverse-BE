@@ -16,7 +16,6 @@ public class User extends BaseEntity {
     @Column(nullable = false, name = "login_id")
     private String loginId;         // 회원 이메일, 소셜 로그인시 id 저장
     private String password;        // 비밀번호, null 저장
-    @Column
     private String name;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

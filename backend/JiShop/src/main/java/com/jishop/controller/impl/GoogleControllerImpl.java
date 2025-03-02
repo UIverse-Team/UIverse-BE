@@ -43,9 +43,7 @@ public class GoogleControllerImpl implements OAuthController {
     public ResponseEntity<User> authenticateUser(@RequestParam String code,
                                                  @RequestParam String state) {
         SocialUserInfo userInfo = googleService.authenticateUser(code, state);
-
         User user = userService.processOAuthUser(userInfo, LoginType.GOOGLE);
-
         httpSession.setAttribute("user", user);
 
         return ResponseEntity.ok(user);

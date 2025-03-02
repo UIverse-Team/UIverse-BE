@@ -39,7 +39,6 @@ public class JiShopApplication {
 				context.addConstraint(securityConstraint);
 			}
 		};
-
 		// Add HTTP to HTTPS redirect
 		tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
 
@@ -57,6 +56,7 @@ public class JiShopApplication {
 		connector.setPort(8080);
 		connector.setSecure(false);
 		connector.setRedirectPort(443);
+
 		return connector;
 	}
 }
