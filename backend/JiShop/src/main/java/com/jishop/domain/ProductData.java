@@ -1,19 +1,22 @@
 package com.jishop.domain;
 
+import com.jishop.dto.productdata.ProductDataRequest.SnsInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductData {
+
     @Id
     private Long id;
     private String botId;
@@ -21,8 +24,10 @@ public class ProductData {
     private String productName;
     private Integer originalPrice;
     private String dcPrice;
+    @Transient
     private String productImgUrl;
     private String productCode;
+    @Transient
     private String detailUrl;
     private String description;
     private boolean qnaOptionBtn;
@@ -31,8 +36,8 @@ public class ProductData {
     private boolean similarOptionBtn;
     private boolean onSales;
     private String labels;
-    @Column(columnDefinition = "BLOB")
-    private Object sns;
+    @Transient
+    private List<SnsInfo> sns;
     private LocalDateTime publishedAt;
     private String createdBy;
     private String updatedBy;
@@ -41,14 +46,14 @@ public class ProductData {
     private String secret;
     private String ecField;
     private String guardYn;
-    @Column(columnDefinition = "BLOB")
+    @Column(columnDefinition = "TEXT")
     private String productSns;
 
     public ProductData(
             Long id, String botId, String storeId, String productName, Integer originalPrice, String dcPrice,
             String productImgUrl, String productCode, String detailUrl, String description, boolean qnaOptionBtn,
             boolean deleteFlag, String category, boolean similarOptionBtn, boolean onSales, String labels,
-            Object sns, LocalDateTime publishedAt, String createdBy, String updatedBy,
+            List<SnsInfo> sns, LocalDateTime publishedAt, String createdBy, String updatedBy,
             LocalDateTime createdAt, LocalDateTime updatedAt, String secret, String ecField, String guardYn,
             String productSns
     ) {

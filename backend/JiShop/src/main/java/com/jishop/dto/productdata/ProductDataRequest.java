@@ -1,9 +1,11 @@
-package com.jishop.dto;
+package com.jishop.dto.productdata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jishop.domain.ProductData;
+import jakarta.persistence.Embeddable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 지혜 Rest API 상품 리스트
@@ -55,7 +57,7 @@ public record ProductDataRequest(
         boolean similarOptionBtn,
         boolean onSales,
         String labels,
-        Object sns,
+        List<SnsInfo> sns,
         @JsonProperty("published_at")
         LocalDateTime publishedAt,
         @JsonProperty("created_by")
@@ -101,5 +103,11 @@ public record ProductDataRequest(
                 this.guardYn,
                 this.productSns
         );
+    }
+    @Embeddable
+    public record SnsInfo(
+            String platform,
+            String url
+    ) {
     }
 }

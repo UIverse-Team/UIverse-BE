@@ -39,6 +39,10 @@ dependencies {
 	implementation 'org.json:json:20220924'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+	// Spring Batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+
 	// DB
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
