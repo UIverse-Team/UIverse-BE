@@ -56,6 +56,9 @@ dependencies {
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 암호화
+	implementation 'org.springframework.security:spring-security-crypto:5.7.3'
 }
 
 // naver 구현 요청을 위한 의존성 주입

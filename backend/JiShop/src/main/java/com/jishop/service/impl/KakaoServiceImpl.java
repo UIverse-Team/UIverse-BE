@@ -1,5 +1,6 @@
 package com.jishop.service.impl;
 
+import com.jishop.dto.KakaoUserResponse;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.dto.TokenResponse;
 import com.jishop.service.AbstractOAuthService;
@@ -63,7 +64,17 @@ public class KakaoServiceImpl extends AbstractOAuthService {
                 .uri("/v2/user/me")
                 .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .bodyToMono(SocialUserInfo.class)
+                .bodyToMono(KakaoUserResponse.class)
+                .map(this::convertToSocialUserInfo)
                 .block();
+    }
+
+    private SocialUserInfo convertToSocialUserInfo(KakaoUserResponse response) {
+        return new SocialUserInfo(
+                String.valueOf(response.id()),
+                response.kakaoAccount().profile().nickname(),
+                response.kakaoAccount().email()
+
+        );
     }
 }
