@@ -23,7 +23,6 @@ public class LoginServiceImpl implements LoginService {
     }
 
     public void signIn(SignInFormRequest form, HttpSession session) {
-
         // 이메일이 존재하는지 검사
         User user = userRepository.findByLoginId(form.loginId())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
@@ -33,7 +32,5 @@ public class LoginServiceImpl implements LoginService {
         // 시간도 줘야하나?
 
         // Session redis에 저장하기
-
-        //
     };
 }

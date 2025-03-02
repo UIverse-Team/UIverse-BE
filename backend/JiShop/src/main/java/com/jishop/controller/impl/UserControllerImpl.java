@@ -16,29 +16,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/signUp")
 public class UserControllerImpl implements UserController {
 
-    private final PasswordEncoder passwordEncoder;
     private final HttpSession session;
     private final LoginService loginService;
+    private final PasswordEncoder passwordEncoder;
 
-    /*@PostMapping("/signUp")
-    public void signUp(@RequestBody SignUpRequest request){
-        service.signUp(request);
-    }*/
 
     @PostMapping("/step1")
     public ResponseEntity<String> step1(@RequestBody Step1Request request){
-
         // 이메일 저장
         SignUpFormRequest form = SignUpFormRequest.of(request.email());
 
         // 세션에 정보 저장
         session.setAttribute("signUpdate", form);
+
         return ResponseEntity.ok("step1 완료");
     }
 
     @PostMapping("/step2")
     public ResponseEntity<String> step2(@RequestBody Step2Request request){
-
         SignUpFormRequest form = (SignUpFormRequest) session.getAttribute("signUpdate");
 
         if(form == null) {
@@ -50,6 +45,7 @@ public class UserControllerImpl implements UserController {
 
         loginService.signUp(form);
         session.removeAttribute("signUpdate");
+
         return ResponseEntity.ok("가입 완료");
     }
 
