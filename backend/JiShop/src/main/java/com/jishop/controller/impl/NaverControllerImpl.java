@@ -1,8 +1,11 @@
 package com.jishop.controller.impl;
 
 import com.jishop.controller.OAuthController;
+import com.jishop.domain.LoginType;
+import com.jishop.domain.User;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.service.OauthService;
+import com.jishop.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class NaverControllerImpl implements OAuthController {
 
     private final OauthService naverService;
+    private final UserService userService;
 
-    public NaverControllerImpl(@Qualifier("naverServiceImpl")OauthService naverService) {
+    public NaverControllerImpl(@Qualifier("naverServiceImpl")OauthService naverService, UserService userService) {
         this.naverService = naverService;
+        this.userService = userService;
     }
 
     @GetMapping("/naver/login")
@@ -29,10 +34,12 @@ public class NaverControllerImpl implements OAuthController {
 
     @Override
     @GetMapping("/naver")
-    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
+    public ResponseEntity<User> authenticateUser(@RequestParam String code,
                                                            @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
 
-        return ResponseEntity.ok(userInfo);
+        User user = userService.processOAuthUser(userInfo, LoginType.NAVER);
+
+        return ResponseEntity.ok(user);
     }
 }

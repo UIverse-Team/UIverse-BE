@@ -1,5 +1,6 @@
 package com.jishop.service.impl;
 
+import com.jishop.dto.NaverUserResponse;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.dto.TokenResponse;
 import com.jishop.service.AbstractOAuthService;
@@ -59,11 +60,18 @@ public class NaverServiceImpl extends AbstractOAuthService {
 
     @Override
     protected SocialUserInfo getUserInfo(String accessToken) {
-        return apiWebClient.get()
+        NaverUserResponse naverResponse = apiWebClient.get()
                 .uri("/v1/nid/me")
                 .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .bodyToMono(SocialUserInfo.class)
+                .bodyToMono(NaverUserResponse.class)
                 .block();
+
+        if (naverResponse != null && naverResponse.response() != null) {
+            return naverResponse.response();
+        } else {
+            log.error("Failed to get user info from Naver: {}", naverResponse);
+            throw new RuntimeException("네이버에서 사용자 정보를 가져오는데 실패했습니다.");
+        }
     }
 }
