@@ -20,12 +20,10 @@ public class UserControllerImpl implements UserController {
     private final LoginService loginService;
     private final PasswordEncoder passwordEncoder;
 
-
     @PostMapping("/step1")
     public ResponseEntity<String> step1(@RequestBody Step1Request request){
         // 이메일 저장
         SignUpFormRequest form = SignUpFormRequest.of(request.email());
-
         // 세션에 정보 저장
         session.setAttribute("signUpdate", form);
 
@@ -42,7 +40,6 @@ public class UserControllerImpl implements UserController {
 
         String password = passwordEncoder.encode(request.password());
         form = form.withPassword(password);
-
         loginService.signUp(form);
         session.removeAttribute("signUpdate");
 

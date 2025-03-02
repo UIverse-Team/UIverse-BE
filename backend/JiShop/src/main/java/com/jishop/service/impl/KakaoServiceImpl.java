@@ -74,7 +74,6 @@ public class KakaoServiceImpl extends AbstractOAuthService {
                 String.valueOf(response.id()),
                 response.kakaoAccount().profile().nickname(),
                 response.kakaoAccount().email()
-
         );
     }
 }

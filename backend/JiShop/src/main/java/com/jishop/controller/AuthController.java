@@ -3,8 +3,9 @@ package com.jishop.controller;
 
 import com.jishop.dto.SignInFormRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 
 public interface AuthController {
 
-    public void signIn(SignInFormRequest request, HttpSession session);
+    ResponseEntity<String> signIn(SignInFormRequest request, HttpSession session);
 }
