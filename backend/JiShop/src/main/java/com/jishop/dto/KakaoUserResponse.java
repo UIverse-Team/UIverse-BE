@@ -10,7 +10,7 @@ public record KakaoUserResponse(
     public record KakaoAccount(
             Profile profile,
             String email
-    ) { }
+    ) {}
 
     public record Profile(
             String nickname
