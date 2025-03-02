@@ -6,5 +6,5 @@ import com.jishop.dto.SocialUserInfo;
 
 public interface UserService {
 
-    public User processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider);
+    User processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider);
 }

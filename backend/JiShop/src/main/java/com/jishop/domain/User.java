@@ -23,6 +23,7 @@ public class User extends BaseEntity {
     private LoginType provider;     // 로그인 타입 저장
     // 성별, 연령, 휴대전화 번호 추가 예정
 
+    //소셜 회원가입
     @Builder
     public User(String loginId, String name, String password, LoginType provider) {
         this.loginId = loginId;
@@ -31,6 +32,7 @@ public class User extends BaseEntity {
         this.provider = provider;
     }
 
+    //로컬 회원가입
     @Builder
     public User(String loginId, String password, LoginType provider) {
         this.loginId = loginId;

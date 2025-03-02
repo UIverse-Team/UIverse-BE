@@ -25,7 +25,6 @@ public class GoogleServiceImpl extends AbstractOAuthService {
                 clientSecret,
                 redirectUri
         );
-
     }
 
     @Override
