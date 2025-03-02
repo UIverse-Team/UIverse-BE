@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
                 .orElseGet(() -> {
                     // If not, create a new user
                     User user = User.builder()
-                            .loginId(socialUserInfo.email())
+                            .loginId(socialUserInfo.id())
                             .name(socialUserInfo.name())
                             .password(null)
                             .provider(provider)
