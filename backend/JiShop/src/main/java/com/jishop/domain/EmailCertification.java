@@ -25,8 +25,8 @@ public class EmailCertification {
     private LocalDateTime expiresAt;
 
     @Builder
-    public EmailCertification(String token, String email, String certificationCode, LocalDateTime createdAt
-            , LocalDateTime expriesAt /*, EmailCertificationType type*/) {
+    public EmailCertification(String token, String email, String certificationCode,
+                              LocalDateTime createdAt, LocalDateTime expriesAt) {
         this.token = token;
         this.email = email;
         this.certificationCode = certificationCode;

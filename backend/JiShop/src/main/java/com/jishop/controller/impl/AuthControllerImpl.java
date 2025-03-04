@@ -21,6 +21,7 @@ public class AuthControllerImpl implements AuthController {
     @PostMapping("/signIn")
     public ResponseEntity<String> signIn(@RequestBody SignInFormRequest request, HttpSession session) {
         service.signIn(request, session);
+
         return ResponseEntity.ok("로그인 성공!");
     }
 

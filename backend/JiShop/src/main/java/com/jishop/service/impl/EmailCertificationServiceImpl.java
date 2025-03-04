@@ -45,6 +45,7 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
             EmailCertification certification = code.get();
             if(certification.getExpiresAt().isAfter(LocalDateTime.now())){
                 repository.delete(certification);
+
                 return true;
             } else {
                 repository.delete(certification);
