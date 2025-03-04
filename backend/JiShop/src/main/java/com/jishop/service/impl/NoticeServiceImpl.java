@@ -32,6 +32,7 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedModel<NoticeResponse> searchNotices(String keyword, Pageable pageable) {
         if(keyword == null || keyword.isBlank()){
             return new PagedModel<>(Page.empty());
