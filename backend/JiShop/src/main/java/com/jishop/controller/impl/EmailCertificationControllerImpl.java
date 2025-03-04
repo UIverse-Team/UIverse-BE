@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("emailCertification")
+@RequestMapping("/emailCertification")
 public class EmailCertificationControllerImpl implements EmailCertificationController {
 
     private final EmailCertificationService emailService;

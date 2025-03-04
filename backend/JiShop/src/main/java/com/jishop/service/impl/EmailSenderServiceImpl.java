@@ -4,6 +4,7 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
 import com.jishop.service.EmailSender;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailSenderServiceImpl implements EmailSender {
 
+    @Value("${aws.ses.mail}")
+    private String mail;
     private final AmazonSimpleEmailService amazonSimpleEmailService;
 
     // aws ses api 사용해서 이메일 전송하기
@@ -22,7 +25,7 @@ public class EmailSenderServiceImpl implements EmailSender {
         Body emailBody = new Body().withText(bodyContent);          // 본문 객체 생성
         Message message = new Message().withSubject(subjectContent).withBody(emailBody); // 이메일 전체 메시지를 구성하는 객체 생성
         SendEmailRequest request = new SendEmailRequest()           // 이메일 전송 요청 객체 생성
-                .withSource("qudwnd1001@gmail.com")
+                .withSource(mail)
                 .withDestination(destination)
                 .withMessage(message);
         amazonSimpleEmailService.sendEmail(request);
