@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AwsSesConfig {
+public class AwsSESConfig {
 
     @Value("${aws.ses.accessKey}")
     private String accessKey;

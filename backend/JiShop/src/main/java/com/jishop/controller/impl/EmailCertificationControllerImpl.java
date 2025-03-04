@@ -35,11 +35,13 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
         if(token == null) {
             return ResponseEntity.badRequest().body("인증 토큰이 유효하지 않습니다");
         }
+
         boolean valid = emailService.certifyCode(token, request.code());
-        if(valid) {
-            return ResponseEntity.ok("인증 성공");
-        }else {
+
+        if(!valid) {
             return ResponseEntity.badRequest().body("인증 실패");
         }
+
+        return ResponseEntity.ok("인증 성공");
     }
 }
