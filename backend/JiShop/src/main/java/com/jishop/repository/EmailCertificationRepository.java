@@ -1,6 +1,7 @@
 package com.jishop.repository;
 
 import com.jishop.domain.EmailCertification;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,7 @@ public interface EmailCertificationRepository extends JpaRepository<EmailCertifi
 
     Optional<EmailCertification> findByTokenAndCertificationCode(String token, String certificationCode);
     @Modifying
+    @Transactional
     @Query("delete from EmailCertification e where e.expiresAt < :now")
     void deleteByExpiresAtBefore(@Param("now") LocalDateTime now);
 }
