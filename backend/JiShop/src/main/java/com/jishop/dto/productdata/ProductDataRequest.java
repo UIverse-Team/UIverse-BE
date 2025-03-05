@@ -57,7 +57,8 @@ public record ProductDataRequest(
         boolean similarOptionBtn,
         boolean onSales,
         String labels,
-        List<SnsInfo> sns,
+        String sns,
+//        List<SnsInfo> sns,
         @JsonProperty("published_at")
         LocalDateTime publishedAt,
         @JsonProperty("created_by")

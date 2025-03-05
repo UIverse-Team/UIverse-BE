@@ -1,5 +1,6 @@
 package com.jishop.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jishop.dto.productdata.ProductDataRequest.SnsInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,8 +37,10 @@ public class ProductData {
     private boolean similarOptionBtn;
     private boolean onSales;
     private String labels;
-    @Transient
-    private List<SnsInfo> sns;
+    private String sns;
+//    @JsonIgnore
+//    @Transient
+//    private List<SnsInfo> sns;
     private LocalDateTime publishedAt;
     private String createdBy;
     private String updatedBy;
@@ -53,7 +56,7 @@ public class ProductData {
             Long id, String botId, String storeId, String productName, Integer originalPrice, String dcPrice,
             String productImgUrl, String productCode, String detailUrl, String description, boolean qnaOptionBtn,
             boolean deleteFlag, String category, boolean similarOptionBtn, boolean onSales, String labels,
-            List<SnsInfo> sns, LocalDateTime publishedAt, String createdBy, String updatedBy,
+            String sns, LocalDateTime publishedAt, String createdBy, String updatedBy,
             LocalDateTime createdAt, LocalDateTime updatedAt, String secret, String ecField, String guardYn,
             String productSns
     ) {
