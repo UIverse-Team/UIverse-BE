@@ -63,6 +63,7 @@ public class SmsServiceImpl implements SmsService {
                 .filter(verificationCode -> !verificationCode.isExpired())
                 .map(verificationCode -> {
                     smsVerificationCodeRepository.delete(verificationCode);
+
                     return true;
                 })
                 .orElse(false);
