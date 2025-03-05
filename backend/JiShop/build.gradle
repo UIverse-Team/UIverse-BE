@@ -39,6 +39,10 @@ dependencies {
 	implementation 'org.json:json:20220924'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+	//coolSMS 사용을 위한 의존성
+	implementation 'net.nurigo:sdk:4.3.0'
+	implementation 'net.nurigo:javaSDK:2.2'
+
 	// DB
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
