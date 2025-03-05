@@ -70,7 +70,6 @@ public class SmsServiceImpl implements SmsService {
                 return true;
             }
         }
-
         return false;
     }
 
