@@ -57,8 +57,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// 암호화
+	// 사용자 비밀번호 암호화
 	implementation 'org.springframework.security:spring-security-crypto:5.7.3'
+
+	// AWS ses
+	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.708'
 }
 
 // naver 구현 요청을 위한 의존성 주입
