@@ -59,18 +59,13 @@ public class SmsServiceImpl implements SmsService {
 
     @Override
     public boolean verifyCode(String token, String code) {
-        Optional<SmsVerificationCode> verificationCodeOptional =
-                smsVerificationCodeRepository.findByTokenAndCode(token, code);
-
-        if (verificationCodeOptional.isPresent()) {
-            SmsVerificationCode verificationCode = verificationCodeOptional.get();
-            if (!verificationCode.isExpired()) {
-                smsVerificationCodeRepository.delete(verificationCode);
-
-                return true;
-            }
-        }
-        return false;
+        return smsVerificationCodeRepository.findByTokenAndCode(token, code)
+                .filter(verificationCode -> !verificationCode.isExpired())
+                .map(verificationCode -> {
+                    smsVerificationCodeRepository.delete(verificationCode);
+                    return true;
+                })
+                .orElse(false);
     }
 
     private String generateCode() {

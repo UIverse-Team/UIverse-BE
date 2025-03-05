@@ -44,9 +44,8 @@ public class SmsControllerImpl implements SmsController {
 
         if (isValid) {
             return ResponseEntity.ok("인증이 완료되었습니다.");
-        } else {
-            return ResponseEntity.badRequest().body("잘못된 인증코드입니다.");
         }
+        return ResponseEntity.badRequest().body("잘못된 인증코드입니다.");
     }
 }
 
