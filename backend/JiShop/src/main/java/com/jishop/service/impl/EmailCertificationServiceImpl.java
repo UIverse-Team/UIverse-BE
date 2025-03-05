@@ -9,6 +9,7 @@ import com.jishop.service.EmailCertificationService;
 import com.jishop.service.EmailSender;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class EmailCertificationServiceImpl implements EmailCertificationService {
@@ -30,6 +32,7 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
         // 인증 코드 6자리 난수 생성
         String certificationCode = String.format("%06d", (int)(Math.random()*1000000));
         EmailCertification certification = request.toEntity(token, certificationCode);
+
         repository.save(certification);
         String subject = "인증 코드";
         String body = "인증 코드는 :" + certificationCode + "입니다!";
@@ -43,20 +46,18 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
     public boolean certifyCode(String token, String certificationCode) {
         EmailCertification certification = repository.findByTokenAndCertificationCode(token, certificationCode)
                         .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
-        // 인증 시도할 경우 -> 인증 성공시 삭제, 시도한 코드가 만료된 코드일시 삭제
-        if(certification.getExpiresAt().isAfter(LocalDateTime.now())) {
-            repository.delete(certification);
-            return true;
-        }
+        // 인증 시도할 경우 코드 삭제
         repository.delete(certification);
-        return false;
+
+        return certification.getExpiresAt().isAfter(LocalDateTime.now());
     }
 
-    // 인증 시도 안한 경우의 인증 코드 -> 만료된 인증코드를 매 1분마다 자동으로 삭제(스케줄링 기능 사용)
-    @Scheduled(fixedRate = 60000)
+    // 인증 시도 안한 경우의 인증 코드 -> 만료된 인증코드를 매 10분마다 자동으로 삭제(스케줄링 기능 사용)
+    @Scheduled(fixedRate = 600000)
     public void cleanupExpiredCodes() {
         LocalDateTime now = LocalDateTime.now();
+        log.info("start", now);
         repository.deleteByExpiresAtBefore(now);
+        log.info("finish", LocalDateTime.now());
     }
 }
