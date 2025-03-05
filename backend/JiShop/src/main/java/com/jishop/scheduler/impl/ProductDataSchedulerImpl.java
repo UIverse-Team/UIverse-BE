@@ -16,7 +16,7 @@ public class ProductDataSchedulerImpl implements ProductDataScheduler {
 
     @Override
 //    @Scheduled(cron = "0 0 1 * * ?")
-    @Scheduled(cron = "*/30 * * * * *")
+    //@Scheduled(cron = "*/30 * * * * *")
     public void fetchProductData() {
         productDataServiceImpl.fetchAndSaveProductData();
     }
