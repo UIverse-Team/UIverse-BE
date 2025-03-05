@@ -35,17 +35,13 @@ public class SmsControllerImpl implements SmsController {
     @PostMapping("/verify")
     public ResponseEntity<String> verifyCode(@RequestBody VerifyCodeRequest request,
                                              @CookieValue(name = "verificationToken", required = false) String token) {
-        if (token == null) {
+        if (token == null)
             return ResponseEntity.badRequest().body("인증 토큰이 존재하지 않습니다");
-        }
 
-        //요청 DTO에서 code 추출
-        boolean isValid = smsService.verifyCode(token, request.code());
+        if (!smsService.verifyCode(token, request.code()))
+            return ResponseEntity.badRequest().body("잘못된 인증코드입니다.");
 
-        if (isValid) {
-            return ResponseEntity.ok("인증이 완료되었습니다.");
-        }
-        return ResponseEntity.badRequest().body("잘못된 인증코드입니다.");
+        return ResponseEntity.ok("인증이 완료되었습니다.");
     }
 }
 
