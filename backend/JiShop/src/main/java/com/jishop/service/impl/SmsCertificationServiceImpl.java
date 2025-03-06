@@ -2,9 +2,10 @@ package com.jishop.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.domain.SmsVerificationCode;
-import com.jishop.repository.SmsVerificationCodeRepository;
-import com.jishop.service.SmsService;
+import com.jishop.domain.SmsCertification;
+import com.jishop.dto.SmsRequest;
+import com.jishop.repository.SmsCertificationRepository;
+import com.jishop.service.SmsCertificationService;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import jakarta.annotation.PostConstruct;
@@ -12,17 +13,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class SmsServiceImpl implements SmsService {
+public class SmsCertificationServiceImpl implements SmsCertificationService {
 
-    private final SmsVerificationCodeRepository smsVerificationCodeRepository;
+    private final SmsCertificationRepository smsVerificationCodeRepository;
 
     @Value("${coolSms.apikey}")
     private String apiKey;
@@ -41,27 +40,22 @@ public class SmsServiceImpl implements SmsService {
     }
 
     @Override
-    public String sendVerificationCode(String phoneNumber) {
+    public String sendVerificationCode(SmsRequest request) {
         String code = generateCode();
         String token = generateToken();
 
-        SmsVerificationCode smsVerificationCode = SmsVerificationCode.builder()
-                .phonenumber(phoneNumber)
-                .token(token)
-                .code(code)
-                .expiresAt(LocalDateTime.now().plusMinutes(5))
-                .build();
+        SmsCertification smsVerificationCode = request.toEntity(token, code);
 
         smsVerificationCodeRepository.save(smsVerificationCode);
 
-        sendSms(phoneNumber, "[UIverse]인증번호는 : " + code + " 입니다!");
+        sendSms(request.phoneNumber(), "[UIverse]인증번호는 : " + code + " 입니다!");
 
         return token;
     }
 
     @Override
     public boolean verifyCode(String token, String code) {
-        SmsVerificationCode verificationCode = smsVerificationCodeRepository.findByTokenAndCode(token, code)
+        SmsCertification verificationCode = smsVerificationCodeRepository.findByTokenAndCode(token, code)
                 .orElseThrow(() -> new DomainException(ErrorType.TOKEN_NOT_FOUND));
 
         if (!verificationCode.isExpired()) {
@@ -87,7 +81,8 @@ public class SmsServiceImpl implements SmsService {
         params.put("from", fromPhoneNumber);
         params.put("type", "SMS");
         params.put("text", message);
-        params.put("app_version", "JiShop App 1.0");
+        params.put(
+                "app_version", "JiShop App 1.0");
 
         try {
             coolsms.send(params);

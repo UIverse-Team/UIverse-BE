@@ -14,6 +14,9 @@ public enum ErrorType {
 
     // NOTICE
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "공지사항이 존재하지 않습니다."),
+
+    // CERTIFICATION
+    EMAIL_SEND_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL 전송에 실패했습니다."),
     SMS_SEND_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "SMS 전송에 실패했습니다.");
 
     private final HttpStatus httpStatus;
