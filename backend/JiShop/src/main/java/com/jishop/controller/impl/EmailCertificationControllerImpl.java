@@ -1,8 +1,8 @@
 package com.jishop.controller.impl;
 
 import com.jishop.controller.EmailCertificationController;
-import com.jishop.dto.EmailCertifyCodeRequest;
 import com.jishop.dto.EmailRequest;
+import com.jishop.dto.CertifyCodeRequest;
 import com.jishop.service.EmailCertificationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,7 +31,7 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
 
     @PostMapping("/verify")
     public ResponseEntity<String> certifyCode(@CookieValue(value = "certificationToken") String token,
-                                              @RequestBody EmailCertifyCodeRequest request) {
+                                              @RequestBody CertifyCodeRequest request) {
         if(token == null) {
             return ResponseEntity.badRequest().body("인증 토큰이 유효하지 않습니다");
         }

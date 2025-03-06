@@ -4,12 +4,15 @@ import com.jishop.controller.UserController;
 import com.jishop.dto.SignUpFormRequest;
 import com.jishop.dto.Step1Request;
 import com.jishop.dto.Step2Request;
-import com.jishop.service.LoginService;
+import com.jishop.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserControllerImpl implements UserController {
 
     private final HttpSession session;
-    private final LoginService loginService;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/step1")
@@ -40,7 +43,7 @@ public class UserControllerImpl implements UserController {
 
         String password = passwordEncoder.encode(request.password());
         form = form.withPassword(password);
-        loginService.signUp(form);
+        userService.signUp(form);
         session.removeAttribute("signUpdate");
 
         return ResponseEntity.ok("가입 완료");

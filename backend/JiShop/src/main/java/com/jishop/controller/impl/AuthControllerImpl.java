@@ -2,7 +2,7 @@ package com.jishop.controller.impl;
 
 import com.jishop.controller.AuthController;
 import com.jishop.dto.SignInFormRequest;
-import com.jishop.service.LoginService;
+import com.jishop.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthControllerImpl implements AuthController {
 
-    private final LoginService service;
+    private final UserService service;
 
     @PostMapping("/signIn")
     public ResponseEntity<String> signIn(@RequestBody SignInFormRequest request, HttpSession session) {

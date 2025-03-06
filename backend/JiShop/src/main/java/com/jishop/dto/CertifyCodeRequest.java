@@ -1,5 +1,5 @@
 package com.jishop.dto;
 
-public record VerifyCodeRequest(
+public record CertifyCodeRequest(
         String code
 ) { }

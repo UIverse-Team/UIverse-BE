@@ -1,5 +1,6 @@
 package com.jishop.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
@@ -10,11 +11,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SmsVerificationCode {
+public class SmsCertification {
 
     @Id
     private String token;
+    @Column(nullable = false)
     private String phonenumber;
+    @Column(nullable = false)
     private String code;
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
@@ -24,10 +27,11 @@ public class SmsVerificationCode {
     }
 
     @Builder
-    public SmsVerificationCode(String token, String phonenumber, String code, LocalDateTime expiresAt) {
+    public SmsCertification(String token, String phonenumber, String code, LocalDateTime createdAt, LocalDateTime expiresAt) {
         this.token = token;
         this.phonenumber = phonenumber;
         this.code = code;
+        this.createdAt = createdAt;
         this.expiresAt = expiresAt;
     }
 }

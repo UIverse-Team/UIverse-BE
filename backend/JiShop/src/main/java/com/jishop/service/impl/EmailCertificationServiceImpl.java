@@ -1,5 +1,6 @@
 package com.jishop.service.impl;
 
+import com.amazonaws.services.simpleemail.model.AmazonSimpleEmailServiceException;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.domain.EmailCertification;
@@ -36,7 +37,13 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
         repository.save(certification);
         String subject = "인증 코드";
         String body = "인증 코드는 :" + certificationCode + "입니다!";
-        emailSender.send(request.email(), subject, body);
+
+        try{
+            emailSender.send(request.email(), subject, body);
+        }catch (AmazonSimpleEmailServiceException e){
+            e.printStackTrace();
+            throw new DomainException(ErrorType.EMAIL_SEND_FAILURE);
+        }
 
         return token;
     }
