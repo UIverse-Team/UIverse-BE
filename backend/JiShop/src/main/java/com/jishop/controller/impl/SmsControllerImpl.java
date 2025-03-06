@@ -3,7 +3,7 @@ package com.jishop.controller.impl;
 import com.jishop.controller.SmsController;
 import com.jishop.dto.SendVerificationRequest;
 import com.jishop.dto.VerifyCodeRequest;
-import com.jishop.service.impl.SmsServiceImpl;
+import com.jishop.service.SmsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/numberCertification")
 public class SmsControllerImpl implements SmsController {
 
-    private final SmsServiceImpl smsService;
+    private final SmsService smsService;
 
     @PostMapping("/send")
     public ResponseEntity<String> sendVerificationCode(@RequestBody SendVerificationRequest request,
@@ -29,7 +29,7 @@ public class SmsControllerImpl implements SmsController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return ResponseEntity.ok("인증 코드가 전송되었습니다.");
+        return ResponseEntity.ok("인증 코드가 전송되었습니다." + token);
     }
 
     @PostMapping("/verify")
