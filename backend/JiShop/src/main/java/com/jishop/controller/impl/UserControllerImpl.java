@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +25,10 @@ public class UserControllerImpl implements UserController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/step1")
-    public ResponseEntity<String> step1(@RequestBody Step1Request request){
+    public ResponseEntity<String> step1(@RequestBody @Validated Step1Request request){
         // 이메일 저장
+        // 이메일 중복 체크
+        userService.emailcheck(request);
         SignUpFormRequest form = SignUpFormRequest.of(request.email());
         // 세션에 정보 저장
         session.setAttribute("signUpdate", form);
@@ -34,7 +37,7 @@ public class UserControllerImpl implements UserController {
     }
 
     @PostMapping("/step2")
-    public ResponseEntity<String> step2(@RequestBody Step2Request request){
+    public ResponseEntity<String> step2(@RequestBody @Validated Step2Request request){
         SignUpFormRequest form = (SignUpFormRequest) session.getAttribute("signUpdate");
 
         if(form == null) {
