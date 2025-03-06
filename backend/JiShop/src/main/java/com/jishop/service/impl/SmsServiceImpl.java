@@ -1,5 +1,7 @@
 package com.jishop.service.impl;
 
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.domain.SmsVerificationCode;
 import com.jishop.repository.SmsVerificationCodeRepository;
 import com.jishop.service.SmsService;
@@ -59,14 +61,15 @@ public class SmsServiceImpl implements SmsService {
 
     @Override
     public boolean verifyCode(String token, String code) {
-        return smsVerificationCodeRepository.findByTokenAndCode(token, code)
-                .filter(verificationCode -> !verificationCode.isExpired())
-                .map(verificationCode -> {
-                    smsVerificationCodeRepository.delete(verificationCode);
+        SmsVerificationCode verificationCode = smsVerificationCodeRepository.findByTokenAndCode(token, code)
+                .orElseThrow(() -> new DomainException(ErrorType.TOKEN_NOT_FOUND));
 
-                    return true;
-                })
-                .orElse(false);
+        if (!verificationCode.isExpired()) {
+            smsVerificationCodeRepository.delete(verificationCode);
+
+            return true;
+        }
+        return false;
     }
 
     private String generateCode() {
@@ -90,7 +93,7 @@ public class SmsServiceImpl implements SmsService {
             coolsms.send(params);
         } catch (CoolsmsException e) {
             e.printStackTrace();
-            throw new RuntimeException("SMS 전송 실패: " + e.getMessage());
+            throw new DomainException(ErrorType.SMS_SEND_FAILURE);
         }
     }
 }
