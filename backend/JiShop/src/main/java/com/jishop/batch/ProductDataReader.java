@@ -43,20 +43,19 @@ public class ProductDataReader implements ItemReader<ProductDataRequest> {
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
                     .queryParam("_start", start)
                     .queryParam("_limit", limit);
-
             ProductDataRequest[] productArray = restTemplate.getForObject(
                     builder.toUriString(),
                     ProductDataRequest[].class
             );
-            if (productArray == null || productArray.length == 0) {
-                productIterator = null;
-                log.info("더 이상 가져올 제품이 없습니다. 배치 종료.");
-            } else {
-                List<ProductDataRequest> products = Arrays.asList(productArray);
-                productIterator = products.iterator();
-                start += products.size();
-                log.info("{}개의 제품 데이터를 가져왔습니다.", products.size());
+            productIterator = (productArray != null && productArray.length > 0)
+                    ? Arrays.asList(productArray).iterator()
+                    : null;
+            if (productArray != null && productArray.length > 0) {
+                start += productArray.length;
             }
+            log.info((productArray != null && productArray.length > 0)
+                    ? String.format("%d개의 제품 데이터를 가져왔습니다.", productArray.length)
+                    : "더 이상 가져올 제품이 없습니다. 배치 종료.");
         } catch (Exception e) {
             log.error("API에서 제품 데이터를 가져오는 중 오류 발생", e);
             productIterator = null;

@@ -19,10 +19,7 @@ public class ProductDataJobRunner {
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("start", 0L)
-                    .addLong("limit", 100000L)
                     .toJobParameters();
-
             log.info("Batch Job 실행 시작");
             jobLauncher.run(productDataImportJob, jobParameters);
             log.info("Batch Job 실행 완료");
