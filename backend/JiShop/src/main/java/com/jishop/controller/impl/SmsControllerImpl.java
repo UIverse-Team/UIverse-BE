@@ -29,7 +29,7 @@ public class SmsControllerImpl implements SmsController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return ResponseEntity.ok("인증 코드가 전송되었습니다." + token);
+        return ResponseEntity.ok("인증 코드가 전송되었습니다.");
     }
 
     @PostMapping("/verify")
