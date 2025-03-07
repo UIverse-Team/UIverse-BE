@@ -1,5 +1,6 @@
 package com.jishop;
 
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
