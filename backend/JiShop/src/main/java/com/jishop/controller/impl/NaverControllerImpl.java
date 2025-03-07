@@ -1,8 +1,13 @@
 package com.jishop.controller.impl;
 
 import com.jishop.controller.OAuthController;
+import com.jishop.domain.LoginType;
+import com.jishop.domain.User;
 import com.jishop.dto.SocialUserInfo;
 import com.jishop.service.OauthService;
+import com.jishop.service.UserService;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class NaverControllerImpl implements OAuthController {
 
     private final OauthService naverService;
+    private final UserService userService;
+    private final HttpSession httpSession;
 
-    public NaverControllerImpl(@Qualifier("naverServiceImpl")OauthService naverService) {
+    public NaverControllerImpl(@Qualifier("naverServiceImpl")OauthService naverService,
+                               UserService userService,
+                               HttpSession httpSession
+    ) {
         this.naverService = naverService;
+        this.userService = userService;
+        this.httpSession = httpSession;
     }
 
     @GetMapping("/naver/login")
@@ -29,10 +41,12 @@ public class NaverControllerImpl implements OAuthController {
 
     @Override
     @GetMapping("/naver")
-    public ResponseEntity<SocialUserInfo> authenticateUser(@RequestParam String code,
-                                                           @RequestParam String state) {
+    public ResponseEntity<User> authenticateUser(@RequestParam String code,
+                                                 @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
+        User user = userService.processOAuthUser(userInfo, LoginType.NAVER);
+        httpSession.setAttribute("user", user);
 
-        return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok(user);
     }
 }
