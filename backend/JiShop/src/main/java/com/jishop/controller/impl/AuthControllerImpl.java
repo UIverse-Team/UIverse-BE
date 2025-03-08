@@ -22,6 +22,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<String> signIn(@RequestBody SignInFormRequest request, HttpSession session) {
         service.signIn(request, session);
 
+        // 회원명으로 환영합니다! 메세지로 바꾸기
         return ResponseEntity.ok("로그인 성공!");
     }
 

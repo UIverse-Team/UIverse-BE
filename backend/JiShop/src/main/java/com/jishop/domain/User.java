@@ -20,6 +20,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private LoginType provider;     // 로그인 타입 저장
+    
     // 성별, 연령, 휴대전화 번호 추가 예정
 
     //소셜 회원가입
