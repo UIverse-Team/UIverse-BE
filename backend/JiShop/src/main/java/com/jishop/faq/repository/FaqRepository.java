@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface FaqRepository extends JpaRepository<Faq, Long> {
+
     Page<Faq> findByIsPopularTrue(Pageable pageable);
 }
