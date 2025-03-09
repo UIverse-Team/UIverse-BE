@@ -1,9 +1,8 @@
-package com.jishop.controller.impl;
+package com.jishop.notice.controller;
 
-import com.jishop.controller.NoticeController;
-import com.jishop.dto.NoticeDetailResponse;
-import com.jishop.dto.NoticeResponse;
-import com.jishop.service.NoticeService;
+import com.jishop.notice.dto.NoticeDetailResponse;
+import com.jishop.notice.dto.NoticeResponse;
+import com.jishop.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
