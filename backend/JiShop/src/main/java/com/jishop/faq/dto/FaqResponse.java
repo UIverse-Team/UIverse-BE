@@ -1,8 +1,6 @@
-package com.jishop.dto;
+package com.jishop.faq.dto;
 
-import com.jishop.domain.Faq;
-import com.jishop.domain.Notice;
-import lombok.Getter;
+import com.jishop.faq.domain.Faq;
 
 public record FaqResponse(
         String category,
