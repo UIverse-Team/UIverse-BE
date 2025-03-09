@@ -1,7 +1,7 @@
-package com.jishop.service;
+package com.jishop.notice.service;
 
-import com.jishop.dto.NoticeDetailResponse;
-import com.jishop.dto.NoticeResponse;
+import com.jishop.notice.dto.NoticeDetailResponse;
+import com.jishop.notice.dto.NoticeResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 

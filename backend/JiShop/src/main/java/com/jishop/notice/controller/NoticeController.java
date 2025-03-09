@@ -1,7 +1,7 @@
-package com.jishop.controller;
+package com.jishop.notice.controller;
 
-import com.jishop.dto.NoticeDetailResponse;
-import com.jishop.dto.NoticeResponse;
+import com.jishop.notice.dto.NoticeDetailResponse;
+import com.jishop.notice.dto.NoticeResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;

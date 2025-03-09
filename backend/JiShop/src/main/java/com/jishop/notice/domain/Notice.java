@@ -1,4 +1,4 @@
-package com.jishop.domain;
+package com.jishop.notice.domain;
 
 import com.jishop.common.util.BaseEntity;
 import jakarta.persistence.*;

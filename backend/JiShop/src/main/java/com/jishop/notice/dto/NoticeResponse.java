@@ -1,6 +1,6 @@
-package com.jishop.dto;
+package com.jishop.notice.dto;
 
-import com.jishop.domain.Notice;
+import com.jishop.notice.domain.Notice;
 
 import java.time.LocalDateTime;
 

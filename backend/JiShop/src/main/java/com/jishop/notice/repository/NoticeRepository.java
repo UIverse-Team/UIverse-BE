@@ -1,15 +1,13 @@
-package com.jishop.repository;
+package com.jishop.notice.repository;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.domain.Notice;
-import com.jishop.dto.NoticeResponse;
+import com.jishop.notice.domain.Notice;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Repository;
 
 @Repository

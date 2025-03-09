@@ -1,9 +1,8 @@
-package com.jishop.service.impl;
+package com.jishop.notice.service;
 
-import com.jishop.dto.NoticeDetailResponse;
-import com.jishop.dto.NoticeResponse;
-import com.jishop.repository.NoticeRepository;
-import com.jishop.service.NoticeService;
+import com.jishop.notice.dto.NoticeDetailResponse;
+import com.jishop.notice.dto.NoticeResponse;
+import com.jishop.notice.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
