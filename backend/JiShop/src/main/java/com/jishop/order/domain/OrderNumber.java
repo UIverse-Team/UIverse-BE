@@ -1,5 +1,6 @@
 package com.jishop.order.domain;
 
+import com.jishop.common.util.BaseEntity;
 import jakarta.annotation.security.DenyAll;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,12 +13,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@DenyAll
-public class OrderNumber {
+public class OrderNumber extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private Long id;
     @Column(unique = true)
     private String orderNumber;
 
