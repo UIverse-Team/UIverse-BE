@@ -23,7 +23,11 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
     //ORDER
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"주문을 찾을 수 없습니다");
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"주문을 찾을 수 없습니다"),
+    ORDER_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "주문이 이미 취소되었습니다."),
+
+    //VALIDATION
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "값을 잘못 입력했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

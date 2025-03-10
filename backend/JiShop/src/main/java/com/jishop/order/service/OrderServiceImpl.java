@@ -30,6 +30,7 @@ public class OrderServiceImpl implements OrderService {
 
     //주문 생성
     @Override
+    @Transactional
     public void createOrder(OrderRequest orderRequest) {
         Order order = orderRequest.toEntity();
 
@@ -56,23 +57,22 @@ public class OrderServiceImpl implements OrderService {
                     .build();
 
             orderDetails.add(orderDetail);
-            totalPrice += product.getPrice();
+            totalPrice += product.getPrice() * quantity;
 
-            if(isFirstProduct){
+            // 주문 상품이 1개 이상일 경우
+            if(isFirstProduct && orderDetailRequests.size() != 1){
                 mainProductName = product.getName() + " 외 " + (orderDetailRequests.size()-1) + "건";
                 isFirstProduct = false;
             }
+            //주문 상품이 1개일 경우
+            if(orderDetailRequests.size() == 1)
+                mainProductName = product.getName();
         }
         //주문 정보 업데이트
         order.updateOrderInfo(mainProductName, totalPrice, orderDetails);
 
         //주문 저장
         orderRepository.save(order);
-
-        //응답 생성 이 메서드에서 사용할 일이 없는 듯?
-//        List<OrderDetailResponse> orderDetailResponses = savedOrder.getOrderDetails().stream()
-//                .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
-//                .collect(Collectors.toList());
     }
 
     //주문 단건 조회
@@ -86,7 +86,8 @@ public class OrderServiceImpl implements OrderService {
                 .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                 .toList();
 
-        return new OrderResponse(order.getId(), orderDetailResponseList);
+        return new OrderResponse(order.getId(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
+                order.getTotalPrice());
     }
 
     // 주문 내역 전체 조회
@@ -100,7 +101,8 @@ public class OrderServiceImpl implements OrderService {
                     List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
                             .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                             .toList();
-                    return new OrderResponse(order.getId(), orderDetailResponseList);
+                    return new OrderResponse(order.getId(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
+                            order.getTotalPrice());
                 })
                 .toList();
 
@@ -108,15 +110,16 @@ public class OrderServiceImpl implements OrderService {
 
    //주문취소
     @Override
+    @Transactional
     public void cancelOrder(Long orderId){
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         if(order.getStatus() == OrderStatus.ORDER_CANCELED)
-            throw new IllegalStateException("이미 취소된 주문입니다");
+            throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
 
         if(order.getStatus() == OrderStatus.PURCHASED_CONFIRMED)
-            throw new IllegalStateException("이미 구매 확정된 주문은 취소할 수 없습니다");
+            throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
 
         //주문 상태 변경
         order.updateStatus(OrderStatus.ORDER_CANCELED);

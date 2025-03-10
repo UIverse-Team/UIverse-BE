@@ -3,6 +3,7 @@ package com.jishop.order.controller;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class OrderControllerImpl implements OrderController {
     //주문 생성
     @Override
     @PostMapping
-    public ResponseEntity<String> create(@RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<String> create(@Valid @RequestBody OrderRequest orderRequest) {
         orderService.createOrder(orderRequest);
 
         return ResponseEntity.ok("주문이 완료되었습니다");

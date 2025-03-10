@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.*;
 
 public record OrderRequest(
+
         @NotBlank(message = "수신자는 필수로 입력해야 합니다")
         String receiver,
         @NotBlank(message = "수신자 번호는 필수로 입력해야 합니다")
