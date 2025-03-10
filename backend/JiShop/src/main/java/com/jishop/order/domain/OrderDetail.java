@@ -3,6 +3,7 @@ package com.jishop.order.domain;
 import com.jishop.common.util.BaseEntity;
 import com.jishop.domain.Product;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
@@ -16,11 +17,11 @@ import lombok.NoArgsConstructor;
 public class OrderDetail extends BaseEntity {
 
     //주문id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
     //상품id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
     //수량

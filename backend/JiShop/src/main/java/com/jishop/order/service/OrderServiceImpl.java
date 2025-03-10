@@ -37,7 +37,6 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetail> orderDetails = new ArrayList<>();
         int totalPrice = 0;
         String mainProductName = "";
-        boolean isFirstProduct = true;
         List<OrderDetailRequest> orderDetailRequests = orderRequest.orderDetailRequestList();
 
         for(OrderDetailRequest detailRequest : orderDetailRequests){
@@ -58,16 +57,15 @@ public class OrderServiceImpl implements OrderService {
 
             orderDetails.add(orderDetail);
             totalPrice += product.getPrice() * quantity;
-
-            // 주문 상품이 1개 이상일 경우
-            if(isFirstProduct && orderDetailRequests.size() != 1){
-                mainProductName = product.getName() + " 외 " + (orderDetailRequests.size()-1) + "건";
-                isFirstProduct = false;
-            }
-            //주문 상품이 1개일 경우
-            if(orderDetailRequests.size() == 1)
-                mainProductName = product.getName();
         }
+        // 주문 상품이 1개 이상일 경우
+        if(orderDetailRequests.size() != 1)
+            mainProductName = orderDetailRequests.get(1).productName() + " 외 " + (orderDetailRequests.size()-1) + "건";
+
+        //주문 상품이 1개일 경우
+        if(orderDetailRequests.size() == 1)
+            mainProductName = orderDetailRequests.get(1).productName();
+
         //주문 정보 업데이트
         order.updateOrderInfo(mainProductName, totalPrice, orderDetails);
 
