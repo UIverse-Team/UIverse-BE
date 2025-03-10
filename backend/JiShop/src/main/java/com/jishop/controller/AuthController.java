@@ -7,5 +7,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface AuthController {
 
-    ResponseEntity<String> signIn(SignInFormRequest request, HttpSession session);
+    ResponseEntity<String> signIn(SignInFormRequest request);
 }

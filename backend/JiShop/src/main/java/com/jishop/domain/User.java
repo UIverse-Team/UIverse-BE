@@ -7,11 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Getter
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
 
     @Column(nullable = false, name = "login_id")
     private String loginId;         // 회원 이메일, 소셜 로그인시 id 저장
@@ -20,23 +22,23 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private LoginType provider;     // 로그인 타입 저장
-    
+
     // 성별, 연령, 휴대전화 번호 추가 예정
+    private String yynumber;
+    private String gender;
+    private String phone;
+
+    // 주소 추가 예정
 
     //소셜 회원가입
     @Builder
-    public User(String loginId, String name, String password, LoginType provider) {
+    public User(String loginId, String password, String name, String yynumber, String gender, String phone, LoginType provider) {
         this.loginId = loginId;
+        this.password = password;
         this.name = name;
-        this.password = password;
-        this.provider = provider;
-    }
-
-    //로컬 회원가입
-    @Builder
-    public User(String loginId, String password, LoginType provider) {
-        this.loginId = loginId;
-        this.password = password;
+        this.yynumber = yynumber;
+        this.gender = gender;
+        this.phone = phone;
         this.provider = provider;
     }
 }

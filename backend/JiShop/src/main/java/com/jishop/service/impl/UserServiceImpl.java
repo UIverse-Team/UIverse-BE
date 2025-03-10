@@ -17,14 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final HttpSession session;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public User processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
         // Check if user already exists with this socialId and provider
         return userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
@@ -53,15 +52,18 @@ public class UserServiceImpl implements UserService {
     public void signIn(SignInFormRequest form, HttpSession session) {
         User user = userRepository.findByLoginId(form.loginId())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-        // 추가사항
+
         // 비밀번호 검사 로직
         if(!passwordEncoder.matches(form.password(), user.getPassword())) {
             throw new DomainException(ErrorType.USER_NOT_FOUND);
         }
 
-        // 로그인 완료시 Session 추가
         session.setAttribute("user", user);
         // 시간도 줘야하나?
         // Session redis에 저장하기
     };
+
+    public String generateWelcomeMessage(User user) {
+        return user.getName() + "님 환영합니다!";
+    }
 }

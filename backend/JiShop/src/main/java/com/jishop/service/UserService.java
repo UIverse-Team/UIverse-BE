@@ -14,4 +14,5 @@ public interface UserService {
     void signUp(SignUpFormRequest form);
     void signIn(SignInFormRequest form, HttpSession session);
     void emailcheck(Step1Request request);
+    String generateWelcomeMessage(User user);
 }
