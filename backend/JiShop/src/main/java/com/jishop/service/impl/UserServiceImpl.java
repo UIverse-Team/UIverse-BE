@@ -2,12 +2,12 @@ package com.jishop.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.domain.LoginType;
-import com.jishop.domain.User;
-import com.jishop.dto.SignInFormRequest;
-import com.jishop.dto.SignUpFormRequest;
-import com.jishop.dto.SocialUserInfo;
-import com.jishop.dto.Step1Request;
+import com.jishop.member.domain.LoginType;
+import com.jishop.member.domain.User;
+import com.jishop.member.dto.SignInFormRequest;
+import com.jishop.member.dto.SignUpFormRequest;
+import com.jishop.member.dto.SocialUserInfo;
+import com.jishop.member.dto.Step1Request;
 import com.jishop.repository.UserRepository;
 import com.jishop.service.UserService;
 import jakarta.servlet.http.HttpSession;

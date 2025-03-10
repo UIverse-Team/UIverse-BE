@@ -2,8 +2,8 @@ package com.jishop.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.domain.SmsCertification;
-import com.jishop.dto.SmsRequest;
+import com.jishop.member.domain.SmsCertification;
+import com.jishop.member.dto.SmsRequest;
 import com.jishop.repository.SmsCertificationRepository;
 import com.jishop.service.SmsCertificationService;
 import net.nurigo.java_sdk.api.Message;

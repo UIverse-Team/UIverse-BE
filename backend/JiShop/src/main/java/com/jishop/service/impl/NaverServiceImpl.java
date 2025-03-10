@@ -1,8 +1,8 @@
 package com.jishop.service.impl;
 
-import com.jishop.dto.NaverUserResponse;
-import com.jishop.dto.SocialUserInfo;
-import com.jishop.dto.TokenResponse;
+import com.jishop.member.dto.NaverUserResponse;
+import com.jishop.member.dto.SocialUserInfo;
+import com.jishop.member.dto.TokenResponse;
 import com.jishop.service.AbstractOAuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;

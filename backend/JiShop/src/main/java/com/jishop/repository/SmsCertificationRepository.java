@@ -1,6 +1,6 @@
 package com.jishop.repository;
 
-import com.jishop.domain.SmsCertification;
+import com.jishop.member.domain.SmsCertification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,7 +1,7 @@
 package com.jishop.repository;
 
-import com.jishop.domain.LoginType;
-import com.jishop.domain.User;
+import com.jishop.member.domain.LoginType;
+import com.jishop.member.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
