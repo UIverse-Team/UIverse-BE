@@ -40,12 +40,15 @@ public class Order extends BaseEntity {
     private String detailAddress;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
+    @OneToOne
+    private OrderNumber orderNumber;
 
-    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails) {
+    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, OrderNumber orderNumber) {
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;
         this.orderDetails.clear();
         this.orderDetails.addAll(orderDetails);
+        this.orderNumber = orderNumber;
     }
 
     public void updateStatus(OrderStatus status) {

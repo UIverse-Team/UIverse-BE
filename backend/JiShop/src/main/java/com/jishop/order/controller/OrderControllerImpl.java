@@ -1,5 +1,6 @@
 package com.jishop.order.controller;
 
+import com.jishop.order.domain.Order;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.service.OrderService;
@@ -19,28 +20,28 @@ public class OrderControllerImpl implements OrderController {
     //주문 생성
     @Override
     @PostMapping
-    public ResponseEntity<String> create(@Valid @RequestBody OrderRequest orderRequest) {
-        orderService.createOrder(orderRequest);
+    public ResponseEntity<OrderResponse> create(@Valid @RequestBody OrderRequest orderRequest) {
+        OrderResponse orderResponse = orderService.createOrder(orderRequest);
 
-        return ResponseEntity.ok("주문이 완료되었습니다");
+        return ResponseEntity.ok(orderResponse);
     }
 
     //주문 내역 단건 조회
     @Override
     @GetMapping("/{orderId}")
-    public ResponseEntity<String> getOrder(@PathVariable Long orderId){
+    public ResponseEntity<OrderResponse> getOrder(@PathVariable Long orderId){
         OrderResponse orderResponse = orderService.getOrder(orderId);
 
-        return ResponseEntity.ok("주문 조회가 완료되었습니다");
+        return ResponseEntity.ok(orderResponse);
     }
 
     //주문 전체 조회
     @Override
     @GetMapping("/lists")
-    public ResponseEntity<String> getOrderList(){
+    public ResponseEntity<List<OrderResponse>> getOrderList(){
         List<OrderResponse> responseList = orderService.getAllOrders();
 
-        return ResponseEntity.ok("주문 전체 조회가 완료되었습니다");
+        return ResponseEntity.ok(responseList);
     }
 
     //주문 취소

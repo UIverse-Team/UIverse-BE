@@ -4,12 +4,14 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
+import com.jishop.order.domain.OrderNumber;
 import com.jishop.order.domain.OrderStatus;
 import com.jishop.domain.Product;
 import com.jishop.order.dto.OrderDetailRequest;
 import com.jishop.order.dto.OrderDetailResponse;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +29,19 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final OrderNumberService orderNumberService;
+    private final OrderNumberRepository orderNumberRepository;
 
     //주문 생성
     @Override
     @Transactional
-    public void createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(OrderRequest orderRequest) {
+        //주문 번호 생성
+        String orderNumberStr = orderNumberService.generateOrderNumber();
+
+        OrderNumber orderNumber = orderNumberRepository.findByOrderNumber(orderNumberStr)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NUMBER_NOT_FOUND));
+
         Order order = orderRequest.toEntity();
 
         List<OrderDetail> orderDetails = new ArrayList<>();
@@ -60,17 +70,23 @@ public class OrderServiceImpl implements OrderService {
         }
         // 주문 상품이 1개 이상일 경우
         if(orderDetailRequests.size() != 1)
-            mainProductName = orderDetailRequests.get(1).productName() + " 외 " + (orderDetailRequests.size()-1) + "건";
+            mainProductName = orderDetails.get(0).getProduct().getName() + " 외 " + (orderDetailRequests.size()-1) + "건";
 
         //주문 상품이 1개일 경우
         if(orderDetailRequests.size() == 1)
-            mainProductName = orderDetailRequests.get(1).productName();
+            mainProductName = orderDetails.get(0).getProduct().getName();
 
         //주문 정보 업데이트
-        order.updateOrderInfo(mainProductName, totalPrice, orderDetails);
+        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumber);
 
         //주문 저장
         orderRepository.save(order);
+
+        List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
+                .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
+                .toList();
+
+        return new OrderResponse(order.getId(), order.getOrderNumber(), orderDetailResponseList, order.getStatus(), order.getMainProductName(), order.getTotalPrice());
     }
 
     //주문 단건 조회
@@ -84,7 +100,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                 .toList();
 
-        return new OrderResponse(order.getId(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
+        return new OrderResponse(order.getId(), order.getOrderNumber(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
                 order.getTotalPrice());
     }
 
@@ -99,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
                     List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
                             .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                             .toList();
-                    return new OrderResponse(order.getId(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
+                    return new OrderResponse(order.getId(), order.getOrderNumber(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
                             order.getTotalPrice());
                 })
                 .toList();
