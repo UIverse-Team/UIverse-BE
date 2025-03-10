@@ -18,9 +18,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor);
-        // 추후 로그인 서비스가 필요한 부분에 적용하기
-                //.addPathPatterns("/notices");
+        registry.addInterceptor(loginInterceptor)
+                .addPathPatterns("/notices");
         //.excludePathPatterns("/signin, /signup");
     }
 }

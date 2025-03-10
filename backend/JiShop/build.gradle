@@ -66,6 +66,11 @@ dependencies {
 
 	// AWS ses
 	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.708'
+
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 // naver 구현 요청을 위한 의존성 주입
