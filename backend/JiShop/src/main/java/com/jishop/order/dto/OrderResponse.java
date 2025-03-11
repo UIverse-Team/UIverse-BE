@@ -7,6 +7,7 @@ import com.jishop.order.domain.OrderStatus;
 import java.util.List;
 
 public record OrderResponse(
+
         Long id,
         OrderNumber orderNumber,
         List<OrderDetailResponse> orderDetailResponseList,
