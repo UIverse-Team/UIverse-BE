@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface OrderController {
 
-    ResponseEntity<OrderResponse> create(@Valid @RequestBody OrderRequest orderRequest);
-    ResponseEntity<OrderResponse> getOrder(@PathVariable Long orderId);
+    ResponseEntity<OrderResponse> create(OrderRequest orderRequest);
+    ResponseEntity<OrderResponse> getOrder(Long orderId);
     ResponseEntity<List<OrderResponse>> getOrderList();
-    ResponseEntity<String> cancelOrder(@PathVariable Long orderId);
+    ResponseEntity<String> cancelOrder(Long orderId);
 }
