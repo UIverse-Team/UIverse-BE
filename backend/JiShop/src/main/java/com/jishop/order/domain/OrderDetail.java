@@ -1,7 +1,8 @@
 package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.domain.Product;
+import com.jishop.product.domain.Product;
+import com.jishop.product.domain.SaleProduct;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -23,7 +24,7 @@ public class OrderDetail extends BaseEntity {
     //상품id
     @JoinColumn(name = "product_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Product product;
+    private SaleProduct saleProduct;
     //수량
     private int quantity;
     //가격
@@ -32,9 +33,9 @@ public class OrderDetail extends BaseEntity {
     //할인값
 
     @Builder
-    public OrderDetail(Order order, Product product, int quantity, int price){
+    public OrderDetail(Order order, SaleProduct saleProduct, int quantity, int price){
         this.order = order;
-        this.product = product;
+        this.saleProduct = saleProduct;
         this.quantity = quantity;
         this.price = price;
     }

@@ -12,7 +12,12 @@ public record OrderResponse(
         List<OrderDetailResponse> orderDetailResponseList,
         OrderStatus orderStatus,
         String mainProductName,
-        int totalPrice
+        int totalPrice,
+        String receiver,
+        String receiverNumber,
+        String zipCode,
+        String baseAddress,
+        String detailAddress
 ){
     public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
         return new OrderResponse(
@@ -21,7 +26,12 @@ public record OrderResponse(
                 orderDetailResponseList,
                 order.getStatus(),
                 order.getMainProductName(),
-                order.getTotalPrice()
+                order.getTotalPrice(),
+                order.getReceiver(),
+                order.getReceiverNumber(),
+                order.getZipCode(),
+                order.getBaseAddress(),
+                order.getDetailAddress()
         );
     }
 }
