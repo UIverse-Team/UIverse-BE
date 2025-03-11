@@ -4,6 +4,7 @@ import com.jishop.member.dto.SignInFormRequest;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AuthControllerImpl implements AuthController {
     private final HttpSession session;
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signIn(@RequestBody SignInFormRequest request) {
+    public ResponseEntity<String> signIn(@RequestBody @Valid SignInFormRequest request) {
         service.signIn(request, session);
 
         Long userId = (Long) session.getAttribute("userId");

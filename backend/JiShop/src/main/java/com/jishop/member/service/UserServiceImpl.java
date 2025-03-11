@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     public Long processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
-        // 이미 아이디 존재시 회원가입이 아닌 로그인으로 밤꿈
+        // 이미 아이디 존재시 회원가입이 아닌 로그인으로 바꿈
         userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
                 .orElseGet(() -> {
                     // If not, create a new user
