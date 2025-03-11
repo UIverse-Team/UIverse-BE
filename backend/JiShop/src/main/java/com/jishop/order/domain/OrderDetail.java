@@ -17,12 +17,12 @@ import lombok.NoArgsConstructor;
 public class OrderDetail extends BaseEntity {
 
     //주문id
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Order order;
     //상품id
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
     //수량
     private int quantity;

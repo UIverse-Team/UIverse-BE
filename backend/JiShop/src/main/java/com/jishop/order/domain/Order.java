@@ -16,8 +16,8 @@ import java.util.*;
 public class Order extends BaseEntity {
 
     //주문상태
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     //대표상품명
     private String mainProductName;

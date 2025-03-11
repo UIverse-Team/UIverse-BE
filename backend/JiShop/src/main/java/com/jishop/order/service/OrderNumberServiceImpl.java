@@ -15,8 +15,8 @@ public class OrderNumberServiceImpl implements OrderNumberService {
 
     private final OrderNumberRepository orderNumberRepository;
 
-    private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";
     private static final int LENGTH = 5;
+    private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";
 
     public String generateOrderNumber() {
         /*
