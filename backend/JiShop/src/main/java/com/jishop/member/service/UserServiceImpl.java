@@ -8,7 +8,7 @@ import com.jishop.member.dto.SignInFormRequest;
 import com.jishop.member.dto.SignUpFormRequest;
 import com.jishop.member.dto.SocialUserInfo;
 import com.jishop.member.dto.Step1Request;
-import com.jishop.repository.UserRepository;
+import com.jishop.member.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
             throw new DomainException(ErrorType.USER_NOT_FOUND);
         }
 
-        session.setAttribute("user", user);
+        session.setAttribute("userId", user.getId());
         // 시간도 줘야하나?
         // Session redis에 저장하기
     };

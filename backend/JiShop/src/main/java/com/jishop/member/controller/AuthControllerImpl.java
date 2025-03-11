@@ -24,7 +24,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<String> signIn(@RequestBody SignInFormRequest request) {
         service.signIn(request, session);
 
-        User user = (User) session.getAttribute("user");
+        Long userId = (Long) session.getAttribute("userId");
         String welcomeMessage = service.generateWelcomeMessage(user);
         // 회원명으로 환영합니다! 메세지로 바꾸기
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(welcomeMessage);

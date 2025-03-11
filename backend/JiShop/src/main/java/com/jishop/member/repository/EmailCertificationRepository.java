@@ -1,4 +1,4 @@
-package com.jishop.repository;
+package com.jishop.member.repository;
 
 import com.jishop.member.domain.EmailCertification;
 import jakarta.transaction.Transactional;
