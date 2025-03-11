@@ -1,4 +1,4 @@
-package com.jishop.product.domain;
+package com.jishop.stock.domain;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class Stock extends BaseEntity {
 
     int stockNumber;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "saleProduct_id")
     SaleProduct saleProduct;

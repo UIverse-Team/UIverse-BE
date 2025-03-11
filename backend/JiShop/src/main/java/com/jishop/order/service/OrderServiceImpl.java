@@ -12,9 +12,9 @@ import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
-import com.jishop.product.domain.SaleProduct;
 import com.jishop.product.repository.SaleProductRepository;
 import com.jishop.product.service.StockService;
+import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,9 +29,9 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final SaleProductRepository saleProductRepository;
     private final OrderNumberService orderNumberService;
     private final OrderNumberRepository orderNumberRepository;
-    private final SaleProductRepository saleProductRepository;
     private final StockService stockService;
 
     //주문 생성
@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
             stockService.decreaseStock(saleProductId, quantity);
 
             // 옵션 추가 금액 계산
-            int price = saleProduct.getProduct().getPrice();
+            int price = saleProduct.getProduct().getDiscountPrice();
             if(saleProduct.getOption() != null){
                 price += saleProduct.getOption().getOptionExtra();
             }
