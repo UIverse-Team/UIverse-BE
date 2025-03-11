@@ -68,13 +68,13 @@ public class OrderServiceImpl implements OrderService {
             orderDetails.add(orderDetail);
             totalPrice += product.getPrice() * quantity;
         }
-        // 주문 상품이 1개 이상일 경우
-        if(orderDetailRequests.size() != 1)
-            mainProductName = orderDetails.get(0).getProduct().getName() + " 외 " + (orderDetailRequests.size()-1) + "건";
 
-        //주문 상품이 1개일 경우
-        if(orderDetailRequests.size() == 1)
-            mainProductName = orderDetails.get(0).getProduct().getName();
+        // 주문 상세가 1건일 경우
+        mainProductName = orderDetails.get(0).getProduct().getName();
+
+        // 주문 상세가 2건 이상일 경우
+        if(orderDetailRequests.size() != 1)
+            mainProductName = mainProductName + " 외 " + (orderDetailRequests.size()-1) + "건";
 
         //주문 정보 업데이트
         order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumber);
@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                 .toList();
 
-        return new OrderResponse(order.getId(), order.getOrderNumber(), orderDetailResponseList, order.getStatus(), order.getMainProductName(), order.getTotalPrice());
+        return OrderResponse.fromOrder(order, orderDetailResponseList);
     }
 
     //주문 단건 조회
@@ -100,8 +100,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                 .toList();
 
-        return new OrderResponse(order.getId(), order.getOrderNumber(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
-                order.getTotalPrice());
+        return OrderResponse.fromOrder(order, orderDetailResponseList);
     }
 
     // 주문 내역 전체 조회
@@ -115,8 +114,7 @@ public class OrderServiceImpl implements OrderService {
                     List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
                             .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
                             .toList();
-                    return new OrderResponse(order.getId(), order.getOrderNumber(), orderDetailResponseList, order.getStatus(), order.getMainProductName(),
-                            order.getTotalPrice());
+                    return OrderResponse.fromOrder(order, orderDetailResponseList);
                 })
                 .toList();
 
@@ -137,6 +135,7 @@ public class OrderServiceImpl implements OrderService {
 
         //주문 상태 변경
         order.updateStatus(OrderStatus.ORDER_CANCELED);
+        order.delete();
     }
 
 }

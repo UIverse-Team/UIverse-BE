@@ -1,5 +1,6 @@
 package com.jishop.order.dto;
 
+import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderNumber;
 import com.jishop.order.domain.OrderStatus;
 
@@ -12,4 +13,15 @@ public record OrderResponse(
         OrderStatus orderStatus,
         String mainProductName,
         int totalPrice
-){}
+){
+    public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
+        return new OrderResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                orderDetailResponseList,
+                order.getStatus(),
+                order.getMainProductName(),
+                order.getTotalPrice()
+        );
+    }
+}

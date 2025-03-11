@@ -46,8 +46,8 @@ public class OrderNumberServiceImpl implements OrderNumberService {
                 int randomIndex = random.nextInt(CHARACTERS.length());
                 char randomChar = CHARACTERS.charAt(randomIndex);
                 sb.append(randomChar);
-                randomStr = sb.toString();
             }
+            randomStr = sb.toString();
         } while(orderNumberRepository.existsByOrderNumber(orderTypeCode + formattedDate + randomStr));
 
         OrderNumber orderNumber = OrderNumber.builder()
