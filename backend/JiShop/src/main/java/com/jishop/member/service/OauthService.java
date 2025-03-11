@@ -1,4 +1,4 @@
-package com.jishop.service;
+package com.jishop.member.service;
 
 import com.jishop.member.dto.SocialUserInfo;
 

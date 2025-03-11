@@ -1,4 +1,4 @@
-package com.jishop.service.impl;
+package com.jishop.member.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -9,7 +9,6 @@ import com.jishop.member.dto.SignUpFormRequest;
 import com.jishop.member.dto.SocialUserInfo;
 import com.jishop.member.dto.Step1Request;
 import com.jishop.repository.UserRepository;
-import com.jishop.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

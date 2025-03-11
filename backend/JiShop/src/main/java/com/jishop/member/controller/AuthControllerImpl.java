@@ -2,7 +2,7 @@ package com.jishop.member.controller;
 
 import com.jishop.member.domain.User;
 import com.jishop.member.dto.SignInFormRequest;
-import com.jishop.service.UserService;
+import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

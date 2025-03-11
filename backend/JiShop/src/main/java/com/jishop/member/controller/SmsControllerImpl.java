@@ -2,7 +2,7 @@ package com.jishop.member.controller;
 
 import com.jishop.member.dto.SmsRequest;
 import com.jishop.member.dto.CertifyCodeRequest;
-import com.jishop.service.SmsCertificationService;
+import com.jishop.member.service.SmsCertificationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -1,11 +1,10 @@
-package com.jishop.service.impl;
+package com.jishop.member.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.SmsCertification;
 import com.jishop.member.dto.SmsRequest;
 import com.jishop.repository.SmsCertificationRepository;
-import com.jishop.service.SmsCertificationService;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import jakarta.annotation.PostConstruct;

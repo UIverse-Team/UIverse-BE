@@ -1,4 +1,4 @@
-package com.jishop.service.impl;
+package com.jishop.member.service;
 
 import com.amazonaws.services.simpleemail.model.AmazonSimpleEmailServiceException;
 import com.jishop.common.exception.DomainException;
@@ -6,8 +6,6 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.EmailCertification;
 import com.jishop.member.dto.EmailRequest;
 import com.jishop.repository.EmailCertificationRepository;
-import com.jishop.service.EmailCertificationService;
-import com.jishop.service.EmailSender;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
