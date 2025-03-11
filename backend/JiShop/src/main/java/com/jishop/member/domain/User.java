@@ -24,7 +24,7 @@ public class User extends BaseEntity implements Serializable {
     private LoginType provider;     // 로그인 타입 저장
 
     // 성별, 연령, 휴대전화 번호 추가 예정
-    private String yynumber;
+    private String birthDate;
     private String gender;
     private String phone;
 
@@ -32,11 +32,11 @@ public class User extends BaseEntity implements Serializable {
 
     //소셜 회원가입
     @Builder
-    public User(String loginId, String password, String name, String yynumber, String gender, String phone, LoginType provider) {
+    public User(String loginId, String password, String name, String birthDate, String gender, String phone, LoginType provider) {
         this.loginId = loginId;
         this.password = password;
         this.name = name;
-        this.yynumber = yynumber;
+        this.birthDate = birthDate;
         this.gender = gender;
         this.phone = phone;
         this.provider = provider;

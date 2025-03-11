@@ -23,9 +23,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
-        // Check if user already exists with this socialId and provider
-        return userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
+    public Long processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
+        // 이미 아이디 존재시 회원가입이 아닌 로그인으로 밤꿈
+        userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
                 .orElseGet(() -> {
                     // If not, create a new user
                     User user = User.builder()
@@ -36,6 +36,10 @@ public class UserServiceImpl implements UserService {
                             .build();
                     return userRepository.save(user);
                 });
+
+        User user = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+        Long userId = user.getId();
+        return userId;
     }
 
     public void emailcheck(Step1Request request){
@@ -52,17 +56,15 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByLoginId(form.loginId())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
-        // 비밀번호 검사 로직
         if(!passwordEncoder.matches(form.password(), user.getPassword())) {
             throw new DomainException(ErrorType.USER_NOT_FOUND);
         }
 
         session.setAttribute("userId", user.getId());
-        // 시간도 줘야하나?
-        // Session redis에 저장하기
     };
 
-    public String generateWelcomeMessage(User user) {
-        return user.getName() + "님 환영합니다!";
+    public String loginStr(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+        return user.getName();
     }
 }

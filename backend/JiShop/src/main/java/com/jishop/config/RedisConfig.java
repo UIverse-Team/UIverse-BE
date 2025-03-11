@@ -24,6 +24,7 @@ public class RedisConfig {
         return new GenericJackson2JsonRedisSerializer(redisObjectMapper());
     }
 
+
     public ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         // Java 8 날짜/시간 타입 지원
@@ -44,7 +45,6 @@ public class RedisConfig {
         FilterRegistrationBean<SessionRepositoryFilter<?>> registrationBean = new FilterRegistrationBean<>(sessionRepositoryFilter);
         // /auth/* 패턴에만 Redis 세션 저장소 적용 (즉, 로그인 관련 요청에만)
         registrationBean.setUrlPatterns(Arrays.asList("/auth/*"));
-        /*registrationBean.setUrlPatterns(Arrays.asList("/auth/*"));*/
         return registrationBean;
     }
 }

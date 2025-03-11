@@ -9,7 +9,7 @@ public record SignUpFormRequest(
         String loginId,
         String password,
         String name,
-        String yynumber,
+        String birthDate,
         String gender,
         String phone,
         LoginType provider
@@ -25,8 +25,8 @@ public record SignUpFormRequest(
     }
 
     // 유저 정보 업데이트
-    public SignUpFormRequest withInformation(String name, String yynumber, String gender, String phone){
-        return new SignUpFormRequest(this.loginId, this.password, name, yynumber, gender, phone, this.provider);
+    public SignUpFormRequest withInformation(String name, String birthDate, String gender, String phone){
+        return new SignUpFormRequest(this.loginId, this.password, name, birthDate, gender, phone, this.provider);
     }
 
     public User toEntity(){
@@ -34,7 +34,7 @@ public record SignUpFormRequest(
                 this.loginId,
                 this.password,
                 this.name,
-                this.yynumber,
+                this.birthDate,
                 this.gender,
                 this.phone,
                 this.provider

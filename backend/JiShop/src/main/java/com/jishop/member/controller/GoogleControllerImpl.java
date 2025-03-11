@@ -1,7 +1,6 @@
 package com.jishop.member.controller;
 
 import com.jishop.member.domain.LoginType;
-import com.jishop.member.domain.User;
 import com.jishop.member.dto.SocialUserInfo;
 import com.jishop.member.service.OauthService;
 import com.jishop.member.service.UserService;
@@ -39,12 +38,12 @@ public class GoogleControllerImpl implements OAuthController {
 
     @Override
     @GetMapping("/google")
-    public ResponseEntity<User> authenticateUser(@RequestParam String code,
+    public ResponseEntity<String> authenticateUser(@RequestParam String code,
                                                  @RequestParam String state) {
         SocialUserInfo userInfo = googleService.authenticateUser(code, state);
-        User user = userService.processOAuthUser(userInfo, LoginType.GOOGLE);
-        httpSession.setAttribute("user", user);
+        Long userId = userService.processOAuthUser(userInfo, LoginType.GOOGLE);
+        httpSession.setAttribute("userId", userId);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok("환영합니다");
     }
 }

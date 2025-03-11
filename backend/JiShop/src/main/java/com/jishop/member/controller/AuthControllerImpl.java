@@ -1,8 +1,8 @@
 package com.jishop.member.controller;
 
-import com.jishop.member.domain.User;
 import com.jishop.member.dto.SignInFormRequest;
 import com.jishop.member.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -25,8 +25,18 @@ public class AuthControllerImpl implements AuthController {
         service.signIn(request, session);
 
         Long userId = (Long) session.getAttribute("userId");
-        String welcomeMessage = service.generateWelcomeMessage(user);
-        // 회원명으로 환영합니다! 메세지로 바꾸기
+        String welcomeMessage = service.loginStr(userId);
+
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(welcomeMessage);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            // redis의 세션도 삭제
+            session.invalidate();
+        }
+        return ResponseEntity.ok().build();
     }
 }

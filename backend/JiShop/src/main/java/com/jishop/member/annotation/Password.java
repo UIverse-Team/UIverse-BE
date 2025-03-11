@@ -11,12 +11,12 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Documented
+@Retention(RUNTIME)
 @Constraint(validatedBy = PasswordValidator.class)
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
-@Retention(RUNTIME)
 public @interface Password {
 
-    String message() default "Password is not allow";
+    String message() default "형식을 지켜주세요!";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
