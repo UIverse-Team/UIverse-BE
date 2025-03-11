@@ -1,7 +1,7 @@
 package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.domain.Product;
+import com.jishop.product.domain.Product;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;

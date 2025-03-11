@@ -11,6 +11,8 @@ import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,8 +50,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getProductReviews(Long productId) {
-        return List.of();
+    public PagedModel<ReviewResponse> getProductReviews(Long saleProductId, Pageable pageable) {
+        //todo:
+        // 1. 가져올거 -> 별점, 사진, 옵션, tag 값, 대표 상품 값
+        // 2. 주문 상세, 판매 상품 saleProductId로 조인 List<order_detail> a 받아옴
+        // 3. a
+
+
+
+
+        return null;
     }
 
     @Override

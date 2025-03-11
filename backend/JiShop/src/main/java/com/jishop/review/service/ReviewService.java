@@ -2,12 +2,14 @@ package com.jishop.review.service;
 
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 
 import java.util.List;
 
 public interface ReviewService {
     Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId);
-    List<ReviewResponse> getProductReviews(Long productId);
+    PagedModel<ReviewResponse> getProductReviews(Long productId, Pageable pageable);
     List<ReviewResponse> getUserReviews(Long userId);
     void updateReview(Long reviewId, ReviewRequest reviewRequest);
     void deleteReview(Long reviewId);
