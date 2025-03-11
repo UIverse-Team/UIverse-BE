@@ -32,10 +32,8 @@ public enum ErrorType {
     ORDER_ALREADY_CONFIRMED(HttpStatus.BAD_REQUEST,"이미 구매 확정된 주문입니다."),
 
     // VALIDATION
-    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "값을 잘못 입력했습니다."),
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "값을 잘못 입력했습니다.");
 
-    // STOCK
-    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다");
 
     private final HttpStatus httpStatus;
     private final String message;
