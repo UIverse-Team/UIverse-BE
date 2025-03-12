@@ -1,13 +1,9 @@
 package com.jishop.product.domain;
 
+import com.jishop.category.domain.Category;
+import jakarta.persistence.*;
 import com.jishop.common.util.BaseEntity;
-import com.jishop.store.domain.Store;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,8 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
-    @Column(name = "category_id", nullable = false)
-    private String categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Column(name = "l_cat_id")
     private String lCatId;
@@ -29,6 +26,9 @@ public class Product extends BaseEntity {
 
     @Column(name = "s_cat_id")
     private String sCatId;
+
+    @Column(name = "store_seq")
+    private String storeSeq;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -71,7 +71,7 @@ public class Product extends BaseEntity {
     @Column(name = "like_count")
     private Integer likeCount;
 
-    @Column(name = "labels")
+    @Column(name = "labels", length = 50)
     @Enumerated(EnumType.STRING)
     private Labels labels;
 
@@ -96,17 +96,18 @@ public class Product extends BaseEntity {
     @Column(name = "detail_image")
     private String detailImage;
 
-    public Product(String categoryId, String lCatId, String mCatId, String sCatId,
-                   String name, String description, Integer originPrice,
-                   Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
-                   DiscountStatus discountStatus, Boolean isDiscount, String brand, Double rate, Integer reviewCount,
-                   Integer likeCount, Labels labels, LocalDateTime createdAt, LocalDateTime updatedAt, Boolean deleteFlag,
-                   String mainImage, String image1, String image2, String image3, String image4, String detailImage
+    public Product(Category category, String lCatId, String mCatId, String sCatId,
+            String storeSeq, String name, String description, Integer originPrice,
+            Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+            DiscountStatus discountStatus, Boolean isDiscount, String brand, Double rate, Integer reviewCount,
+            Integer likeCount, Labels labels,Boolean deleteFlag,
+            String mainImage, String image1, String image2, String image3, String image4, String detailImage
     ) {
-        this.categoryId = categoryId;
+        this.category = category;
         this.lCatId = lCatId;
         this.mCatId = mCatId;
         this.sCatId = sCatId;
+        this.storeSeq = storeSeq;
         this.name = name;
         this.description = description;
         this.originPrice = originPrice;
