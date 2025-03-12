@@ -19,27 +19,36 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
     //대표상품명
     private String mainProductName;
+
     //총 주문 금액
     private int totalPrice;
+
     //수령인
     @Column(nullable = false)
     private String receiver;
+
     //수령인 연락처
     @Column(nullable = false)
     private String receiverNumber;
+
     //우편번호
     @Column(nullable = false)
     private String zipCode;
+
     //기본주소
     @Column(nullable = false)
     private String baseAddress;
+
     //상세주소
     @Column(nullable = false)
     private String detailAddress;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
+
     @OneToOne
     private OrderNumber orderNumber;
 
