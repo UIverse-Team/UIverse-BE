@@ -1,6 +1,6 @@
 package com.jishop.review.dto;
 
-import com.jishop.domain.User;
+import com.jishop.member.domain.User;
 import com.jishop.review.domain.Review;
 import com.jishop.review.domain.tag.Tag;
 import jakarta.validation.constraints.NotBlank;

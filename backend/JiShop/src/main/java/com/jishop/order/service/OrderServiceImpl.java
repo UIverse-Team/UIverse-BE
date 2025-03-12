@@ -12,8 +12,8 @@ import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
-import com.jishop.product.domain.Product;
-import com.jishop.product.repository.ProductRepository;
+import com.jishop.saleproduct.domain.SaleProduct;
+import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final SaleProductRepository saleProductRepository;
     private final OrderNumberService orderNumberService;
     private final OrderNumberRepository orderNumberRepository;
 
@@ -54,23 +54,23 @@ public class OrderServiceImpl implements OrderService {
             int quantity = detailRequest.quantity();
 
             //상품 조회
-            Product product = productRepository.findById(productId)
+            SaleProduct saleProduct = saleProductRepository.findById(productId)
                     .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
             // 주문 상세 생성
             OrderDetail orderDetail = OrderDetail.builder()
                     .order(order)
-                    .product(product)
+                    .saleProduct(saleProduct)
                     .quantity(quantity)
-                    .price(product.getPrice())
+                    .price(saleProduct.getProduct().getDiscountPrice())
                     .build();
 
             orderDetails.add(orderDetail);
-            totalPrice += product.getPrice() * quantity;
+            totalPrice += saleProduct.getProduct().getDiscountPrice() * quantity;
         }
 
         // 주문 상세가 1건일 경우
-        mainProductName = orderDetails.get(0).getProduct().getName();
+        mainProductName = orderDetails.get(0).getSaleProduct().getName();
 
         // 주문 상세가 2건 이상일 경우
         if(orderDetailRequests.size() != 1)
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
-                .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
+                .map(detail -> new OrderDetailResponse(detail.getId(), detail.getSaleProduct().getId()))
                 .toList();
 
         return OrderResponse.fromOrder(order, orderDetailResponseList);
@@ -97,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
-                .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
+                .map(detail -> new OrderDetailResponse(detail.getId(), detail.getSaleProduct().getId()))
                 .toList();
 
         return OrderResponse.fromOrder(order, orderDetailResponseList);
@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
         return orders.stream()
                 .map(order -> {
                     List<OrderDetailResponse> orderDetailResponseList = order.getOrderDetails().stream()
-                            .map(detail -> new OrderDetailResponse(detail.getId(), detail.getProduct().getId()))
+                            .map(detail -> new OrderDetailResponse(detail.getId(), detail.getSaleProduct().getId()))
                             .toList();
                     return OrderResponse.fromOrder(order, orderDetailResponseList);
                 })

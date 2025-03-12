@@ -1,7 +1,7 @@
 package com.jishop.review.domain;
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.domain.User;
+import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.review.domain.embed.ImageUrls;
@@ -50,7 +50,7 @@ public class Review extends BaseEntity {
     private ImageUrls imageUrls;
 
     @Builder
-    public Review(Order order, OrderDetail orderDetail ,User user,
+    public Review(Order order, OrderDetail orderDetail , User user,
                   String productSummary, String content, int rating,
                   Tag tag, List<String> imageUrls) {
         this.tag = tag;

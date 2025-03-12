@@ -2,10 +2,10 @@ package com.jishop.review.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.domain.User;
+import com.jishop.member.domain.User;
+import com.jishop.member.repository.UserRepository;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.repository.OrderDetailRepository;
-import com.jishop.repository.UserRepository;
 import com.jishop.review.domain.Review;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
