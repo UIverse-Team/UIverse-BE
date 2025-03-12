@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 public class Stock extends BaseEntity {
 
     int stockNumber;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "saleProduct_id")
     SaleProduct saleProduct;
@@ -39,3 +38,4 @@ public class Stock extends BaseEntity {
         return this.stockNumber >= quantity;
     }
 }
+

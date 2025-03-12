@@ -2,8 +2,8 @@ package com.jishop.product.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.product.domain.Stock;
-import com.jishop.product.repository.StockRepository;
+import com.jishop.stock.domain.Stock;
+import com.jishop.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
