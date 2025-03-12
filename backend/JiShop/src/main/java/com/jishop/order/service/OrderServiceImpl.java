@@ -12,7 +12,7 @@ import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
-import com.jishop.product.repository.SaleProductRepository;
+import com.jishop.saleproduct.Repository.SaleProductRepository;
 import com.jishop.product.service.StockService;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;

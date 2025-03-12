@@ -7,3 +7,4 @@ public enum SaleStatus {
     DISCONTINUED,
     RESERVED
 }
+

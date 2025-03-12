@@ -1,5 +1,6 @@
 package com.jishop.category.domain;
 
+import com.jishop.common.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Table(name = "categories")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
 
