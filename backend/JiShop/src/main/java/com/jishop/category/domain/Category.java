@@ -1,5 +1,15 @@
 package com.jishop.category.domain;
 
+import com.jishop.common.util.BaseEntity;
+import com.jishop.product.domain.Product;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.*;
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,17 +24,19 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category {
+public class Category extends BaseEntity {
 
-    @Id
-    @Column(length = 20)
-    private String id;
+    @OneToMany(mappedBy = "category")
+    private List<Product> products = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Category parent;
+    @JoinColumn(name = "parent_id", referencedColumnName = "current_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
+    private Category parentId;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @Column(name = "current_id", nullable = false, unique = true)
+    private Long currentId;
+
+    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL)
     private List<Category> children = new ArrayList<>();
 
     @Column(name = "name", nullable = false, length = 100)
@@ -54,18 +66,10 @@ public class Category {
     @Column(name = "juvenile_harmful", nullable = false)
     private Boolean juvenileHarmful = false;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    // 생성자
+    @Builder
     public Category(
-            String id,
-            Category parent,
+            Category parentId,
+            Long currentId,
             String name,
             String wholeCategoryId,
             String wholeCategoryName,
@@ -74,12 +78,10 @@ public class Category {
             Boolean deleted,
             Boolean sellBlogUse,
             Integer sortOrder,
-            Boolean juvenileHarmful,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt
+            Boolean juvenileHarmful
     ){
-        this.id = id;
-        this.parent = parent;
+        this.parentId = parentId;
+        this.currentId = currentId;
         this.name = name;
         this.wholeCategoryId = wholeCategoryId;
         this.wholeCategoryName = wholeCategoryName;
@@ -89,12 +91,5 @@ public class Category {
         this.sellBlogUse = sellBlogUse;
         this.sortOrder = sortOrder;
         this.juvenileHarmful = juvenileHarmful;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    // 부모 설정을 위한 setter
-    public void setParent(Category parent) {
-        this.parent = parent;
     }
 }
