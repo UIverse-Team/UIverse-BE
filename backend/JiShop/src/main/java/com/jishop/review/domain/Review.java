@@ -27,10 +27,6 @@ public class Review extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_detail_id")
     private OrderDetail orderDetail;
 
@@ -50,13 +46,12 @@ public class Review extends BaseEntity {
     private ImageUrls imageUrls;
 
     @Builder
-    public Review(Order order, OrderDetail orderDetail , User user,
+    public Review(OrderDetail orderDetail, User user,
                   String productSummary, String content, int rating,
                   Tag tag, List<String> imageUrls) {
         this.tag = tag;
         this.user = user;
         this.rating = rating;
-        this.order = order;
         this.content = content;
         this.orderDetail = orderDetail;
         this.productSummary = productSummary;

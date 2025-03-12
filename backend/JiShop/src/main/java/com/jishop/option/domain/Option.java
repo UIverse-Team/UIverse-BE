@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Option extends BaseEntity {
 
-    String optionName;
-    String optionValue;
-    int optionExtra;
+    private String optionValue;
+    private int optionExtra;
 }

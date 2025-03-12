@@ -4,12 +4,15 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.member.repository.UserRepository;
+import com.jishop.option.domain.Option;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.repository.OrderDetailRepository;
+import com.jishop.product.domain.Product;
 import com.jishop.review.domain.Review;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
+import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
@@ -39,12 +42,24 @@ public class ReviewServiceImpl implements ReviewService {
         // 2. 상품 테이블에서 리뷰개수와 리뷰평점 업데이트 하기. -> 트랜잭션 락 걸어야지.
         // 3. review 생성.
 
+
+
         OrderDetail orderDetail = orderDetailRepository.findOrderDetailForReviewById(reviewRequest.orderDetailId())
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_DETAIL_NOT_FOUND));
 
-        String productSummary = "상품명 + ,옵션 + ,수량";
+        SaleProduct saleProduct = orderDetail.getSaleProduct();
 
-        Review review = reviewRepository.save(reviewRequest.toEntity(images, user, productSummary));
+        Option option = saleProduct.getOption();
+
+        Product product = saleProduct.getProduct();
+
+        String productSummary = String.format("%s, %s, %s", saleProduct.getName(),
+                option.getOptionValue(),
+                orderDetail.getQuantity());
+
+        // 리뷰 개수, 리뷰 평점 업데이트
+
+        Review review = reviewRepository.save(reviewRequest.toEntity(images, orderDetail, user, productSummary));
 
         return review.getId();
     }
@@ -55,8 +70,6 @@ public class ReviewServiceImpl implements ReviewService {
         // 1. 가져올거 -> 별점, 사진, 옵션, tag 값, 대표 상품 값
         // 2. 주문 상세, 판매 상품 saleProductId로 조인 List<order_detail> a 받아옴
         // 3. a
-
-
 
 
         return null;

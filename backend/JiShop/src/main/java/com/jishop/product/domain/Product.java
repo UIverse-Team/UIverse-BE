@@ -2,10 +2,7 @@ package com.jishop.product.domain;
 
 import com.jishop.common.util.BaseEntity;
 import com.jishop.store.domain.Store;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +14,9 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store store;
 
     @Column(name = "category_id", nullable = false)
     private String categoryId;
@@ -62,8 +62,8 @@ public class Product extends BaseEntity {
     @Column(name = "brand", nullable = false)
     private String brand;
 
-    @Column(name = "rate", nullable = false)
-    private Double rate;
+    @Column(name = "review_rating", nullable = false)
+    private Double reviewRating;
 
     @Column(name = "review_count")
     private Integer reviewCount;
@@ -99,7 +99,7 @@ public class Product extends BaseEntity {
     public Product(String categoryId, String lCatId, String mCatId, String sCatId,
                    String name, String description, Integer originPrice,
                    Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
-                   DiscountStatus discountStatus, Boolean isDiscount, String brand, Double rate, Integer reviewCount,
+                   DiscountStatus discountStatus, Boolean isDiscount, String brand, Double reviewRating, Integer reviewCount,
                    Integer likeCount, Labels labels, LocalDateTime createdAt, LocalDateTime updatedAt, Boolean deleteFlag,
                    String mainImage, String image1, String image2, String image3, String image4, String detailImage
     ) {
@@ -117,7 +117,7 @@ public class Product extends BaseEntity {
         this.discountStatus = discountStatus;
         this.isDiscount = isDiscount;
         this.brand = brand;
-        this.rate = rate;
+        this.reviewRating= reviewRating;
         this.reviewCount = reviewCount;
         this.likeCount = likeCount;
         this.labels = labels;
@@ -128,6 +128,9 @@ public class Product extends BaseEntity {
         this.image3 = image3;
         this.image4 = image4;
         this.detailImage = detailImage;
+    }
+    public void updateRatingAndCount(Integer rating, Integer reviewCount) {
+
     }
 }
 
