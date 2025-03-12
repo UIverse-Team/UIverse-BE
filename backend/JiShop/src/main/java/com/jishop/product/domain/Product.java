@@ -2,10 +2,7 @@ package com.jishop.product.domain;
 
 import com.jishop.common.util.BaseEntity;
 import com.jishop.store.domain.Store;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,6 +14,10 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     @Column(name = "category_id", nullable = false)
     private String categoryId;
@@ -95,6 +96,8 @@ public class Product extends BaseEntity {
 
     @Column(name = "detail_image")
     private String detailImage;
+
+
 
     public Product(String categoryId, String lCatId, String mCatId, String sCatId,
                    String name, String description, Integer originPrice,
