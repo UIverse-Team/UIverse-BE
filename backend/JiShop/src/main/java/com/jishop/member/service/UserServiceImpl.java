@@ -67,12 +67,14 @@ public class UserServiceImpl implements UserService {
 
     public String loginStr(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
         return user.getName();
     }
 
     public FindUserResponse findUser(FindUserRequest request){
         User user = userRepository.findByPhone(request.phone())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
         return FindUserResponse.of(user);
     }
 
@@ -88,14 +90,13 @@ public class UserServiceImpl implements UserService {
      *  추후 변경 필요 user 필요
      * @param request
      */
-    public void recoveryPW(RecoveryPWRequest request){
-        User user = userRepository.findById(1L)
+    public void recoveryPW(Long userId, RecoveryPWRequest request){
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
         if(passwordEncoder.matches(request.password(), user.getPassword())){
             throw new DomainException(ErrorType.PASSWORD_EXISTS);
         }
-
         String password = passwordEncoder.encode(request.password());
         user.updatePassword(password);
     }

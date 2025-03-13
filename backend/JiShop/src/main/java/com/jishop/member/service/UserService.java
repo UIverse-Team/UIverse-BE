@@ -17,5 +17,5 @@ public interface UserService {
     String loginStr(Long userId);
     FindUserResponse findUser(FindUserRequest request);
     UserIdResponse findUserId(EmailRequest request);
-    void recoveryPW(RecoveryPWRequest request);
+    void recoveryPW(Long userId, RecoveryPWRequest request);
 }

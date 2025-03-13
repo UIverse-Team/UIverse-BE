@@ -30,7 +30,9 @@ public class UserControllerImpl implements UserController{
 
     @PostMapping("/recoverypw")
     public ResponseEntity<String> recoverypw(@RequestBody @Validated RecoveryPWRequest request){
-        userService.recoveryPW(request);
-        return ResponseEntity.ok().body("success");
+        Long userid = 1l;
+        userService.recoveryPW(userid, request);
+
+        return ResponseEntity.ok().body("비밀번호 뱐경완료!");
     }
 }
