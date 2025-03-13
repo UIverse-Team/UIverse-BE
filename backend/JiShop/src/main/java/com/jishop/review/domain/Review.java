@@ -52,6 +52,7 @@ public class Review extends BaseEntity {
     private ImageUrls imageUrls;
 
     @ColumnDefault("0")
+    @Column(nullable = false)
     private int likeCount;
 
     @Builder

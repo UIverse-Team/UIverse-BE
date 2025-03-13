@@ -1,6 +1,7 @@
 package com.jishop.option.domain.embed;
 
 public enum CategoryType {
+
     FASHION_CLOTHING("패션의류"),
     FASHION_ACCESSORIES("패션잡화"),
     DIGITAL_APPLIANCES("디지털/가전"),

@@ -3,6 +3,7 @@ package com.jishop.review.controller;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,7 +24,7 @@ public class ReviewControllerImpl implements ReviewController {
 
     @Override
     @PostMapping
-    public ResponseEntity<Long> craeteReview(@RequestBody ReviewRequest reviewRequest) {
+    public ResponseEntity<Long> craeteReview(@RequestBody @Valid ReviewRequest reviewRequest) {
         //todo:
         // 1. imageService 만들어서 받기
         // 2. userId 세션에서 받아오기.

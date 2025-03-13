@@ -9,6 +9,7 @@ import java.util.List;
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ImageUrls {
+
     private String image1;
     private String image2;
     private String image3;

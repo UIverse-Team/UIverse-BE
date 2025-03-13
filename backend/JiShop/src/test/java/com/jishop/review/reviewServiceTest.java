@@ -3,7 +3,6 @@ package com.jishop.review;
 import com.jishop.review.domain.tag.Tag;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.service.ReviewService;
-import org.junit.Assert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package com.jishop.review.dto;
 
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.product.domain.Product;
@@ -23,7 +25,7 @@ public record ReviewRequest(
 ) {
     public ReviewRequest {
         if (rating < 1 || rating > 5)
-            throw new IllegalArgumentException("별점은 1~5점을 해야한다.");
+            throw new DomainException(ErrorType.RATING_OUT_OF_RANGE);
     }
 
     public Review toEntity(List<String> images, Product product, OrderDetail orderDetail, User user, String productSummary) {
