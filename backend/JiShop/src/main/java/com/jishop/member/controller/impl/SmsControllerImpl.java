@@ -1,7 +1,8 @@
-package com.jishop.member.controller;
+package com.jishop.member.controller.impl;
 
-import com.jishop.member.dto.SmsRequest;
-import com.jishop.member.dto.CertifyCodeRequest;
+import com.jishop.member.controller.SmsController;
+import com.jishop.member.dto.request.SmsRequest;
+import com.jishop.member.dto.request.CertifyCodeRequest;
 import com.jishop.member.service.SmsCertificationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

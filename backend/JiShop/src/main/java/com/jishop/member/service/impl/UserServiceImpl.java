@@ -1,17 +1,16 @@
-package com.jishop.member.service;
+package com.jishop.member.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
-import com.jishop.member.dto.*;
-import com.jishop.member.dto.request.FindUserRequest;
-import com.jishop.member.dto.request.RecoveryPWRequest;
+import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
+import com.jishop.member.dto.response.SocialUserInfo;
 import com.jishop.member.dto.response.UserIdResponse;
 import com.jishop.member.repository.UserRepository;
+import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

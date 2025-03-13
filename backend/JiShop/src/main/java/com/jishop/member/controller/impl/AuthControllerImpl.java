@@ -1,6 +1,7 @@
-package com.jishop.member.controller;
+package com.jishop.member.controller.impl;
 
-import com.jishop.member.dto.SignInFormRequest;
+import com.jishop.member.controller.AuthController;
+import com.jishop.member.dto.request.SignInFormRequest;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

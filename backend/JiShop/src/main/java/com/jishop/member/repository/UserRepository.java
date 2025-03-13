@@ -2,7 +2,7 @@ package com.jishop.member.repository;
 
 import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
-import com.jishop.member.dto.EmailRequest;
+import com.jishop.member.dto.request.EmailRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

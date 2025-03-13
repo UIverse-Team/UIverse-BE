@@ -1,8 +1,9 @@
-package com.jishop.member.service;
+package com.jishop.member.service.impl;
 
-import com.jishop.member.dto.KakaoUserResponse;
-import com.jishop.member.dto.SocialUserInfo;
-import com.jishop.member.dto.TokenResponse;
+import com.jishop.member.dto.response.NaverUserResponse;
+import com.jishop.member.dto.response.SocialUserInfo;
+import com.jishop.member.dto.response.TokenResponse;
+import com.jishop.member.service.AbstractOAuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,15 +13,15 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 @Slf4j
 @Service
-public class KakaoServiceImpl extends AbstractOAuthService {
+public class NaverServiceImpl extends AbstractOAuthService {
 
-    public KakaoServiceImpl(HttpSession httpSession,
-                            @Value("${kakao.client.id}") String clientId,
-                            @Value("${kakao.client.secret}") String clientSecret,
-                            @Value("${kakao.redirect-uri}") String redirectUri) {
+    public NaverServiceImpl(HttpSession httpSession,
+                             @Value("${naver.client.id}") String clientId,
+                             @Value("${naver.client.secret}") String clientSecret,
+                             @Value("${naver.redirect.uri}") String redirectUri) {
         super(httpSession,
-                "https://kauth.kakao.com/oauth",
-                "https://kapi.kakao.com",
+                "https://nid.naver.com",
+                "https://openapi.naver.com",
                 clientId,
                 clientSecret,
                 redirectUri
@@ -29,7 +30,7 @@ public class KakaoServiceImpl extends AbstractOAuthService {
 
     @Override
     protected String buildAuthUrl(String state) {
-        return "https://kauth.kakao.com/oauth/authorize" +
+        return "https://nid.naver.com/oauth2.0/authorize" +
                 "?client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
                 "&response_type=code" +
@@ -40,7 +41,7 @@ public class KakaoServiceImpl extends AbstractOAuthService {
     protected TokenResponse getAccessToken(String code, String state) {
         try {
             return authWebClient.post()
-                    .uri("/token")
+                    .uri("/oauth2.0/token")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(BodyInserters.fromFormData("client_id", clientId)
                             .with("client_secret", clientSecret)
@@ -52,27 +53,26 @@ public class KakaoServiceImpl extends AbstractOAuthService {
                     .bodyToMono(TokenResponse.class)
                     .block();
         } catch (Exception e) {
-            log.error("Error getting KAKAO access token: {}", e.getMessage(), e);
-            throw new RuntimeException("카카오 Access Token 가져오는 데 오류가 발생했습니다");
+            log.error("Error getting NAVER access token: {}", e.getMessage(), e);
+            throw new RuntimeException("네이버 Access Token 가져오는 데 오류가 발생했습니다");
         }
     }
 
     @Override
     protected SocialUserInfo getUserInfo(String accessToken) {
-        return apiWebClient.get()
-                .uri("/v2/user/me")
+        NaverUserResponse naverResponse = apiWebClient.get()
+                .uri("/v1/nid/me")
                 .headers(h -> h.setBearerAuth(accessToken))
                 .retrieve()
-                .bodyToMono(KakaoUserResponse.class)
-                .map(this::convertToSocialUserInfo)
+                .bodyToMono(NaverUserResponse.class)
                 .block();
-    }
 
-    private SocialUserInfo convertToSocialUserInfo(KakaoUserResponse response) {
-        return new SocialUserInfo(
-                String.valueOf(response.id()),
-                response.kakaoAccount().profile().nickname(),
-                response.kakaoAccount().email()
-        );
+        if (naverResponse != null && naverResponse.response() != null) {
+            return naverResponse.response();
+        } else {
+            log.error("Failed to get user info from Naver: {}", naverResponse);
+            throw new RuntimeException("네이버에서 사용자 정보를 가져오는데 실패했습니다.");
+        }
     }
 }
+

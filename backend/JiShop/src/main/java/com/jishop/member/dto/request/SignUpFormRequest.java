@@ -1,4 +1,4 @@
-package com.jishop.member.dto;
+package com.jishop.member.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.jishop.member.domain.LoginType;

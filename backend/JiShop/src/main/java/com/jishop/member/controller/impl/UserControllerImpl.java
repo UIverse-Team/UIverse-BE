@@ -1,6 +1,7 @@
-package com.jishop.member.controller;
+package com.jishop.member.controller.impl;
 
-import com.jishop.member.dto.EmailRequest;
+import com.jishop.member.controller.UserController;
+import com.jishop.member.dto.request.EmailRequest;
 import com.jishop.member.dto.request.FindUserRequest;
 import com.jishop.member.dto.request.RecoveryPWRequest;
 import com.jishop.member.dto.response.FindUserResponse;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-public class UserControllerImpl implements UserController{
+public class UserControllerImpl implements UserController {
 
     private final UserService userService;
 
