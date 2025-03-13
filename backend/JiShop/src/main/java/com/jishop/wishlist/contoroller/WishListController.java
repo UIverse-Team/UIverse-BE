@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface WishListController {
 
-    ResponseEntity<String > addWishProduct(WishProductRequest request);
+    ResponseEntity<String> addWishProduct(WishProductRequest request);
     List<WishProductResponse> getWishProducts();
 }

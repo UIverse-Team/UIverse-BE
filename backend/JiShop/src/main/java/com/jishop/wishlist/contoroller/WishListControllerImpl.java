@@ -19,6 +19,7 @@ public class WishListControllerImpl implements WishListController {
     @PostMapping("/addProduct")
     public ResponseEntity<String> addWishProduct(@RequestBody WishProductRequest request){
         wishListService.addProduct(request);
+
         return ResponseEntity.ok("success");
     }
 
@@ -26,5 +27,4 @@ public class WishListControllerImpl implements WishListController {
     public List<WishProductResponse> getWishProducts() {
         return wishListService.getWishProducts();
     }
-
 }

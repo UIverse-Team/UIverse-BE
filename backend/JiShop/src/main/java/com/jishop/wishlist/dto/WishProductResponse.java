@@ -3,12 +3,12 @@ package com.jishop.wishlist.dto;
 import com.jishop.product.domain.Product;
 
 public record WishProductResponse(
-        Long productid,
+        Long productId,
         String productName,
         String mainImage
 ) {
-    public WishProductResponse(Long productid, String productName, String mainImage){
-        this.productid = productid;
+    public WishProductResponse(Long productId, String productName, String mainImage){
+        this.productId = productId;
         this.productName = productName;
         this.mainImage = mainImage;
     }

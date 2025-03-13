@@ -1,4 +1,4 @@
-package com.jishop.product.domain;
+    package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
 import jakarta.persistence.*;
