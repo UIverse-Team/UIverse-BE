@@ -1,11 +1,10 @@
-package com.jishop.member.controller;
+package com.jishop.member.controller.impl;
 
-import com.jishop.member.dto.FinalStepRequest;
-import com.jishop.member.dto.SignUpFormRequest;
-import com.jishop.member.dto.Step1Request;
-import com.jishop.member.dto.Step2Request;
-import com.jishop.member.dto.request.FindUserRequest;
-import com.jishop.member.dto.response.FindUserResponse;
+import com.jishop.member.controller.SignUpController;
+import com.jishop.member.dto.request.FinalStepRequest;
+import com.jishop.member.dto.request.SignUpFormRequest;
+import com.jishop.member.dto.request.Step1Request;
+import com.jishop.member.dto.request.Step2Request;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

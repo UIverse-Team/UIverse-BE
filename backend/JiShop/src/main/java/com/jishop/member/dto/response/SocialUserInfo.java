@@ -1,4 +1,4 @@
-package com.jishop.member.dto;
+package com.jishop.member.dto.response;
 
 public record SocialUserInfo(
         String id,

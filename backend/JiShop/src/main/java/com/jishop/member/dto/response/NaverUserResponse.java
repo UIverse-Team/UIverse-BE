@@ -1,4 +1,4 @@
-package com.jishop.member.dto;
+package com.jishop.member.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

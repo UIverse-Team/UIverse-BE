@@ -1,16 +1,15 @@
-package com.jishop.member.service;
+package com.jishop.member.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
-import com.jishop.member.dto.SignInFormRequest;
-import com.jishop.member.dto.SignUpFormRequest;
-import com.jishop.member.dto.SocialUserInfo;
-import com.jishop.member.dto.Step1Request;
-import com.jishop.member.dto.request.FindUserRequest;
+import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
+import com.jishop.member.dto.response.SocialUserInfo;
+import com.jishop.member.dto.response.UserIdResponse;
 import com.jishop.member.repository.UserRepository;
+import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,12 +66,37 @@ public class UserServiceImpl implements UserService {
 
     public String loginStr(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
         return user.getName();
     }
 
     public FindUserResponse findUser(FindUserRequest request){
         User user = userRepository.findByPhone(request.phone())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
         return FindUserResponse.of(user);
+    }
+
+
+    // user id 들고오는 서비스 필요
+    public UserIdResponse findUserId(EmailRequest request){
+        User user = userRepository.findByLoginId(request)
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+        return UserIdResponse.from(user.getId());
+    }
+    /**
+     *  추후 변경 필요 user 필요
+     * @param request
+     */
+    public void recoveryPW(Long userId, RecoveryPWRequest request){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+        if(passwordEncoder.matches(request.password(), user.getPassword())){
+            throw new DomainException(ErrorType.PASSWORD_EXISTS);
+        }
+        String password = passwordEncoder.encode(request.password());
+        user.updatePassword(password);
     }
 }

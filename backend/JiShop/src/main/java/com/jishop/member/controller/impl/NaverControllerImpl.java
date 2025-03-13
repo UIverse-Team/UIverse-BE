@@ -1,7 +1,8 @@
-package com.jishop.member.controller;
+package com.jishop.member.controller.impl;
 
+import com.jishop.member.controller.OAuthController;
 import com.jishop.member.domain.LoginType;
-import com.jishop.member.dto.SocialUserInfo;
+import com.jishop.member.dto.response.SocialUserInfo;
 import com.jishop.member.service.OauthService;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;

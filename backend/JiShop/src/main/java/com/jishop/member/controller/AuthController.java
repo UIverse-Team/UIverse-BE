@@ -1,7 +1,7 @@
 package com.jishop.member.controller;
 
 
-import com.jishop.member.dto.SignInFormRequest;
+import com.jishop.member.dto.request.SignInFormRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 

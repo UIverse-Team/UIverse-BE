@@ -1,8 +1,8 @@
-package com.jishop.member.dto;
+package com.jishop.member.dto.request;
 
 import com.jishop.member.annotation.Password;
 
-public record Step2Request(
+public record RecoveryPWRequest(
         @Password
         String password
 ) {
