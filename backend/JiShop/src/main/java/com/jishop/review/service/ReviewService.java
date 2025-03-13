@@ -8,6 +8,7 @@ import org.springframework.data.web.PagedModel;
 import java.util.List;
 
 public interface ReviewService {
+
     Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId);
     PagedModel<ReviewResponse> getProductReviews(Long productId, Pageable pageable);
     List<ReviewResponse> getUserReviews(Long userId);
