@@ -62,12 +62,6 @@ public class Product extends BaseEntity {
     @Column(name = "brand", nullable = false)
     private String brand;
 
-    @Column(name = "rate", nullable = false)
-    private Double rate;
-
-    @Column(name = "review_count")
-    private Integer reviewCount;
-
     @Column(name = "like_count")
     private Integer likeCount;
 
@@ -97,11 +91,11 @@ public class Product extends BaseEntity {
     private String detailImage;
 
     public Product(Category category, String lCatId, String mCatId, String sCatId,
-            String storeSeq, String name, String description, Integer originPrice,
-            Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
-            DiscountStatus discountStatus, Boolean isDiscount, String brand, Double rate, Integer reviewCount,
-            Integer likeCount, Labels labels,Boolean deleteFlag,
-            String mainImage, String image1, String image2, String image3, String image4, String detailImage
+                   String storeSeq, String name, String description, Integer originPrice,
+                   Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+                   DiscountStatus discountStatus, Boolean isDiscount, String brand,
+                   Integer likeCount, Labels labels, Boolean deleteFlag,
+                   String mainImage, String image1, String image2, String image3, String image4, String detailImage
     ) {
         this.category = category;
         this.lCatId = lCatId;
@@ -118,8 +112,6 @@ public class Product extends BaseEntity {
         this.discountStatus = discountStatus;
         this.isDiscount = isDiscount;
         this.brand = brand;
-        this.rate = rate;
-        this.reviewCount = reviewCount;
         this.likeCount = likeCount;
         this.labels = labels;
         this.deleteFlag = deleteFlag;

@@ -12,6 +12,8 @@ import com.jishop.review.domain.Review;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
+import com.jishop.reviewproduct.domain.ReviewProduct;
+import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,10 +31,16 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final ReviewProductRepository reviewProductRepository;
 
     @Override
     public Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId) {
 
+        // 리뷰 중복 방지
+        boolean isDuplicate = reviewRepository.existsByOrderDetailId(reviewRequest.orderDetailId());
+        if(isDuplicate){
+            throw new DomainException(ErrorType.REVIEW_DUPLICATE);
+        }
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new DomainException(ErrorType.USER_NOT_FOUND)
         );
@@ -43,23 +51,39 @@ public class ReviewServiceImpl implements ReviewService {
         // 3. review 생성.
 
 
-
         OrderDetail orderDetail = orderDetailRepository.findOrderDetailForReviewById(reviewRequest.orderDetailId())
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_DETAIL_NOT_FOUND));
 
         SaleProduct saleProduct = orderDetail.getSaleProduct();
 
-        Option option = saleProduct.getOption();
+        String productSummary = null;
+
+        if (saleProduct.getOption() == null) {
+            productSummary = String.format("%s, %s", saleProduct.getName(),
+                    orderDetail.getQuantity());
+        } else {
+            productSummary = String.format("%s, %s, %s", saleProduct.getName(),
+                    saleProduct.getOption().getOptionValue(),
+                    orderDetail.getQuantity());
+        }
 
         Product product = saleProduct.getProduct();
 
-        String productSummary = String.format("%s, %s, %s", saleProduct.getName(),
-                option.getOptionValue(),
-                orderDetail.getQuantity());
+        // 동시성 고려 x
+        ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product)
+                .orElseGet(() -> {
+                    var newReviewProduct = ReviewProduct.builder()
+                            .reviewCount(0)
+                            .reviewScore(0)
+                            .product(product)
+                            .build();
+                    return reviewProductRepository.save(newReviewProduct);
+                });
 
-        // 리뷰 개수, 리뷰 평점 업데이트
+        reviewProduct.updateRating(reviewRequest.rating());
 
-        Review review = reviewRepository.save(reviewRequest.toEntity(images, orderDetail, user, productSummary));
+        // 리뷰 저장
+        Review review = reviewRepository.save(reviewRequest.toEntity(images, product, orderDetail, user, productSummary));
 
         return review.getId();
     }

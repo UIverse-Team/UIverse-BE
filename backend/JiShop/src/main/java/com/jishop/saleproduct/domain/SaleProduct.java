@@ -31,7 +31,7 @@ public class SaleProduct extends BaseEntity {
     private Product product;
 
     @JoinColumn(name = "option_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Option option;
 
     @OneToOne(mappedBy = "saleProduct")
