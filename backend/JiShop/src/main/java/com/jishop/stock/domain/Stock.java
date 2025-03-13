@@ -15,28 +15,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock extends BaseEntity {
 
-    int stockNumber;
+    int quantity;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "saleProduct_id")
+    @JoinColumn(name = "sale_product_id")
     SaleProduct saleProduct;
 
     //재고 감소 처리
     public void decreaseStock(int quantity) {
-        if(this.stockNumber < quantity) {
+        if(this.quantity < quantity) {
             throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
         }
-        this.stockNumber -= quantity;
+        this.quantity -= quantity;
     }
 
     //재고 증가 처리
     public void increaseStock(int quantity) {
-        this.stockNumber += quantity;
+        this.quantity += quantity;
     }
 
     //재고 확인
     public boolean hasStock(int quantity){
-        return this.stockNumber >= quantity;
+        return this.quantity >= quantity;
     }
 }
 

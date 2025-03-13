@@ -4,7 +4,6 @@ public record OrderDetailResponse(
     Long id,
     Long saleProductId,
     String productName,
-    String optionName,
     String optionValue,
     int price,
     int quantity,

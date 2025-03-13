@@ -18,25 +18,21 @@ public class SaleProduct extends BaseEntity {
 
     String name;
 
-    String image;
-
     @JoinColumn(name = "product_id")
     @ManyToOne(fetch = FetchType.LAZY)
     Product product;
 
-    @JoinColumn(name = "option_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "option_id", nullable = true)
+    @OneToOne(optional = true, fetch = FetchType.LAZY)
     Option option;
 
     @OneToOne(mappedBy = "saleProduct")
     Stock stock;
 
     @Builder
-    public SaleProduct(Product product, Option option, String name, String image ) {
+    public SaleProduct(Product product, Option option, String name) {
         this.product = product;
         this.option = option;
         this.name = name;
-        this.image = image;
-
     }
 }

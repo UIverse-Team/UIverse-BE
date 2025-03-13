@@ -146,6 +146,13 @@ public class OrderServiceImpl implements OrderService {
         if(order.getStatus() == OrderStatus.PURCHASED_CONFIRMED)
             throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
 
+        List<OrderDetail> orderDetails = order.getOrderDetails();
+        for(OrderDetail orderDetail : orderDetails){
+            Long saleProductId = orderDetail.getSaleProduct().getId();
+            int quantity = orderDetail.getQuantity();
+
+            stockService.increaseStock(saleProductId, quantity);
+        }
         //주문 상태 변경
         order.updateStatus(OrderStatus.ORDER_CANCELED);
         order.delete();
@@ -157,7 +164,6 @@ public class OrderServiceImpl implements OrderService {
                         detail.getId(),
                         detail.getSaleProduct().getId(),
                         detail.getSaleProduct().getName(),
-                        detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionName() : null,
                         detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
                         detail.getPrice(),
                         detail.getQuantity(),
