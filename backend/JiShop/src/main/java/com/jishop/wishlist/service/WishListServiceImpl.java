@@ -45,10 +45,10 @@ public class WishListServiceImpl implements WishListService {
         // 전체 찾아오기
         List<WishList> wishList = wishListRepository.findAll();
         // 위시리스트에서 상품 id가져와서? 해당 아이디들로 해당 상품 내용으로 변환하기
-        List<Long> productIds = wishList.stream().map(wish -> wish.getProduct().getId()).collect(Collectors.toList());
+        List<Long> productIds = wishList.stream().map(wish -> wish.getProduct().getId()).toList();
         List<Product> products = productRepository.findAllById(productIds);
 
         return products.stream().map(product -> new WishProductResponse(product))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
