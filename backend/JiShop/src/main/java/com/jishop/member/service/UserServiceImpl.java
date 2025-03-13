@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByLoginId(request)
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
-        return UserIdResponse.of(user.getId());
+        return UserIdResponse.from(user.getId());
     }
     /**
      *  추후 변경 필요 user 필요
