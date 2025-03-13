@@ -8,6 +8,8 @@ import com.jishop.member.dto.SignInFormRequest;
 import com.jishop.member.dto.SignUpFormRequest;
 import com.jishop.member.dto.SocialUserInfo;
 import com.jishop.member.dto.Step1Request;
+import com.jishop.member.dto.request.FindUserRequest;
+import com.jishop.member.dto.response.FindUserResponse;
 import com.jishop.member.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -66,5 +68,11 @@ public class UserServiceImpl implements UserService {
     public String loginStr(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
         return user.getName();
+    }
+
+    public FindUserResponse findUser(FindUserRequest request){
+        User user = userRepository.findByPhone(request.phone())
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+        return FindUserResponse.of(user);
     }
 }
