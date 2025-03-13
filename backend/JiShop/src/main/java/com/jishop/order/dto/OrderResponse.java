@@ -1,7 +1,6 @@
 package com.jishop.order.dto;
 
 import com.jishop.order.domain.Order;
-import com.jishop.order.domain.OrderNumber;
 import com.jishop.order.domain.OrderStatus;
 
 import java.util.List;

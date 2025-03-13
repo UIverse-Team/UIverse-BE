@@ -99,8 +99,6 @@ public class OrderServiceImpl implements OrderService {
         // OrderNumber에 Order 설정
         orderNumber.updateOrder(savedOrder);
 
-        // OrderNumber 저장
-        orderNumberRepository.save(orderNumber);
 
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
 
