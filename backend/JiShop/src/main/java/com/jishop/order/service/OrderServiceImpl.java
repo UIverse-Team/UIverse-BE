@@ -38,12 +38,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
-        //주문 번호 생성
+        // 주문 번호 생성 (저장하지 않고 문자열만 받음)
         String orderNumberStr = orderNumberService.generateOrderNumber();
 
-        OrderNumber orderNumber = orderNumberRepository.findByOrderNumber(orderNumberStr)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NUMBER_NOT_FOUND));
-
+        // 주문 객체 생성
         Order order = orderRequest.toEntity();
 
         List<OrderDetail> orderDetails = new ArrayList<>();
@@ -87,11 +85,22 @@ public class OrderServiceImpl implements OrderService {
         if(orderDetailRequests.size() != 1)
             mainProductName = mainProductName + " 외 " + (orderDetailRequests.size()-1) + "건";
 
-        //주문 정보 업데이트
+        // OrderNumber 객체 생성 (아직 저장하지 않음)
+        OrderNumber orderNumber = OrderNumber.builder()
+                .orderNumber(orderNumberStr)
+                .build();
+
+        // 주문 정보 업데이트
         order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumber);
 
-        //주문 저장
-        orderRepository.save(order);
+        // 주문 저장
+        Order savedOrder = orderRepository.save(order);
+
+        // OrderNumber에 Order 설정
+        orderNumber.updateOrder(savedOrder);
+
+        // OrderNumber 저장
+        orderNumberRepository.save(orderNumber);
 
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
 

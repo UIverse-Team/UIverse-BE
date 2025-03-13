@@ -4,6 +4,7 @@ import com.jishop.common.util.BaseEntity;
 import com.jishop.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

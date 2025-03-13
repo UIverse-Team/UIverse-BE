@@ -23,7 +23,7 @@ public class BaseEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "delete_status", nullable = false)
+    @Column(name = "delete_status", nullable = false, columnDefinition = "boolean default false")
     private boolean deleteStatus;
 
     public void delete() {

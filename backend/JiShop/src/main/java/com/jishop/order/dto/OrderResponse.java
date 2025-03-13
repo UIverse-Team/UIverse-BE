@@ -7,9 +7,8 @@ import com.jishop.order.domain.OrderStatus;
 import java.util.List;
 
 public record OrderResponse(
-
         Long id,
-        OrderNumber orderNumber,
+        String orderNumber, // Change from OrderNumber to String
         List<OrderDetailResponse> orderDetailResponseList,
         OrderStatus orderStatus,
         String mainProductName,
@@ -23,7 +22,7 @@ public record OrderResponse(
     public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
         return new OrderResponse(
                 order.getId(),
-                order.getOrderNumber(),
+                order.getOrderNumber().getOrderNumber(), // Get just the string value
                 orderDetailResponseList,
                 order.getStatus(),
                 order.getMainProductName(),

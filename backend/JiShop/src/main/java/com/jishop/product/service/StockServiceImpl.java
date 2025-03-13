@@ -32,7 +32,7 @@ public class StockServiceImpl implements StockService {
 
     //판매 상품ID로 재고 조회
     private Stock findStockBySaleProductId(Long saleProductId){
-        return stockRepository.findBySaleProductId(saleProductId)
+        return stockRepository.findBySaleProduct_Id(saleProductId)
                 .orElseThrow(() -> new DomainException(ErrorType.STOCK_NOT_FOUND));
     }
 

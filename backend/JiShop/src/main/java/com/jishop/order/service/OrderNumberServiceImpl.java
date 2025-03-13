@@ -50,13 +50,7 @@ public class OrderNumberServiceImpl implements OrderNumberService {
             randomStr = sb.toString();
         } while(orderNumberRepository.existsByOrderNumber(orderTypeCode + formattedDate + randomStr));
 
-        OrderNumber orderNumber = OrderNumber.builder()
-                        .orderNumber(orderTypeCode + formattedDate + randomStr)
-                        .build();
-        //주문번호 저장
-        orderNumberRepository.save(orderNumber);
-
-        return orderNumber.getOrderNumber();
+        return orderTypeCode + formattedDate + randomStr;
     }
 }
 

@@ -26,4 +26,8 @@ public class OrderNumber extends BaseEntity {
     public OrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
     }
+
+    public void updateOrder(Order order){
+        this.order = order;
+    }
 }
