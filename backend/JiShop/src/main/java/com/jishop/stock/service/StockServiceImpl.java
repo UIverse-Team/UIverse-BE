@@ -1,4 +1,4 @@
-package com.jishop.product.service;
+package com.jishop.stock.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -30,17 +30,17 @@ public class StockServiceImpl implements StockService {
         stock.increaseStock(quantity);
     }
 
-    //판매 상품ID로 재고 조회
-    private Stock findStockBySaleProductId(Long saleProductId){
-        return stockRepository.findBySaleProduct_Id(saleProductId)
-                .orElseThrow(() -> new DomainException(ErrorType.STOCK_NOT_FOUND));
-    }
-
     // 재고 확인
     @Override
     @Transactional(readOnly = true)
     public boolean checkStock(Long saleProductId, int quantity){
         Stock stock = findStockBySaleProductId(saleProductId);
         return stock.hasStock(quantity);
+    }
+
+    //판매 상품ID로 재고 조회
+    private Stock findStockBySaleProductId(Long saleProductId){
+        return stockRepository.findBySaleProduct_Id(saleProductId)
+                .orElseThrow(() -> new DomainException(ErrorType.STOCK_NOT_FOUND));
     }
 }

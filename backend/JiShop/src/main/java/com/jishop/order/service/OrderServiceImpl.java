@@ -13,7 +13,7 @@ import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.saleproduct.Repository.SaleProductRepository;
-import com.jishop.product.service.StockService;
+import com.jishop.stock.service.StockService;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,11 +94,10 @@ public class OrderServiceImpl implements OrderService {
         order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumber);
 
         // 주문 저장
-        Order savedOrder = orderRepository.save(order);
+        orderRepository.save(order);
 
         // OrderNumber에 Order 설정
-        orderNumber.updateOrder(savedOrder);
-
+        orderNumber.updateOrder(order);
 
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
 
@@ -109,35 +108,31 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderResponse getOrder(Long orderId){
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
-        List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
-
-        return OrderResponse.fromOrder(order, orderDetailResponseList);
+        return OrderResponse.fromOrder(order, convertToOrderDetailResponses(order.getOrderDetails()));
     }
 
     // 주문 내역 전체 조회
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
+        List<Order> orders = orderRepository.findAllWithDetails();
 
         return orders.stream()
                 .map(order -> {
                     List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
-
                     return OrderResponse.fromOrder(order, orderDetailResponseList);
                 })
                 .toList();
-
     }
 
    //주문취소
     @Override
     @Transactional
     public void cancelOrder(Long orderId){
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         if(order.getStatus() == OrderStatus.ORDER_CANCELED)

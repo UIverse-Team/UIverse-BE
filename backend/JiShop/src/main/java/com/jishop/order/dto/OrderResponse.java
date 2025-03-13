@@ -7,7 +7,7 @@ import java.util.List;
 
 public record OrderResponse(
         Long id,
-        String orderNumber, // Change from OrderNumber to String
+        String orderNumber,
         List<OrderDetailResponse> orderDetailResponseList,
         OrderStatus orderStatus,
         String mainProductName,
@@ -21,7 +21,7 @@ public record OrderResponse(
     public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
         return new OrderResponse(
                 order.getId(),
-                order.getOrderNumber().getOrderNumber(), // Get just the string value
+                order.getOrderNumber().getOrderNumber(),
                 orderDetailResponseList,
                 order.getStatus(),
                 order.getMainProductName(),

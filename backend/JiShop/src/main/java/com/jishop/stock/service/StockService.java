@@ -1,4 +1,4 @@
-package com.jishop.product.service;
+package com.jishop.stock.service;
 
 public interface StockService {
 

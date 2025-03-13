@@ -81,6 +81,5 @@ public class Category extends BaseEntity {
         this.sellBlogUse = sellBlogUse;
         this.sortOrder = sortOrder;
         this.juvenileHarmful = juvenileHarmful;
-
     }
 }

@@ -1,6 +1,7 @@
 package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
+import com.jishop.member.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,7 +21,11 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    Long paymentId;
+    // todo: 결제수단 매핑
+    private Long paymentId;
+
+    // todo: user 세션 가져오기
+    private Long userId;
 
     //대표상품명
     private String mainProductName;
@@ -51,7 +56,7 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private OrderNumber orderNumber;
 
     public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, OrderNumber orderNumber) {
