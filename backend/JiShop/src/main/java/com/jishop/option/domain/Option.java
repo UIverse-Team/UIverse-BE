@@ -2,8 +2,7 @@ package com.jishop.option.domain;
 
 
 import com.jishop.common.util.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Option extends BaseEntity {
 
-    String optionName;
-    String optionValue;
-    int optionExtra;
+    @Enumerated(EnumType.STRING)
+    private OptionCategory categoryType;
+
+    @Column(nullable = false)
+    private String optionValue;
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int optionExtra;
 }
