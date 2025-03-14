@@ -21,7 +21,7 @@ public record OrderResponse(
     public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
         return new OrderResponse(
                 order.getId(),
-                order.getOrderNumber().getOrderNumber(),
+                order.getOrderNumber(),
                 orderDetailResponseList,
                 order.getStatus(),
                 order.getMainProductName(),

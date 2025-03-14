@@ -4,13 +4,11 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
-import com.jishop.order.domain.OrderNumber;
 import com.jishop.order.domain.OrderStatus;
 import com.jishop.order.dto.OrderDetailRequest;
 import com.jishop.order.dto.OrderDetailResponse;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
-import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.saleproduct.Repository.SaleProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
@@ -20,9 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,8 +33,6 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final SaleProductRepository saleProductRepository;
-    private final OrderNumberService orderNumberService;
-    private final OrderNumberRepository orderNumberRepository;
     private final StockService stockService;
 
     //주문 생성
@@ -41,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
         // 주문 번호 생성 (저장하지 않고 문자열만 받음)
-        String orderNumberStr = orderNumberService.generateOrderNumber();
+        String orderNumberStr = generateOrderNumber();
 
         // 주문 객체 생성
         Order order = orderRequest.toEntity();
@@ -101,19 +100,11 @@ public class OrderServiceImpl implements OrderService {
         if(orderDetailRequests.size() != 1)
             mainProductName = mainProductName + " 외 " + (orderDetailRequests.size()-1) + "건";
 
-        // OrderNumber 객체 생성 (아직 저장하지 않음)
-        OrderNumber orderNumber = OrderNumber.builder()
-                .orderNumber(orderNumberStr)
-                .build();
-
         // 주문 정보 업데이트
-        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumber);
+        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumberStr);
 
         // 주문 저장
         orderRepository.save(order);
-
-        // OrderNumber에 Order 설정
-        orderNumber.updateOrder(order);
 
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
 
@@ -183,5 +174,43 @@ public class OrderServiceImpl implements OrderService {
                         detail.getPrice() * detail.getQuantity()
                 ))
                 .toList();
+    }
+
+    private static final int LENGTH = 5;
+    private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";
+
+    private String generateOrderNumber() {
+        /*
+         * 주문 번호 생성 로직
+         * 포맷은 TYYMMDDXXXXXX 이다.
+         * T : Type (O : Order)
+         * YY : 년도
+         * MM : 월
+         * DD : 일
+         * XXXXX : 5자리 영문자 + 숫자
+         */
+
+        String orderTypeCode = "O"; //Order
+        //년도와 날짜 정보를 담는다: yymmdd 형식
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        String formattedDate = currentDate.format(formatter);
+
+        //5자리 정수를 만든 후, 해당 정수가 존재하는지 확인을 반복한다
+        String randomStr = "";
+        Random random = new Random();
+
+        do{
+            //숫자, 알파벳 대소문자로 이루어진 5자리 랜덤 문자열 생성
+            StringBuilder sb = new StringBuilder(LENGTH);
+            for(int i = 0; i < LENGTH; i++){
+                int randomIndex = random.nextInt(CHARACTERS.length());
+                char randomChar = CHARACTERS.charAt(randomIndex);
+                sb.append(randomChar);
+            }
+            randomStr = sb.toString();
+        } while(orderRepository.existsByOrderNumber(orderTypeCode + formattedDate + randomStr));
+
+        return orderTypeCode + formattedDate + randomStr;
     }
 }
