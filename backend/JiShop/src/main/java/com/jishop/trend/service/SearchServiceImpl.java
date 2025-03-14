@@ -63,6 +63,7 @@ public class SearchServiceImpl implements SearchService {
         logData.put("clientIp", clientIp);
         logData.put("timestamp", System.currentTimeMillis());
 
+        // 로그 데이터(Map)를 JSON으로 구워서 Logstash로 전송
         try{
             String logJson = objectMapper.writeValueAsString(logData);
             LoggerFactory.getLogger(SearchServiceImpl.class).info(logJson);

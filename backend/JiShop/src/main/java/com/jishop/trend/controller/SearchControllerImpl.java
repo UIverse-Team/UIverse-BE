@@ -23,6 +23,7 @@ public class SearchControllerImpl implements SearchController {
         String clientIp = servletRequest.getRemoteAddr();
         boolean result = searchService.processSearch(searchRequest.keyword(), clientIp);
 
-        return result ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        return result ? ResponseEntity.ok("검색어 처리 완료")
+                : ResponseEntity.badRequest().body("유효하지 않은 검색어");
     }
 }
