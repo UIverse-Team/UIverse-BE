@@ -1,7 +1,6 @@
 package com.jishop.member.domain;
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.member.dto.request.RecoveryPWRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -45,5 +44,13 @@ public class User extends BaseEntity implements Serializable {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
     }
 }
