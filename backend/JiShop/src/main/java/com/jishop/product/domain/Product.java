@@ -1,11 +1,13 @@
 package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
-import com.jishop.common.util.BaseEntity;
-import com.jishop.store.domain.Store;
 import jakarta.persistence.*;
+import com.jishop.common.util.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -64,12 +66,6 @@ public class Product extends BaseEntity {
     @Column(name = "brand", nullable = false)
     private String brand;
 
-    @Column(name = "rate", nullable = false)
-    private Double rate;
-
-    @Column(name = "review_count")
-    private Integer reviewCount;
-
     @Column(name = "like_count")
     private Integer likeCount;
 
@@ -101,7 +97,7 @@ public class Product extends BaseEntity {
     public Product(Category category, String lCatId, String mCatId, String sCatId,
                    String storeSeq, String name, String description, Integer originPrice,
                    Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
-                   DiscountStatus discountStatus, Boolean isDiscount, String brand, Double rate, Integer reviewCount,
+                   DiscountStatus discountStatus, Boolean isDiscount, String brand,
                    Integer likeCount, Labels labels, Boolean deleteFlag,
                    String mainImage, String image1, String image2, String image3, String image4, String detailImage
     ) {
@@ -120,8 +116,6 @@ public class Product extends BaseEntity {
         this.discountStatus = discountStatus;
         this.isDiscount = isDiscount;
         this.brand = brand;
-        this.rate = rate;
-        this.reviewCount = reviewCount;
         this.likeCount = likeCount;
         this.labels = labels;
         this.deleteFlag = deleteFlag;

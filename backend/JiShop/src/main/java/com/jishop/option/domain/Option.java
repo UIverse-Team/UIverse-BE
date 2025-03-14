@@ -16,8 +16,9 @@ public class Option extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OptionCategory categoryType;
 
+    @Column(nullable = false)
     private String optionValue;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "integer default 0")
     private int optionExtra;
 }

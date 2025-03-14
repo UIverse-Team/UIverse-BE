@@ -1,7 +1,7 @@
 package com.jishop.member.controller;
 
-import com.jishop.member.dto.SmsRequest;
-import com.jishop.member.dto.CertifyCodeRequest;
+import com.jishop.member.dto.request.SmsRequest;
+import com.jishop.member.dto.request.CertifyCodeRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;

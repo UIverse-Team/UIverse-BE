@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -16,18 +17,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaleProduct extends BaseEntity {
 
-    String name;
+    private String name;
+
+    private String image;
+
+    private int quantity;
+
+    @ColumnDefault("0")
+    private Double productRating;
 
     @JoinColumn(name = "product_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    Product product;
+    private Product product;
 
     @JoinColumn(name = "option_id")
     @OneToOne(fetch = FetchType.LAZY)
-    Option option;
+    private Option option;
 
     @OneToOne(mappedBy = "saleProduct")
-    Stock stock;
+    private Stock stock;
 
     @Builder
     public SaleProduct(Product product, Option option, String name) {

@@ -6,10 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> {
-
     // 주문 생성에 필요한 최소한의 데이터만 조회하는 메서드
     @Query("SELECT sp FROM SaleProduct sp " +
             "LEFT JOIN FETCH sp.product p " +
