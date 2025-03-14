@@ -2,23 +2,23 @@ package com.jishop.review.dto;
 
 import com.jishop.member.domain.User;
 import com.jishop.review.domain.Review;
-import com.jishop.review.domain.embed.ImageUrls;
 import com.jishop.review.domain.tag.Tag;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public record ReviewResponse(
+public record MyPageReviewResponse(
         Tag tag,
         int rating,
         String content,
         int likeCount,
+        Long productId,
         List<String> images,
         LocalDate createAt,
         String option,
         String name
 ) {
-    public static ReviewResponse from(Review review) {
+    public static MyPageReviewResponse from(Review review) {
         User user = review.getUser();
         String[] split = review.getProductSummary().split(";");
         String option = null;
@@ -26,11 +26,12 @@ public record ReviewResponse(
             option = split[1];
         }
 
-        return new ReviewResponse(
+        return new MyPageReviewResponse(
                 review.getTag(),
                 review.getRating(),
                 review.getContent(),
                 review.getLikeCount(),
+                review.getProduct().getId(),
                 review.getImageUrls().getImages(),
                 review.getCreatedAt().toLocalDate(),
                 option,
@@ -38,3 +39,4 @@ public record ReviewResponse(
         );
     }
 }
+

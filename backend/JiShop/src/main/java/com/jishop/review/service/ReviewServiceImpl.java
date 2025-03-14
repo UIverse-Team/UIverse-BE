@@ -4,11 +4,11 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.member.repository.UserRepository;
-import com.jishop.option.domain.Option;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.Product;
 import com.jishop.review.domain.Review;
+import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
@@ -16,6 +16,7 @@ import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 리뷰 중복 방지
         boolean isDuplicate = reviewRepository.existsByOrderDetailId(reviewRequest.orderDetailId());
-        if(isDuplicate){
+        if (isDuplicate) {
             throw new DomainException(ErrorType.REVIEW_DUPLICATE);
         }
         User user = userRepository.findById(userId).orElseThrow(
@@ -46,10 +47,8 @@ public class ReviewServiceImpl implements ReviewService {
         );
 
         //todo:
-        // 1. 주문 상세, 옵션, 상품 오고 리뷰 상품 이름 만들기. -> 만들어서 넣을 필요가 있을까??
         // 2. 상품 테이블에서 리뷰개수와 리뷰평점 업데이트 하기. -> 트랜잭션 락 걸어야지.
-        // 3. review 생성.
-
+        // 3. 카테고리별 상품 리뷰 달기 고려?
 
         OrderDetail orderDetail = orderDetailRepository.findOrderDetailForReviewById(reviewRequest.orderDetailId())
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_DETAIL_NOT_FOUND));
@@ -59,10 +58,10 @@ public class ReviewServiceImpl implements ReviewService {
         String productSummary = null;
 
         if (saleProduct.getOption() == null) {
-            productSummary = String.format("%s, %s", saleProduct.getName(),
+            productSummary = String.format("%s;%s", saleProduct.getName(),
                     orderDetail.getQuantity());
         } else {
-            productSummary = String.format("%s, %s, %s", saleProduct.getName(),
+            productSummary = String.format("%s;%s;%s", saleProduct.getName(),
                     saleProduct.getOption().getOptionValue(),
                     orderDetail.getQuantity());
         }
@@ -89,20 +88,25 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PagedModel<ReviewResponse> getProductReviews(Long saleProductId, Pageable pageable) {
+    public PagedModel<ReviewResponse> getProductReviews(Long productId, Pageable pageable) {
         //todo:
-        // 1. 가져올거 -> 별점, 사진, 옵션, tag 값, 대표 상품 값
-        // 2. 주문 상세, 판매 상품 saleProductId로 조인 List<order_detail> a 받아옴
-        // 3. a
+        // 1. 가져올거 -> 별점, 리뷰한 날짜, 사진, 옵션, tag 값, 대표 상품 값, 회원 이름?
+        // 2. 주문 상세, 판매 상품 productId으로 review 확인 조인 List<order_detail> a 받아옴
+        // 3. 기본 내림차순
 
-
-        return null;
+        return new PagedModel<>(reviewRepository
+                .findByProductIdWithUser(productId, pageable)
+                .map(ReviewResponse::from));
     }
 
     @Override
-    public List<ReviewResponse> getUserReviews(Long userId) {
-        return List.of();
+    public PagedModel<MyPageReviewResponse> getMyPageReviews(Long userId, Pageable pageable) {
+
+        return new PagedModel<>(reviewRepository
+                .findReviewsProductByUserId(userId, pageable)
+                .map(MyPageReviewResponse::from));
     }
+
 
     @Override
     public void updateReview(Long reviewId, ReviewRequest reviewRequest) {

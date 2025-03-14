@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Embeddable
@@ -26,5 +27,17 @@ public class ImageUrls {
         this.image4 = images.size() > 3 ? images.get(3) : null;
         this.image5 = images.size() > 4 ? images.get(4) : null;
     }
+
+    public List<String> getImages() {
+        List<String> images = new ArrayList<>();
+        images.add(image1);
+        images.add(image2);
+        images.add(image3);
+        images.add(image4);
+        images.add(image5);
+        return images;
+    }
+
+
 }
 

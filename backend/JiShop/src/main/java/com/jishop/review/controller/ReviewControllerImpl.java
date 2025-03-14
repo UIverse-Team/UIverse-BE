@@ -1,5 +1,6 @@
 package com.jishop.review.controller;
 
+import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.service.ReviewService;
@@ -35,15 +36,30 @@ public class ReviewControllerImpl implements ReviewController {
         return ResponseEntity.ok(reviewId);
     }
 
-    @GetMapping("/products/{saleProductId}")
     @Override
-    public ResponseEntity<PagedModel<ReviewResponse>> getProdcutReview(@PathVariable("saleProductId") Long saleProductId,
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<PagedModel<ReviewResponse>> getProdcutReview(@PathVariable("productId") Long productId,
                                                                        @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        PagedModel<ReviewResponse> productReviews = reviewService.getProductReviews(saleProductId, pageable);
+        //todo: 추가사항
+        // 1. sort 값에 따른 필터링 기능 구현 및 검증..
+        PagedModel<ReviewResponse> productReviews = reviewService.getProductReviews(productId, pageable);
 
         return ResponseEntity.ok(productReviews);
     }
 
+    @Override
+    @GetMapping("/mypage")
+    public ResponseEntity<PagedModel<MyPageReviewResponse>> getMyPageReview(
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        //todo: 추가사항
+        // 1. sort 값에 따른 필터링 기능 구현 및 검증..
+        // 2. userId 세션에서 받기
+        Long userId = 1L;
+        PagedModel<MyPageReviewResponse> productReviews = reviewService.getMyPageReviews(userId, pageable);
+
+        return ResponseEntity.ok(productReviews);
+    }
 
 }
