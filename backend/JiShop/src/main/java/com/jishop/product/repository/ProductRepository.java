@@ -1,4 +1,4 @@
-package com.jishop.product.repository;
+package com.jishop.repository;
 
 import com.jishop.product.domain.Product;
 import org.springframework.data.jpa.repository.JpaRepository;

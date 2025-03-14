@@ -1,7 +1,8 @@
 package com.jishop.product.service;
 
-import com.jishop.product.domain.Product;
+import com.jishop.product.dto.ProductResponse;
 
 public interface ProductService {
-    void createProduct(Product product);
+
+    ProductResponse getProduct(Long id);
 }
