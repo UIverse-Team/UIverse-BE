@@ -1,20 +1,17 @@
     package com.jishop.product.domain;
 
-import com.jishop.category.domain.Category;
-import com.jishop.common.util.BaseEntity;
+    import com.jishop.category.domain.Category;
+    import com.jishop.common.util.BaseEntity;
+    import jakarta.persistence.*;
+    import lombok.AccessLevel;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
-
-import com.jishop.store.domain.Store;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+    import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Table(name = "Products")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
