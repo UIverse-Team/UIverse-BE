@@ -1,6 +1,6 @@
 package com.jishop.product.controller;
 
-import com.jishop.product.dto.GetProductResponse;
+import com.jishop.product.dto.ProductResponse;
 import com.jishop.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping("/{id}")
-    public GetProductResponse getProduct(@PathVariable Long id) {
-        return productService.getProductList(id);
+    public ProductResponse getProduct(@PathVariable Long id) {
+        return productService.getProduct(id);
     }
 }

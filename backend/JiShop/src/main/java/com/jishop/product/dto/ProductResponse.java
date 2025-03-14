@@ -3,7 +3,7 @@ package com.jishop.product.dto;
 import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 
-public record GetProductResponse(
+public record ProductResponse(
         String name,
         Labels labels,
         //TODO
@@ -21,8 +21,8 @@ public record GetProductResponse(
         String image4,
         String detailImage
 ) {
-    public static GetProductResponse from(Product product) {
-        return new GetProductResponse(
+    public static ProductResponse from(Product product) {
+        return new ProductResponse(
                 product.getName(),
                 product.getLabels(),
                 product.getDescription(),

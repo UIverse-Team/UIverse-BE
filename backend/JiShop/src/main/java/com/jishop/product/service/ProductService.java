@@ -1,8 +1,8 @@
 package com.jishop.product.service;
 
-import com.jishop.product.dto.GetProductResponse;
+import com.jishop.product.dto.ProductResponse;
 
 public interface ProductService {
 
-    GetProductResponse getProductList(Long id);
+    ProductResponse getProduct(Long id);
 }

@@ -1,5 +1,5 @@
 package com.jishop.product.dto;
 
-public record GetProductRequest(
+public record ProductRequest(
 ){
 }
