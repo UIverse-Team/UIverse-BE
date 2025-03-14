@@ -33,7 +33,7 @@ services:
     depends_on:
       - influxdb
     volumes:
-      - ./src/main/resources/k6-scripts:/k6-scripts
+      - ./k6-scripts:/k6-scripts
     command: ["run", "/stress.js", "--out", "influxdb=http://influxdb:8086/k6"]
     networks:
       - monitoring

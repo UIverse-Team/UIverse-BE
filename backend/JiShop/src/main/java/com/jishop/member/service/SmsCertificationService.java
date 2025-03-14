@@ -1,6 +1,6 @@
 package com.jishop.member.service;
 
-import com.jishop.member.dto.SmsRequest;
+import com.jishop.member.dto.request.SmsRequest;
 
 public interface SmsCertificationService {
 

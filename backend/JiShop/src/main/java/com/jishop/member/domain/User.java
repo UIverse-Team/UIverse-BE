@@ -41,4 +41,16 @@ public class User extends BaseEntity implements Serializable {
         this.phone = phone;
         this.provider = provider;
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
+    }
 }

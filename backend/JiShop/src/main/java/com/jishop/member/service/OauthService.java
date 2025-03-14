@@ -1,6 +1,6 @@
 package com.jishop.member.service;
 
-import com.jishop.member.dto.SocialUserInfo;
+import com.jishop.member.dto.response.SocialUserInfo;
 
 public interface OauthService {
 
