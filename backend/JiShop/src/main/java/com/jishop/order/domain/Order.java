@@ -1,14 +1,14 @@
 package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.member.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -73,7 +73,7 @@ public class Order extends BaseEntity {
 
     @Builder
     public Order(String mainProductName, int totalPrice, String receiver, String receiverNumber,
-                 String zipCode, String baseAddress, String detailAddress) {
+            String zipCode, String baseAddress, String detailAddress) {
         this.status = OrderStatus.ORDER_RECEIVED;
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;
