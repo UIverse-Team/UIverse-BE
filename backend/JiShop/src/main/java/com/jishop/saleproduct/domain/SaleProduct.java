@@ -22,8 +22,8 @@ public class SaleProduct extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     Product product;
 
-    @JoinColumn(name = "option_id", nullable = true)
-    @OneToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "option_id")
+    @OneToOne(fetch = FetchType.LAZY)
     Option option;
 
     @OneToOne(mappedBy = "saleProduct")

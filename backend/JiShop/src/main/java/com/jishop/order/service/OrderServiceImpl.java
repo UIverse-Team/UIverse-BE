@@ -51,15 +51,17 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
         // SaleProduct 일괄 조회 (N+1 문제 방지)
-        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdWithAllDetails(saleProductIds);
+        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdsForOrder(saleProductIds);
 
         // ID로 SaleProduct 조회를 위한 Map 생성
         Map<Long, SaleProduct> saleProductMap = saleProducts.stream()
                 .collect(Collectors.toMap(SaleProduct::getId, sp -> sp));
 
         List<OrderDetail> orderDetails = new ArrayList<>();
+
         int totalPrice = 0;
         String mainProductName = "";
+
         List<OrderDetailRequest> orderDetailRequests = orderRequest.orderDetailRequestList();
 
         for(OrderDetailRequest detailRequest : orderDetailRequests){

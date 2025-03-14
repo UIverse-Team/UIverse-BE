@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Option extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
-    private OptionCategory category_type;
+    private OptionCategory categoryType;
 
     private String optionValue;
 
