@@ -2,7 +2,7 @@ package com.jishop.member.controller.impl;
 
 import com.jishop.member.controller.AuthController;
 import com.jishop.member.dto.request.SignInFormRequest;
-import com.jishop.member.service.UserService;
+import com.jishop.member.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthControllerImpl implements AuthController {
 
-    private final UserService service;
     private final HttpSession session;
+    private final AuthService service;
 
     @PostMapping("/signin")
     public ResponseEntity<String> signIn(@RequestBody @Valid SignInFormRequest request) {
@@ -38,4 +38,7 @@ public class AuthControllerImpl implements AuthController {
         }
         return ResponseEntity.ok().build();
     }
+
+
+
 }

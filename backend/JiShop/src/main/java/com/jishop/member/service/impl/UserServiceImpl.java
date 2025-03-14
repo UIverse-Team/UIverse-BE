@@ -8,6 +8,7 @@ import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
 import com.jishop.member.dto.response.SocialUserInfo;
 import com.jishop.member.dto.response.UserIdResponse;
+import com.jishop.member.dto.response.UserResponse;
 import com.jishop.member.repository.UserRepository;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public Long processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
         // 이미 아이디 존재시 회원가입이 아닌 로그인으로 바꿈
@@ -35,11 +35,13 @@ public class UserServiceImpl implements UserService {
                             .password(null)
                             .provider(provider)
                             .build();
+
                     return userRepository.save(user);
                 });
 
         User user = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
         Long userId = user.getId();
+
         return userId;
     }
 
@@ -51,23 +53,6 @@ public class UserServiceImpl implements UserService {
 
     public void signUp(SignUpFormRequest form) {
         userRepository.save(form.toEntity());
-    }
-
-    public void signIn(SignInFormRequest form, HttpSession session) {
-        User user = userRepository.findByLoginId(form.loginId())
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
-        if(!passwordEncoder.matches(form.password(), user.getPassword())) {
-            throw new DomainException(ErrorType.USER_NOT_FOUND);
-        }
-
-        session.setAttribute("userId", user.getId());
-    };
-
-    public String loginStr(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
-        return user.getName();
     }
 
     public FindUserResponse findUser(FindUserRequest request){
@@ -85,18 +70,5 @@ public class UserServiceImpl implements UserService {
 
         return UserIdResponse.from(user.getId());
     }
-    /**
-     *  추후 변경 필요 user 필요
-     * @param request
-     */
-    public void recoveryPW(Long userId, RecoveryPWRequest request){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
-        if(passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new DomainException(ErrorType.PASSWORD_EXISTS);
-        }
-        String password = passwordEncoder.encode(request.password());
-        user.updatePassword(password);
-    }
 }
