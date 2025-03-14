@@ -1,6 +1,6 @@
 package com.jishop.member.service;
 
-import com.jishop.member.dto.EmailRequest;
+import com.jishop.member.dto.request.EmailRequest;
 
 public interface EmailCertificationService {
 

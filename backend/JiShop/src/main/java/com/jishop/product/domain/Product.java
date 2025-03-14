@@ -1,9 +1,13 @@
-package com.jishop.product.domain;
+    package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
 import com.jishop.common.util.BaseEntity;
+
 import jakarta.persistence.*;
+
+import com.jishop.store.domain.Store;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
