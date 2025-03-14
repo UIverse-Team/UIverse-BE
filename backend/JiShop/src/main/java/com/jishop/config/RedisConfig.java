@@ -24,7 +24,6 @@ public class RedisConfig {
         return new GenericJackson2JsonRedisSerializer(redisObjectMapper());
     }
 
-
     public ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         // Java 8 날짜/시간 타입 지원

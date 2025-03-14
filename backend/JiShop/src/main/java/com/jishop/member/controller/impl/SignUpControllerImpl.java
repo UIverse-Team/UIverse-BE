@@ -5,8 +5,10 @@ import com.jishop.member.dto.request.FinalStepRequest;
 import com.jishop.member.dto.request.SignUpFormRequest;
 import com.jishop.member.dto.request.Step1Request;
 import com.jishop.member.dto.request.Step2Request;
+import com.jishop.member.service.CookieService;
 import com.jishop.member.service.UserService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,53 +24,57 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/signup")
 public class SignUpControllerImpl implements SignUpController {
 
-    private final HttpSession session;
     private final UserService userService;
+    private final CookieService cookieService;
     private final PasswordEncoder passwordEncoder;
 
+    private static final int COOKIE_MAX_AGE = 20 * 60; // 20분
+    private static final String SIGNUP_COOKIE_NAME = "signup_data";
+
     @PostMapping("/step1")
-    public ResponseEntity<String> step1(@RequestBody @Validated Step1Request request){
-        // 이메일 저장
+    public ResponseEntity<String> step1(@RequestBody @Validated Step1Request request,
+                                        HttpServletResponse response) {
         // 이메일 중복 체크
         userService.emailcheck(request);
+
         SignUpFormRequest form = SignUpFormRequest.of(request.email());
-        // 세션에 정보 저장
-        session.setAttribute("signUpdate", form);
+        cookieService.saveToCookie(SIGNUP_COOKIE_NAME, form, response, COOKIE_MAX_AGE);
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body("step1 완료");
     }
 
     @PostMapping("/step2")
-    public ResponseEntity<String> step2(@RequestBody @Validated Step2Request request){
-        SignUpFormRequest form = (SignUpFormRequest) session.getAttribute("signUpdate");
-
-        if(form == null) {
-            return ResponseEntity.badRequest().body("이전 단계를 완료해주세요!");
-        }
+    public ResponseEntity<String> step2(@RequestBody @Validated Step2Request request,
+                                        HttpServletRequest servletRequest,
+                                        HttpServletResponse response) {
+        SignUpFormRequest form = cookieService.getFromCookie(SIGNUP_COOKIE_NAME, servletRequest,
+                        SignUpFormRequest.class)
+                .orElseThrow(() -> new IllegalStateException("이전 단계를 완료해주세요!"));
 
         String password = passwordEncoder.encode(request.password());
         form = form.withPassword(password);
 
-        session.setAttribute("signUpdate", form);
+        cookieService.saveToCookie(SIGNUP_COOKIE_NAME, form, response, COOKIE_MAX_AGE);
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body("step2 완료");
     }
 
     @PostMapping("/last")
-    public ResponseEntity<String> lastStep(@RequestBody @Validated FinalStepRequest request){
-        SignUpFormRequest form = (SignUpFormRequest) session.getAttribute("signUpdate");
+    public ResponseEntity<String> lastStep(@RequestBody @Validated FinalStepRequest request,
+                                           HttpServletRequest servletRequest,
+                                           HttpServletResponse response) {
+        SignUpFormRequest form = cookieService.getFromCookie(SIGNUP_COOKIE_NAME, servletRequest,
+                        SignUpFormRequest.class)
+                .orElseThrow(() -> new IllegalStateException("이전 단계를 완료해주세요!"));
 
-        if(form.password() == null) {
-            return ResponseEntity.badRequest().body("이전 단계를 완료해주세요!");
+        if (form.password() == null) {
+            throw new IllegalStateException("이전 단계를 완료해주세요!");
         }
-
         form = form.withInformation(request.name(), request.yynumber(), request.gender(), request.phone());
 
         userService.signUp(form);
-        session.removeAttribute("signUpdate");
+        cookieService.deleteCookie(SIGNUP_COOKIE_NAME, response);
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body("회원가입 완료! 환영합니다!");
     }
-
-
 }
