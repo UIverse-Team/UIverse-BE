@@ -31,7 +31,9 @@ public class OrderDetail extends BaseEntity {
     //가격
     private int price;
     //할인유형
+    private String discountType;
     //할인값
+    private double discountValue;
 
     @Builder
     public OrderDetail(Order order, SaleProduct saleProduct, int quantity, int price){
