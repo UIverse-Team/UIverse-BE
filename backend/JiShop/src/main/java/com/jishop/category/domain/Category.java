@@ -4,20 +4,9 @@ import com.jishop.common.util.BaseEntity;
 import com.jishop.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
-
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +26,7 @@ public class Category extends BaseEntity {
     private Long currentId;
 
     @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL)
-    private List<Category> children = new ArrayList<>();
+    private final List<Category> childrenId = new ArrayList<>();
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -51,34 +40,13 @@ public class Category extends BaseEntity {
     @Column(name = "level", nullable = false)
     private Integer level;
 
-    @Column(name = "last_level", nullable = false)
-    private Boolean lastLevel;
-
-    @Column(name = "deleted", nullable = false)
-    private Boolean deleted = false;
-
-    @Column(name = "sell_blog_use", nullable = false)
-    private Boolean sellBlogUse = true;
-
-    @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder = 0;
-
-    @Column(name = "juvenile_harmful", nullable = false)
-    private Boolean juvenileHarmful = false;
-
-    @Builder
     public Category(
             Category parentId,
             Long currentId,
             String name,
             String wholeCategoryId,
             String wholeCategoryName,
-            Integer level,
-            Boolean lastLevel,
-            Boolean deleted,
-            Boolean sellBlogUse,
-            Integer sortOrder,
-            Boolean juvenileHarmful
+            Integer level
     ){
         this.parentId = parentId;
         this.currentId = currentId;
@@ -86,10 +54,5 @@ public class Category extends BaseEntity {
         this.wholeCategoryId = wholeCategoryId;
         this.wholeCategoryName = wholeCategoryName;
         this.level = level;
-        this.lastLevel = lastLevel;
-        this.deleted = deleted;
-        this.sellBlogUse = sellBlogUse;
-        this.sortOrder = sortOrder;
-        this.juvenileHarmful = juvenileHarmful;
     }
 }
