@@ -10,13 +10,9 @@ import java.util.List;
 
 public interface ReviewService {
 
-    Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId);
-
-    PagedModel<ReviewResponse> getProductReviews(Long productId, Pageable pageable);
-
-    void updateReview(Long reviewId, ReviewRequest reviewRequest);
-
     void deleteReview(Long reviewId);
-
+    void updateReview(Long reviewId, ReviewRequest reviewRequest);
+    PagedModel<ReviewResponse> getProductReviews(Long productId, Pageable pageable);
+    Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId);
     PagedModel<MyPageReviewResponse> getMyPageReviews(Long userId, Pageable pageable);
 }
