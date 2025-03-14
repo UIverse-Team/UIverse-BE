@@ -13,8 +13,8 @@ import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.repository.OrderNumberRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.saleproduct.Repository.SaleProductRepository;
-import com.jishop.stock.service.StockService;
 import com.jishop.saleproduct.domain.SaleProduct;
+import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,6 +46,18 @@ public class OrderServiceImpl implements OrderService {
         // 주문 객체 생성
         Order order = orderRequest.toEntity();
 
+        // SaleProduct ID 리스트 추출
+        List<Long> saleProductIds = orderRequest.orderDetailRequestList().stream()
+                .map(OrderDetailRequest::saleProductId)
+                .toList();
+
+        // SaleProduct 일괄 조회 (N+1 문제 방지)
+        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdWithAllDetails(saleProductIds);
+
+        // ID로 SaleProduct 조회를 위한 Map 생성
+        Map<Long, SaleProduct> saleProductMap = saleProducts.stream()
+                .collect(Collectors.toMap(SaleProduct::getId, sp -> sp));
+
         List<OrderDetail> orderDetails = new ArrayList<>();
         int totalPrice = 0;
         String mainProductName = "";
@@ -53,12 +67,14 @@ public class OrderServiceImpl implements OrderService {
             Long saleProductId = detailRequest.saleProductId();
             int quantity = detailRequest.quantity();
 
-            //상품 조회
-            SaleProduct saleProduct = saleProductRepository.findById(saleProductId)
-                    .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+            //상품 조회 (맵에서 조회)
+            SaleProduct saleProduct = saleProductMap.get(saleProductId);
+            if(saleProduct == null) {
+                throw new DomainException(ErrorType.PRODUCT_NOT_FOUND);
+            }
 
             // 재고 감소 처리 (재고 부족 시 예외 터짐)
-            stockService.decreaseStock(saleProductId, quantity);
+            stockService.decreaseStock(saleProduct.getStock(), quantity);
 
             // 옵션 추가 금액 계산
             int price = saleProduct.getProduct().getDiscountPrice();
@@ -128,7 +144,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-   //주문취소
+    //주문취소
     @Override
     @Transactional
     public void cancelOrder(Long orderId){
@@ -143,10 +159,12 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDetail> orderDetails = order.getOrderDetails();
         for(OrderDetail orderDetail : orderDetails){
-            Long saleProductId = orderDetail.getSaleProduct().getId();
+            // OrderDetail의 SaleProduct에서 Stock을 직접 사용
+            SaleProduct saleProduct = orderDetail.getSaleProduct();
             int quantity = orderDetail.getQuantity();
 
-            stockService.increaseStock(saleProductId, quantity);
+            // ID 대신 Stock 객체를 직접 전달
+            stockService.increaseStock(saleProduct.getStock(), quantity);
         }
         //주문 상태 변경
         order.updateStatus(OrderStatus.ORDER_CANCELED);

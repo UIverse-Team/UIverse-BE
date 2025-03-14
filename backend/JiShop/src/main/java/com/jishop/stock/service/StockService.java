@@ -1,8 +1,10 @@
 package com.jishop.stock.service;
 
+import com.jishop.stock.domain.Stock;
+
 public interface StockService {
 
-    void decreaseStock(Long saleProductId, int quantity);
-    void increaseStock(Long saleProductId, int quantity);
-    boolean checkStock(Long saleProductId, int quantity);
+    void decreaseStock(Stock stock, int quantity);
+    void increaseStock(Stock stock, int quantity);
+    boolean checkStock(Stock stock, int quantity);
 }

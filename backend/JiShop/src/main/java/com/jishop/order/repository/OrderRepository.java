@@ -16,17 +16,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "LEFT JOIN FETCH o.orderNumber " +
             "LEFT JOIN FETCH o.orderDetails od " +
             "LEFT JOIN FETCH od.saleProduct sp " +
-            "LEFT JOIN FETCH sp.product " +
+            "LEFT JOIN FETCH sp.product p " +
+            "LEFT JOIN FETCH p.category " +
             "LEFT JOIN FETCH sp.option " +
+            "LEFT JOIN FETCH sp.stock " +
             "WHERE o.id = :orderId")
     Optional<Order> findByIdWithDetails(@Param("orderId") Long orderId);
 
-    // 전체 주문 조회를 위한 fetch join 쿼리
+    // 전체 주문 조회를 위한 fetch join 쿼리 - 페이징 없는 경우
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderNumber " +
             "LEFT JOIN FETCH o.orderDetails od " +
             "LEFT JOIN FETCH od.saleProduct sp " +
-            "LEFT JOIN FETCH sp.product " +
-            "LEFT JOIN FETCH sp.option")
+            "LEFT JOIN FETCH sp.product p " +
+            "LEFT JOIN FETCH p.category " +
+            "LEFT JOIN FETCH sp.option " +
+            "LEFT JOIN FETCH sp.stock")
     List<Order> findAllWithDetails();
 }

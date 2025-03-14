@@ -14,32 +14,28 @@ public class StockServiceImpl implements StockService {
 
     private final StockRepository stockRepository;
 
-    //재고 감소 처리
+    // Update your interface to accept Stock object directly
     @Override
     @Transactional
-    public void decreaseStock(Long saleProductId, int quantity){
-        Stock stock = findStockBySaleProductId(saleProductId);
+    public void decreaseStock(Stock stock, int quantity) {
         stock.decreaseStock(quantity);
     }
 
-    //재고 증가 처리
+    // Similar pattern for increaseStock
     @Override
     @Transactional
-    public void increaseStock(Long saleProductId, int quantity){
-        Stock stock = findStockBySaleProductId(saleProductId);
+    public void increaseStock(Stock stock, int quantity) {
         stock.increaseStock(quantity);
     }
 
-    // 재고 확인
+    // And for checkStock
     @Override
     @Transactional(readOnly = true)
-    public boolean checkStock(Long saleProductId, int quantity){
-        Stock stock = findStockBySaleProductId(saleProductId);
+    public boolean checkStock(Stock stock, int quantity) {
         return stock.hasStock(quantity);
     }
 
-    //판매 상품ID로 재고 조회
-    private Stock findStockBySaleProductId(Long saleProductId){
+    private Stock findStockBySaleProductId(Long saleProductId) {
         return stockRepository.findBySaleProduct_Id(saleProductId)
                 .orElseThrow(() -> new DomainException(ErrorType.STOCK_NOT_FOUND));
     }
