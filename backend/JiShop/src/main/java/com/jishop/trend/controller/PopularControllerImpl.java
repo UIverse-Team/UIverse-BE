@@ -17,8 +17,8 @@ import java.util.Set;
  * Redis ZSet에서 Top10 검색어를 조회해 반환
  */
 @RestController
-@RequestMapping("/popular")
 @RequiredArgsConstructor
+@RequestMapping("/popular")
 public class PopularControllerImpl {
 
     private final RedisTemplate<String, Object> redisTemplate;
