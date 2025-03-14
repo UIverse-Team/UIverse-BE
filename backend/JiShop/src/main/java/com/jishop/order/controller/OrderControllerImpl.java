@@ -1,6 +1,5 @@
 package com.jishop.order.controller;
 
-import com.jishop.order.domain.Order;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.service.OrderService;
@@ -8,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController

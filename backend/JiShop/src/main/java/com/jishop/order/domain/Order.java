@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +20,12 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    // todo: 결제수단 매핑
+    private Long paymentId;
+
+    // todo: user 세션 가져오기
+    private Long userId;
 
     //대표상품명
     private String mainProductName;
@@ -49,10 +56,10 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    @OneToOne
-    private OrderNumber orderNumber;
+    @Column(unique = true)
+    private String orderNumber;
 
-    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, OrderNumber orderNumber) {
+    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;
         this.orderDetails.clear();
@@ -66,7 +73,7 @@ public class Order extends BaseEntity {
 
     @Builder
     public Order(String mainProductName, int totalPrice, String receiver, String receiverNumber,
-                 String zipCode, String baseAddress, String detailAddress) {
+            String zipCode, String baseAddress, String detailAddress) {
         this.status = OrderStatus.ORDER_RECEIVED;
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;

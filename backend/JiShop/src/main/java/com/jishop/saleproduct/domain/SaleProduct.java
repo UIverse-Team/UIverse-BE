@@ -38,11 +38,9 @@ public class SaleProduct extends BaseEntity {
     private Stock stock;
 
     @Builder
-    public SaleProduct(Product product, Option option, String name, String image, int quantity) {
+    public SaleProduct(Product product, Option option, String name) {
         this.product = product;
         this.option = option;
         this.name = name;
-        this.image = image;
-        this.quantity = 1;
     }
 }

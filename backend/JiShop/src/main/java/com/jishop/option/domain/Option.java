@@ -2,7 +2,6 @@ package com.jishop.option.domain;
 
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.option.domain.embed.CategoryType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,10 +14,11 @@ import lombok.NoArgsConstructor;
 public class Option extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
-    private CategoryType categoryType;
+    private OptionCategory categoryType;
 
     @Column(nullable = false)
     private String optionValue;
 
+    @Column(nullable = false, columnDefinition = "integer default 0")
     private int optionExtra;
 }

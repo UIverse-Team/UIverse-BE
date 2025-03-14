@@ -5,16 +5,14 @@ import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
 import com.jishop.member.dto.response.SocialUserInfo;
 import com.jishop.member.dto.response.UserIdResponse;
+import com.jishop.member.dto.response.UserResponse;
 import jakarta.servlet.http.HttpSession;
 
 public interface UserService {
 
     Long processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider);
     void signUp(SignUpFormRequest form);
-    void signIn(SignInFormRequest form, HttpSession session);
     void emailcheck(Step1Request request);
-    String loginStr(Long userId);
     FindUserResponse findUser(FindUserRequest request);
     UserIdResponse findUserId(EmailRequest request);
-    void recoveryPW(Long userId, RecoveryPWRequest request);
 }
