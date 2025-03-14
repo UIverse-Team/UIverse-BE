@@ -20,13 +20,13 @@ public class Category extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", referencedColumnName = "current_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
-    private Category parentId;
+    private Category parent;
 
     @Column(name = "current_id", nullable = false, unique = true)
     private Long currentId;
 
-    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL)
-    private final List<Category> childrenId = new ArrayList<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private final List<Category> children = new ArrayList<>();
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -41,14 +41,14 @@ public class Category extends BaseEntity {
     private Integer level;
 
     public Category(
-            Category parentId,
+            Category parent,
             Long currentId,
             String name,
             String wholeCategoryId,
             String wholeCategoryName,
             Integer level
     ){
-        this.parentId = parentId;
+        this.parent = parent;
         this.currentId = currentId;
         this.name = name;
         this.wholeCategoryId = wholeCategoryId;

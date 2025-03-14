@@ -16,6 +16,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
+    @Override
     public GetProductResponse getProductList(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));

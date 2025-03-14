@@ -6,8 +6,9 @@ import com.jishop.product.domain.Product;
 public record GetProductResponse(
         String name,
         Labels labels,
-        // 상품 평점
-        // 상품 리뷰 건수
+        //TODO
+        // 1.상품 평점
+        // 2.상품 리뷰 건수
         String description,
         Integer originPrice,
         Integer discountPrice,
@@ -24,8 +25,6 @@ public record GetProductResponse(
         return new GetProductResponse(
                 product.getName(),
                 product.getLabels(),
-                // 상품 평점
-                // 상품 리뷰 건수
                 product.getDescription(),
                 product.getOriginPrice(),
                 product.getDiscountPrice(),

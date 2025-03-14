@@ -63,8 +63,8 @@ public class Product extends BaseEntity {
     @Column(name = "brand", nullable = false)
     private String brand;
 
-    @Column(name = "wish_list_count", nullable = false)
-    private int wishListCount = 0;
+    @Column(name = "wish_list_count", nullable = false, columnDefinition = "int default 0")
+    private int wishListCount;
 
     @Column(name = "labels", length = 50)
     @Enumerated(EnumType.STRING)
@@ -88,8 +88,8 @@ public class Product extends BaseEntity {
     @Column(name = "detail_image")
     private String detailImage;
 
-    @Column(name = "product_view_count", nullable = false)
-    private int productViewCount = 0;
+    @Column(name = "product_view_count", nullable = false, columnDefinition = "int default 0")
+    private int productViewCount;
 
     public Product(Category category, String lCatId, String mCatId, String sCatId,
             String mallSeq, String name, String description, int originPrice,
