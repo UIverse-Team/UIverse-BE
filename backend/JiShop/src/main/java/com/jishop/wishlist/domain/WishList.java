@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WishList extends BaseEntity {
 
-    /* 유저 id
+    // 유저 id
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;*/
+    private User user;
 
     // 상품 id
     @JoinColumn(name = "product_id")
@@ -24,8 +24,8 @@ public class WishList extends BaseEntity {
     private Product product;
 
     @Builder
-    public WishList(/*User user,*/ Product product) {
-        //this.user = user;
+    public WishList(User user, Product product) {
+        this.user = user;
         this.product = product;
     }
 }
