@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -96,6 +97,7 @@ public class Product extends BaseEntity {
     @Column(name = "product_view_count", nullable = false, columnDefinition = "int default 0")
     private int productViewCount;
 
+    @Builder
     public Product(Category category, String lCatId, String mCatId, String sCatId,
             String mallSeq, String name, String description, int originPrice,
             int discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,

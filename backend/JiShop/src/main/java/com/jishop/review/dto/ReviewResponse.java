@@ -2,7 +2,6 @@ package com.jishop.review.dto;
 
 import com.jishop.member.domain.User;
 import com.jishop.review.domain.Review;
-import com.jishop.review.domain.embed.ImageUrls;
 import com.jishop.review.domain.tag.Tag;
 
 import java.time.LocalDate;

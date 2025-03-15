@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
 public class ReviewControllerImpl implements ReviewController {
-
     private final ReviewService reviewService;
 
     @Override
@@ -60,6 +59,16 @@ public class ReviewControllerImpl implements ReviewController {
         PagedModel<MyPageReviewResponse> productReviews = reviewService.getMyPageReviews(userId, pageable);
 
         return ResponseEntity.ok(productReviews);
+    }
+
+    @Override
+    public ResponseEntity<?> likeReview() {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<?> unlikeReview() {
+        return null;
     }
 
 }

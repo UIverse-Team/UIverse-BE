@@ -93,6 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 1. 가져올거 -> 별점, 리뷰한 날짜, 사진, 옵션, tag 값, 대표 상품 값, 회원 이름?
         // 2. 주문 상세, 판매 상품 productId으로 review 확인 조인 List<order_detail> a 받아옴
         // 3. 기본 내림차순
+        // 4. 좋아요 개수랑 해당 유저가 좋아요를 할 수 있는지 둬 줘야 한다.
 
         return new PagedModel<>(reviewRepository
                 .findByProductIdWithUser(productId, pageable)
