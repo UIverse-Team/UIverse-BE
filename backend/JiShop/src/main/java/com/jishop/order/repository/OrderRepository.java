@@ -11,15 +11,16 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    // 단일 주문 조회를 위한 최적화된 fetch join 쿼리
+    // 특정 사용자의 단일 주문 조회 (fetch join 적용)
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
-            "WHERE o.id = :orderId")
-    Optional<Order> findByIdWithDetails(@Param("orderId") Long orderId);
+            "WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findByIdWithDetails(@Param("userId") Long userId, @Param("orderId") Long orderId);
 
     @Query("SELECT DISTINCT o FROM Order o " +
-            "LEFT JOIN FETCH o.orderDetails od ")
-    List<Order> findAllWithDetails();
+            "LEFT JOIN FETCH o.orderDetails od " +
+            "WHERE o.userId = :userId")
+    List<Order> findAllWithDetails(@Param("userId") Long userId);
 
     boolean existsByOrderNumber(String orderNumber);
 }

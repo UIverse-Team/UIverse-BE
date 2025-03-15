@@ -41,10 +41,7 @@ public class OrderServiceImpl implements OrderService {
     //주문 생성
     @Override
     @Transactional
-    public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
-        User user = userRepository.findById(userId).orElseThrow(
-                ()->new DomainException(ErrorType.USER_NOT_FOUND)
-        );
+    public OrderResponse createOrder(User user, OrderRequest orderRequest) {
         // 주문 번호 생성 (저장하지 않고 문자열만 받음)
         String orderNumberStr = generateOrderNumber();
 
@@ -122,8 +119,8 @@ public class OrderServiceImpl implements OrderService {
     //주문 단건 조회
     @Override
     @Transactional(readOnly = true)
-    public OrderResponse getOrder(Long orderId){
-        Order order = orderRepository.findByIdWithDetails(orderId)
+    public OrderResponse getOrder(User user, Long orderId){
+        Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         return OrderResponse.fromOrder(order, convertToOrderDetailResponses(order.getOrderDetails()));
@@ -132,8 +129,8 @@ public class OrderServiceImpl implements OrderService {
     // 주문 내역 전체 조회
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponse> getAllOrders() {
-        List<Order> orders = orderRepository.findAllWithDetails();
+    public List<OrderResponse> getAllOrders(User user) {
+        List<Order> orders = orderRepository.findAllWithDetails(user.getId());
 
         return orders.stream()
                 .map(order -> {
@@ -146,8 +143,8 @@ public class OrderServiceImpl implements OrderService {
     //주문취소
     @Override
     @Transactional
-    public void cancelOrder(Long orderId){
-        Order order = orderRepository.findByIdWithDetails(orderId)
+    public void cancelOrder(User user, Long orderId){
+        Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         if(order.getStatus() == OrderStatus.ORDER_CANCELED)
