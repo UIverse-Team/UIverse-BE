@@ -2,6 +2,7 @@ package com.jishop.wishlist.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
+import com.jishop.member.domain.User;
 import com.jishop.product.domain.Product;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.wishlist.domain.WishList;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,17 +23,18 @@ public class WishListServiceImpl implements WishListService {
     private final WishListRepository wishListRepository;
 
     @Override
-    public void addProduct(WishProductRequest request) {
+    public void addProduct(User user, WishProductRequest request) {
         // 상품 들고오기
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(()->new DomainException(ErrorType.PRODUCT_NOT_FOUND));
         // 해당 상품 id 들고오기
-        Optional<WishList> wishproduct = wishListRepository.findByProduct(product);
+        Optional<WishList> wishproduct = wishListRepository.findByUserAndProduct(user, product);
         // 해당 상품 id가 wishlist에 존재한다면? 해당 위시리스트 지우기
         if(wishproduct.isPresent()) {
             wishListRepository.delete(wishproduct.get());
         }else{ // else문 꼭 필요함
             WishList wishList = WishList.builder()
+                    .user(user)
                     .product(product)
                     .build();
             wishListRepository.save(wishList);
