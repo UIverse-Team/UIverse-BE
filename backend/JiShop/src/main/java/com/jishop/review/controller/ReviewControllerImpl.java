@@ -2,9 +2,9 @@ package com.jishop.review.controller;
 
 import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.service.ReviewService;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,14 +37,20 @@ public class ReviewControllerImpl implements ReviewController {
 
     @Override
     @GetMapping("/products/{productId}")
-    public ResponseEntity<PagedModel<ReviewResponse>> getProdcutReview(@PathVariable("productId") Long productId,
-                                                                       @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-
+    public ResponseEntity<PagedModel<?>> getProdcutReview(@RequestParam(value = "userId", required = false) Long userId,
+                                                          @PathVariable("productId") Long productId,
+                                                          @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         //todo: 추가사항
         // 1. sort 값에 따른 필터링 기능 구현 및 검증..
-        PagedModel<ReviewResponse> productReviews = reviewService.getProductReviews(productId, pageable);
 
-        return ResponseEntity.ok(productReviews);
+        if (userId == null) {
+            PagedModel<?> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);
+            return ResponseEntity.ok(productReviews);
+        }
+
+        PagedModel<?> productReviewsWithUser = reviewService.getProductReviewsWithUser(productId, userId, pageable);
+
+        return ResponseEntity.ok(productReviewsWithUser);
     }
 
     @Override

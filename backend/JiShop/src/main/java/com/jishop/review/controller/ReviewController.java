@@ -1,7 +1,6 @@
 package com.jishop.review.controller;
 import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.dto.ReviewResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
@@ -14,5 +13,5 @@ public interface ReviewController {
     ResponseEntity<?> unlikeReview();
     ResponseEntity<Long> craeteReview(ReviewRequest reviewRequest);
     ResponseEntity<PagedModel<MyPageReviewResponse>> getMyPageReview(Pageable pageable);
-    ResponseEntity<PagedModel<ReviewResponse>> getProdcutReview(Long saleProductId, Pageable pageable);
+    ResponseEntity<PagedModel<?>> getProdcutReview(Long productId, Long userid, Pageable pageable);
 }

@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -54,6 +55,9 @@ public class Review extends BaseEntity {
     @ColumnDefault("0")
     @Column(nullable = false)
     private int likeCount;
+
+    @OneToMany(mappedBy = "review")
+    private List<LikeReview> likeReviews = new ArrayList<>();
 
     @Builder
     public Review(OrderDetail orderDetail, Product product, User user,

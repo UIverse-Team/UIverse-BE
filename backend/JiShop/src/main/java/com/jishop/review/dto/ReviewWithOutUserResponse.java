@@ -7,7 +7,7 @@ import com.jishop.review.domain.tag.Tag;
 import java.time.LocalDate;
 import java.util.List;
 
-public record ReviewResponse(
+public record ReviewWithOutUserResponse(
         Tag tag,
         int rating,
         String content,
@@ -17,7 +17,7 @@ public record ReviewResponse(
         String option,
         String name
 ) {
-    public static ReviewResponse from(Review review) {
+    public static ReviewWithOutUserResponse from(Review review) {
         User user = review.getUser();
         String[] split = review.getProductSummary().split(";");
         String option = null;
@@ -25,7 +25,7 @@ public record ReviewResponse(
             option = split[1];
         }
 
-        return new ReviewResponse(
+        return new ReviewWithOutUserResponse(
                 review.getTag(),
                 review.getRating(),
                 review.getContent(),

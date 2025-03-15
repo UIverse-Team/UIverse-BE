@@ -10,13 +10,13 @@ import com.jishop.product.domain.Product;
 import com.jishop.review.domain.Review;
 import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.dto.ReviewResponse;
+import com.jishop.review.dto.ReviewWithOutUserResponse;
+import com.jishop.review.dto.ReviewWithUserResponse;
 import com.jishop.review.repository.ReviewRepository;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
@@ -58,10 +58,12 @@ public class ReviewServiceImpl implements ReviewService {
         String productSummary = null;
 
         if (saleProduct.getOption() == null) {
-            productSummary = String.format("%s;%s", saleProduct.getName(),
+            productSummary = String.format("%s;%s",
+                    saleProduct.getName(),
                     orderDetail.getQuantity());
         } else {
-            productSummary = String.format("%s;%s;%s", saleProduct.getName(),
+            productSummary = String.format("%s;%s;%s",
+                    saleProduct.getName(),
                     saleProduct.getOption().getOptionValue(),
                     orderDetail.getQuantity());
         }
@@ -88,16 +90,31 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PagedModel<ReviewResponse> getProductReviews(Long productId, Pageable pageable) {
+    public PagedModel<?> getProductReviewsWithoutUser(Long productId, Pageable pageable) {
         //todo:
         // 1. 가져올거 -> 별점, 리뷰한 날짜, 사진, 옵션, tag 값, 대표 상품 값, 회원 이름?
         // 2. 주문 상세, 판매 상품 productId으로 review 확인 조인 List<order_detail> a 받아옴
         // 3. 기본 내림차순
         // 4. 좋아요 개수랑 해당 유저가 좋아요를 할 수 있는지 둬 줘야 한다.
+        // 5. 로그인 안했을때.
 
         return new PagedModel<>(reviewRepository
                 .findByProductIdWithUser(productId, pageable)
-                .map(ReviewResponse::from));
+                .map(ReviewWithOutUserResponse::from));
+    }
+
+    @Override
+    public PagedModel<?> getProductReviewsWithUser(Long productId, Long userId, Pageable pageable) {
+        //todo:
+        // 1. 로그인 했을때.
+        return new PagedModel<>(reviewRepository
+                .findReviewsWithUserLike(productId, userId, pageable)
+                .map((result) -> {
+                            Review r = (Review) result[0];
+                            Boolean isLike = (Boolean) result[1];
+                            return ReviewWithUserResponse.from(r, isLike);
+                        }
+                ));
     }
 
     @Override
@@ -108,6 +125,15 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(MyPageReviewResponse::from));
     }
 
+    @Override
+    public void likeReview(Long reviewId, Long userId) {
+
+
+//        LikeReview likeReview = LikeReview.builder()
+//                .user()
+//                .review()
+//                .build();
+    }
 
     @Override
     public void updateReview(Long reviewId, ReviewRequest reviewRequest) {

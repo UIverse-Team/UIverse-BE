@@ -19,11 +19,9 @@ import com.jishop.product.domain.SaleStatus;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.review.domain.tag.Tag;
 import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.dto.ReviewResponse;
 import com.jishop.review.service.ReviewService;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -138,7 +136,7 @@ public class reviewServiceTest {
         SaleProduct saleProduct2 = createSaleProduct(tablet, g_option_red);
         SaleProduct saleProduct3 = createSaleProduct(tablet, i_option_red);
         SaleProduct saleProduct4 = createSaleProduct(tablet, i_option_blue);
-        SaleProduct saleProduct5 = createSaleProduct(tablet, g_optoin_gold);
+        SaleProduct saleProduct5 = createSaleProduct(smartphone, g_optoin_gold);
 
         // ✅ 한 번의 saveAll() 호출로 최적화 저장
         saleProductRepository.saveAll(List.of(saleProduct1, saleProduct2, saleProduct3, saleProduct4, saleProduct5));
@@ -164,7 +162,8 @@ public class reviewServiceTest {
 
         // ✅ 주문 상세 생성
         List<OrderDetail> orderDetails2 = List.of(
-                createOrderDetail(order2, saleProduct2, 1, 1700000)  // 상품 1개
+                createOrderDetail(order2, saleProduct2, 1, 1700000),  // 상품 1개
+                createOrderDetail(order2, saleProduct5, 1, 1700000)  // 상품 1개
         );
         order2.updateOrderInfo("갤럭시 S24 울트라", 1700000, orderDetails2, generateOrderNumber());
 
@@ -189,7 +188,8 @@ public class reviewServiceTest {
         // ✅ 한 번의 saveAll() 호출로 최적화 저장
         userRepository.saveAll(List.of(user1, user2, user3));
 
-        System.out.println("✅ 회원 데이터가 성공적으로 저장되었습니다!");    }
+        System.out.println("✅ 회원 데이터가 성공적으로 저장되었습니다!");
+    }
 
     @Test
     @DisplayName("리뷰 저장")
@@ -197,31 +197,70 @@ public class reviewServiceTest {
         // given
         ReviewRequest request1 = getReviewRequest(1L, "This is a test", Tag.NEUTRAL, 5);
         ReviewRequest request2 = getReviewRequest(2L, "새로운 테스트", Tag.RECOMMENDED, 5);
-        ReviewRequest request3 = getReviewRequest(3L, "물까 테스트", Tag.RECOMMENDED, 3);
-        ReviewRequest request4 = getReviewRequest(4L, "물까 테스트", Tag.RECOMMENDED, 3);
-
+        ReviewRequest request3 = getReviewRequest(3L, "물까 1", Tag.RECOMMENDED, 3);
+        ReviewRequest request4 = getReviewRequest(4L, "물까 2", Tag.RECOMMENDED, 3);
+        ReviewRequest request5 = getReviewRequest(5L, "물까 3", Tag.RECOMMENDED, 1);
+        ReviewRequest request6 = getReviewRequest(6L, "물까 4", Tag.RECOMMENDED, 3);
         List<String> images = new ArrayList<>();
         for (int i = 1; i < 6; i++) {
             images.add("이미지" + i + ".jpg");
         }
-        Long review1 = reviewService.createReview(request1, images, 1L);
-        Long review2 = reviewService.createReview(request2, images, 1L);
-        Long review3 = reviewService.createReview(request3, images, 2L);
-        Long review4 = reviewService.createReview(request4, images, 3L);
+        reviewService.createReview(request1, images, 1L);
+        reviewService.createReview(request2, images, 1L);
+        reviewService.createReview(request3, images, 2L);
+        reviewService.createReview(request4, images, 3L);
+        reviewService.createReview(request5, images, 3L);
+        reviewService.createReview(request6, images, 3L);
     }
 
     @Test
-    @DisplayName("상품에서 조회")
-    void getproduct() throws Exception {
+    @DisplayName("상품에서 조회 - 비회원일때")
+    void getproduct_notUser() throws Exception {
         // given
         Long productId = 3L;
 
         PageRequest pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
-        PagedModel<ReviewResponse> productReviews = reviewService.getProductReviews(productId, pageable);
+        PagedModel<?> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);
         //when
 
         //then
         productReviews.getContent().forEach(System.out::println);
+    }
+
+    @Test
+    @DisplayName("상품에서 조회 - 회원일때")
+    void getproduct_user() throws Exception {
+        // given
+        Long productId = 3L;
+        Long userId = 2L;
+
+        PageRequest pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
+        PagedModel<?> productReviews = reviewService.getProductReviewsWithUser(productId,userId, pageable);
+        //when
+
+        //then
+        productReviews.getContent().forEach(System.out::println);
+    }
+
+    @Test
+    @DisplayName("리뷰 좋아요 기능 만들기")
+    void review_like() throws Exception {
+        // given
+        /**
+         * 뭘 줘야 할까?
+         * 리뷰할 id, 리뷰하는 유저 id
+         * 리뷰 좋아요 테이블도 만들고
+         *
+         */
+        Long reviewId = 1L;
+        Long userId = 1L;
+
+        reviewService.likeReview(reviewId, userId);
+
+
+        //when
+
+        //then
 
     }
 
@@ -312,7 +351,7 @@ public class reviewServiceTest {
     }
 
     private String generateOrderNumber() {
-        return "ORD-" +System.currentTimeMillis() +UUID.randomUUID().toString() ;
+        return "ORD-" + System.currentTimeMillis() + UUID.randomUUID().toString();
     }
 
     private User createUser(String loginId, String password, String name, String birthDate, String gender, String phone, LoginType provider) {
