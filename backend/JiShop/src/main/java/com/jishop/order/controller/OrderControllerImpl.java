@@ -22,7 +22,7 @@ public class OrderControllerImpl implements OrderController {
     //주문 생성
     @Override
     @PostMapping
-    public ResponseEntity<?> create(@CurrentUser User user,
+    public ResponseEntity<OrderResponse> create(@CurrentUser User user,
                                     @Valid @RequestBody OrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
 
@@ -32,7 +32,7 @@ public class OrderControllerImpl implements OrderController {
     //주문 내역 단건 조회
     @Override
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrder(@CurrentUser User user, @PathVariable Long orderId){
+    public ResponseEntity<OrderResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
         OrderResponse orderResponse = orderService.getOrder(user, orderId);
 
         return ResponseEntity.ok(orderResponse);
@@ -41,7 +41,7 @@ public class OrderControllerImpl implements OrderController {
     //주문 전체 조회
     @Override
     @GetMapping("/lists")
-    public ResponseEntity<?> getOrderList(@CurrentUser User user,
+    public ResponseEntity<List<OrderResponse>> getOrderList(@CurrentUser User user,
                                           @RequestParam(value = "period", defaultValue = "all")String period){
         List<OrderResponse> responseList = orderService.getAllOrders(user, period);
 
@@ -51,7 +51,7 @@ public class OrderControllerImpl implements OrderController {
     //주문 취소
     @Override
     @PatchMapping("/{orderId}")
-    public ResponseEntity<?> cancelOrder(@CurrentUser User user, @PathVariable Long orderId){
+    public ResponseEntity<String> cancelOrder(@CurrentUser User user, @PathVariable Long orderId){
         orderService.cancelOrder(user, orderId);
 
         return ResponseEntity.ok("주문이 취소되었습니다");
