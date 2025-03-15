@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
         String orderNumberStr = generateOrderNumber();
 
         // 주문 객체 생성
-        Order order = orderRequest.toEntity(userId);
+        Order order = orderRequest.toEntity(user.getId());
 
         // SaleProduct ID 리스트 추출
         List<Long> saleProductIds = orderRequest.orderDetailRequestList().stream()
@@ -116,7 +116,6 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
 
-        log.info(String.valueOf(order.getUserId()));
         return OrderResponse.fromOrder(order, orderDetailResponseList);
     }
 
