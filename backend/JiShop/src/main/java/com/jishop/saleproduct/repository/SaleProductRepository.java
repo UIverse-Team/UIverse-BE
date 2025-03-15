@@ -4,9 +4,11 @@ import com.jishop.saleproduct.domain.SaleProduct;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> {
     // 주문 생성에 필요한 최소한의 데이터만 조회하는 메서드
     @Query("SELECT sp FROM SaleProduct sp " +

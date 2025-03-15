@@ -6,20 +6,26 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    // 단일 주문 조회를 위한 최적화된 fetch join 쿼리
+    // 특정 사용자의 단일 주문 조회 (fetch join 적용)
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
-            "WHERE o.id = :orderId")
-    Optional<Order> findByIdWithDetails(@Param("orderId") Long orderId);
+            "WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findByIdWithDetails(@Param("userId") Long userId, @Param("orderId") Long orderId);
 
     @Query("SELECT DISTINCT o FROM Order o " +
-            "LEFT JOIN FETCH o.orderDetails od ")
-    List<Order> findAllWithDetails();
+            "LEFT JOIN FETCH o.orderDetails od " +
+            "WHERE o.userId = :userId " +
+            "AND (:period = 'all' OR (o.createdAt >= :startDate AND o.createdAt <= :endDate))")
+    List<Order> findAllWithDetailsByPeriod(@Param("userId") Long userId,
+                                           @Param("period") String period,
+                                           @Param("startDate") LocalDateTime startDate,
+                                           @Param("endDate") LocalDateTime endDate);
 
     boolean existsByOrderNumber(String orderNumber);
 }

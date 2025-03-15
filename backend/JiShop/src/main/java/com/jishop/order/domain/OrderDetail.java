@@ -42,4 +42,6 @@ public class OrderDetail extends BaseEntity {
         this.quantity = quantity;
         this.price = price;
     }
+
+
 }
