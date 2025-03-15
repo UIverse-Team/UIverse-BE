@@ -2,6 +2,7 @@ package com.jishop.order.controller;
 
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
+import com.jishop.order.dto.InstantOrderRequest;
 import com.jishop.order.dto.OrderDetailResponse;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
@@ -57,5 +58,16 @@ public class OrderControllerImpl implements OrderController {
 
         return ResponseEntity.ok("주문이 취소되었습니다");
     }
+
+    // 바로 구매하기
+    @Override
+    @PostMapping("/instant")
+    public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid InstantOrderRequest orderRequest) {
+
+        OrderResponse orderResponse = orderService.createInstantOrder(user, orderRequest);
+
+        return ResponseEntity.ok(orderResponse);
+    }
+
 
 }

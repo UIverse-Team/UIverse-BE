@@ -7,10 +7,7 @@ import com.jishop.member.repository.UserRepository;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
-import com.jishop.order.dto.OrderDetailRequest;
-import com.jishop.order.dto.OrderDetailResponse;
-import com.jishop.order.dto.OrderRequest;
-import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.dto.*;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
@@ -184,6 +181,30 @@ public class OrderServiceImpl implements OrderService {
         //주문 상태 변경
         order.updateStatus(OrderStatus.ORDER_CANCELED);
         order.delete();
+    }
+
+    // 바로 구매하기
+    @Override
+    public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
+        //상품 정보 조회
+        SaleProduct saleProduct = saleProductRepository.findById(instantOrderRequest.saleProductId())
+                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
+        OrderDetailRequest orderDetailRequest = new OrderDetailRequest(
+                saleProduct.getId(), saleProduct.getName(), instantOrderRequest.quantity()
+        );
+
+        //todo: 사용자의 주소지 끌고와서 넣기
+        OrderRequest orderRequest = new OrderRequest(
+                "receiver" + user.getName(),
+                "phone" + user.getPhone(),
+                "baseAddress",
+                "detailAddress",
+                "zipCode",
+                List.of(orderDetailRequest)
+        );
+
+        return createOrder(user, orderRequest);
     }
 
     private List<OrderDetailResponse> convertToOrderDetailResponses(List<OrderDetail> details) {
