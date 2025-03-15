@@ -16,9 +16,6 @@ import java.util.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
-    //userId
-    private Long userId;
-
     //주문상태
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -26,6 +23,9 @@ public class Order extends BaseEntity {
 
     // todo: 결제수단 매핑
     private Long paymentId;
+
+    // todo: user 세션 가져오기
+    private Long userId;
 
     //대표상품명
     private String mainProductName;

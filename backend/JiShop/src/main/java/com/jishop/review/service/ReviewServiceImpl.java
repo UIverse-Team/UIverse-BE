@@ -4,7 +4,6 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.member.repository.UserRepository;
-import com.jishop.option.domain.Option;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.Product;
