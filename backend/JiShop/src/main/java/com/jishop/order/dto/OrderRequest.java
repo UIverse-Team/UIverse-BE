@@ -1,5 +1,6 @@
 package com.jishop.order.dto;
 
+import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
 import jakarta.validation.constraints.NotBlank;
 
@@ -22,9 +23,9 @@ public record OrderRequest(
         String zipCode,
         List<OrderDetailRequest> orderDetailRequestList
 ){
-    public Order toEntity(Long userId){
+    public Order toEntity(User user){
         return Order.builder()
-                .userId(userId)
+                .userId(user.getId())
                 .receiver(receiver)
                 .receiverNumber(receiverNumber)
                 .baseAddress(baseAddress)

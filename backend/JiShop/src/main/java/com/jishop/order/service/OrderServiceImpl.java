@@ -17,6 +17,7 @@ import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.velocity.runtime.directive.Foreach;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         String orderNumberStr = generateOrderNumber();
 
         // 주문 객체 생성
-        Order order = orderRequest.toEntity(user.getId());
+        Order order = orderRequest.toEntity(user);
 
         // SaleProduct ID 리스트 추출
         List<Long> saleProductIds = orderRequest.orderDetailRequestList().stream()
@@ -120,11 +121,11 @@ public class OrderServiceImpl implements OrderService {
     //주문 단건 조회
     @Override
     @Transactional(readOnly = true)
-    public OrderResponse getOrder(User user, Long orderId){
+    public List<OrderDetailResponse> getOrder(User user, Long orderId){
         Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
-        return OrderResponse.fromOrder(order, convertToOrderDetailResponses(order.getOrderDetails()));
+        return convertToOrderDetailResponses(order.getOrderDetails());
     }
 
     // 주문 내역 전체 조회

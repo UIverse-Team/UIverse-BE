@@ -2,6 +2,7 @@ package com.jishop.order.controller;
 
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
+import com.jishop.order.dto.OrderDetailResponse;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.service.OrderService;
@@ -32,10 +33,10 @@ public class OrderControllerImpl implements OrderController {
     //주문 내역 단건 조회
     @Override
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
-        OrderResponse orderResponse = orderService.getOrder(user, orderId);
+    public ResponseEntity<List<OrderDetailResponse>> getOrder(@CurrentUser User user, @PathVariable Long orderId){
+        List<OrderDetailResponse> orderDetailResponse = orderService.getOrder(user, orderId);
 
-        return ResponseEntity.ok(orderResponse);
+        return ResponseEntity.ok(orderDetailResponse);
     }
 
     //주문 전체 조회
