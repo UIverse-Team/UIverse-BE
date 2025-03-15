@@ -1,5 +1,7 @@
 package com.jishop.wishlist.contoroller;
 
+import com.jishop.member.annotation.CurrentUser;
+import com.jishop.member.domain.User;
 import com.jishop.wishlist.dto.WishProductRequest;
 import com.jishop.wishlist.dto.WishProductResponse;
 import com.jishop.wishlist.service.WishListService;
@@ -17,8 +19,9 @@ public class WishListControllerImpl implements WishListController {
     private final WishListService wishListService;
 
     @PostMapping("/addProduct")
-    public ResponseEntity<String> addWishProduct(@RequestBody WishProductRequest request){
-        wishListService.addProduct(request);
+    public ResponseEntity<String> addWishProduct(@CurrentUser User user,
+                                                 @RequestBody WishProductRequest request){
+        wishListService.addProduct(user, request);
 
         return ResponseEntity.ok("success");
     }
