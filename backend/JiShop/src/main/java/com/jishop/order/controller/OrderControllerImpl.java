@@ -41,8 +41,9 @@ public class OrderControllerImpl implements OrderController {
     //주문 전체 조회
     @Override
     @GetMapping("/lists")
-    public ResponseEntity<?> getOrderList(@CurrentUser User user){
-        List<OrderResponse> responseList = orderService.getAllOrders(user);
+    public ResponseEntity<?> getOrderList(@CurrentUser User user,
+                                          @RequestParam(value = "period", defaultValue = "all")String period){
+        List<OrderResponse> responseList = orderService.getAllOrders(user, period);
 
         return ResponseEntity.ok(responseList);
     }

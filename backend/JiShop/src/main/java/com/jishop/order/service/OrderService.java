@@ -10,6 +10,6 @@ public interface OrderService {
 
     OrderResponse createOrder(User user, OrderRequest orderRequest);
     OrderResponse getOrder(User user, Long orderId);
-    List<OrderResponse> getAllOrders(User user);
+    List<OrderResponse> getAllOrders(User user, String period);
     void cancelOrder(User user, Long orderId);
 }

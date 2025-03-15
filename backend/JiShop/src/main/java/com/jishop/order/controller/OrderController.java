@@ -8,6 +8,6 @@ public interface OrderController {
 
     ResponseEntity<?> create(User user, OrderRequest orderRequest);
     ResponseEntity<?> getOrder(User user, Long orderId);
-    ResponseEntity<?> getOrderList(User user);
+    ResponseEntity<?> getOrderList(User user, String period);
     ResponseEntity<?> cancelOrder(User user, Long orderId);
 }

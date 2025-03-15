@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,8 +20,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
-            "WHERE o.userId = :userId")
-    List<Order> findAllWithDetails(@Param("userId") Long userId);
+            "WHERE o.userId = :userId " +
+            "AND (:period = 'all' OR (o.createdAt >= :startDate AND o.createdAt <= :endDate))")
+    List<Order> findAllWithDetailsByPeriod(@Param("userId") Long userId,
+                                           @Param("period") String period,
+                                           @Param("startDate") LocalDateTime startDate,
+                                           @Param("endDate") LocalDateTime endDate);
 
     boolean existsByOrderNumber(String orderNumber);
 }
