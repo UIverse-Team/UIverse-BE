@@ -16,6 +16,9 @@ import java.util.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
+    //userId
+    private Long userId;
+
     //주문상태
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -23,9 +26,6 @@ public class Order extends BaseEntity {
 
     // todo: 결제수단 매핑
     private Long paymentId;
-
-    // todo: user 세션 가져오기
-    private Long userId;
 
     //대표상품명
     private String mainProductName;
@@ -72,8 +72,9 @@ public class Order extends BaseEntity {
     }
 
     @Builder
-    public Order(String mainProductName, int totalPrice, String receiver, String receiverNumber,
+    public Order(Long userId, String mainProductName, int totalPrice, String receiver, String receiverNumber,
                  String zipCode, String baseAddress, String detailAddress) {
+        this.userId = userId;
         this.status = OrderStatus.ORDER_RECEIVED;
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;

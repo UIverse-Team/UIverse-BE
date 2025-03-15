@@ -2,6 +2,8 @@ package com.jishop.order.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
+import com.jishop.member.domain.User;
+import com.jishop.member.repository.UserRepository;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
@@ -10,8 +12,8 @@ import com.jishop.order.dto.OrderDetailResponse;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.repository.OrderRepository;
-import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
+import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,16 +36,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final SaleProductRepository saleProductRepository;
     private final StockService stockService;
+    private final UserRepository userRepository;
 
     //주문 생성
     @Override
     @Transactional
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
+        User user = userRepository.findById(userId).orElseThrow(
+                ()->new DomainException(ErrorType.USER_NOT_FOUND)
+        );
         // 주문 번호 생성 (저장하지 않고 문자열만 받음)
         String orderNumberStr = generateOrderNumber();
 
         // 주문 객체 생성
-        Order order = orderRequest.toEntity();
+        Order order = orderRequest.toEntity(userId);
 
         // SaleProduct ID 리스트 추출
         List<Long> saleProductIds = orderRequest.orderDetailRequestList().stream()
@@ -110,6 +116,7 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
 
+        log.info(String.valueOf(order.getUserId()));
         return OrderResponse.fromOrder(order, orderDetailResponseList);
     }
 

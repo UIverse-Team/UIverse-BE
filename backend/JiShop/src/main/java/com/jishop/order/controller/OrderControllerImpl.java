@@ -1,11 +1,17 @@
 package com.jishop.order.controller;
 
+import com.jishop.common.exception.ErrorType;
 import com.jishop.order.domain.Order;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.service.OrderService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,8 +26,20 @@ public class OrderControllerImpl implements OrderController {
     //주문 생성
     @Override
     @PostMapping
-    public ResponseEntity<OrderResponse> create(@Valid @RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
+    public ResponseEntity<?> create(@Valid @RequestBody OrderRequest orderRequest,
+                                                HttpServletRequest request) {
+
+        HttpSession session = request.getSession(false);
+
+        if(session == null || session.getAttribute("userId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다");
+        }
+
+        // session 값이 Integer로 저장되어있어 Long으로 변환
+        Number userIdNumber = (Number) session.getAttribute("userId");
+        Long userId = userIdNumber.longValue();
+
+        OrderResponse orderResponse = orderService.createOrder(userId, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }

@@ -22,8 +22,9 @@ public record OrderRequest(
         String zipCode,
         List<OrderDetailRequest> orderDetailRequestList
 ){
-    public Order toEntity(){
+    public Order toEntity(Long userId){
         return Order.builder()
+                .userId(userId)
                 .receiver(receiver)
                 .receiverNumber(receiverNumber)
                 .baseAddress(baseAddress)
