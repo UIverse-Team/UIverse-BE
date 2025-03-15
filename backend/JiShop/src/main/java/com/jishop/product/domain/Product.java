@@ -1,12 +1,8 @@
 package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
-import jakarta.persistence.*;
 import com.jishop.common.util.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
