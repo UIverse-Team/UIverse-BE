@@ -56,9 +56,6 @@ public class Review extends BaseEntity {
     @Column(nullable = false)
     private int likeCount;
 
-    @OneToMany(mappedBy = "review")
-    private List<LikeReview> likeReviews = new ArrayList<>();
-
     @Builder
     public Review(OrderDetail orderDetail, Product product, User user,
                   String productSummary, String content, int rating,

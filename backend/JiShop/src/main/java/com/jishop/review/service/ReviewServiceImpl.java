@@ -109,8 +109,8 @@ public class ReviewServiceImpl implements ReviewService {
         // 1. 로그인 했을때.
         return new PagedModel<>(reviewRepository
                 .findReviewsWithUserLike(productId, userId, pageable)
-                .map((result) -> {
-                            Review r = (Review) result[0];
+                .map(result -> {
+                    Review r = (Review) result[0];
                             Boolean isLike = (Boolean) result[1];
                             return ReviewWithUserResponse.from(r, isLike);
                         }
