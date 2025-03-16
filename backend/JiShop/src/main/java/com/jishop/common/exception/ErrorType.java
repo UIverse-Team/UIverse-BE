@@ -40,7 +40,11 @@ public enum ErrorType {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "값을 잘못 입력했습니다."),
 
     // STOCK
-    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다");
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
+
+    // Address
+    DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
