@@ -122,7 +122,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public PagedModel<MyPageReviewResponse> getMyPageReviews(Long userId, Pageable pageable) {
-
         return new PagedModel<>(reviewRepository
                 .findReviewsProductByUserId(userId, pageable)
                 .map(MyPageReviewResponse::from));
