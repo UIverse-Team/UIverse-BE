@@ -9,6 +9,7 @@ import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
 import com.jishop.order.dto.*;
 import com.jishop.order.repository.OrderRepository;
+import com.jishop.review.repository.ReviewRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.stock.service.StockService;
@@ -35,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final SaleProductRepository saleProductRepository;
     private final StockService stockService;
-    private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
 
     //주문 생성
     @Override
@@ -208,6 +209,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private List<OrderDetailResponse> convertToOrderDetailResponses(List<OrderDetail> details) {
+        // 주문 상태가 구매확정인 주문만 리뷰 작성 가능
+        boolean isPurchaseConfirmed = !details.isEmpty() &&
+                details.get(0).getOrder().getStatus() == OrderStatus.PURCHASED_CONFIRMED;
+
+        if (!isPurchaseConfirmed) {
+            return details.stream()
+                    .map(detail -> new OrderDetailResponse(
+                            detail.getId(),
+                            detail.getSaleProduct().getId(),
+                            detail.getSaleProduct().getName(),
+                            detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
+                            detail.getPrice(),
+                            detail.getQuantity(),
+                            detail.getPrice() * detail.getQuantity(),
+                            false // 구매확정 상태가 아니면 리뷰 작성 불가
+                    ))
+                    .toList();
+        }
+
+        // 모든 주문 상세 ID 목록 => 한번의 쿼리로 리뷰가 작성된 거 까지 가져오고, 리뷰 작성 여부는 여기서 확인(N+1 문제 해결)
+        List<Long> orderDetailIds = details.stream().map(OrderDetail::getId).toList();
+
+        // 리뷰가 있는 주문 상세 ID 목록
+        List<Long> reviewedOrderDetailIds = reviewRepository.findOrderDetailIdsWithReviews(orderDetailIds);
+
         return details.stream()
                 .map(detail -> new OrderDetailResponse(
                         detail.getId(),
@@ -216,10 +242,12 @@ public class OrderServiceImpl implements OrderService {
                         detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
                         detail.getPrice(),
                         detail.getQuantity(),
-                        detail.getPrice() * detail.getQuantity()
+                        detail.getPrice() * detail.getQuantity(),
+                        !reviewedOrderDetailIds.contains(detail.getId()) // 리뷰가 없는 경우만 true
                 ))
                 .toList();
     }
+
 
     private static final int LENGTH = 5;
     private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";

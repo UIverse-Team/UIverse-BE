@@ -7,6 +7,7 @@ public record OrderDetailResponse(
         String optionValue,
         int price,
         int quantity,
-        int totalPrice
+        int totalPrice,
+        boolean canReview
 ) {
 }
