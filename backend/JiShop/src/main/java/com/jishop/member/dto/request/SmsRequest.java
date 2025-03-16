@@ -18,6 +18,5 @@ public record SmsRequest(
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(5))
                 .build();
-
     }
 }

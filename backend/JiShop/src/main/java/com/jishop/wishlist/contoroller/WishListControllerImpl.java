@@ -5,6 +5,7 @@ import com.jishop.member.domain.User;
 import com.jishop.wishlist.dto.WishProductRequest;
 import com.jishop.wishlist.dto.WishProductResponse;
 import com.jishop.wishlist.service.WishListService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
