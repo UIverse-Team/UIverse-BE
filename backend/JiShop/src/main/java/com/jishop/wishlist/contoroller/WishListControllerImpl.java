@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "찜 API")
 @RequiredArgsConstructor
 @RequestMapping("/wishlist")
 public class WishListControllerImpl implements WishListController {

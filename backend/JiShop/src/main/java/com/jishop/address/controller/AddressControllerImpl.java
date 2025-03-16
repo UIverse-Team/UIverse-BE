@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "배송지 API")
 @RequiredArgsConstructor
 @RequestMapping("/address")
 public class AddressControllerImpl implements AddressController {
