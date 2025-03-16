@@ -65,7 +65,7 @@ public class AddressServiceImpl implements AddressService {
     // todo: 기본배송지 여부는 메서드로 따로 빼는게 좋을듯 -> 변경, 추가 시에 사용하니까
     private void changeDefault(User user){
         // 이거 기본 주소지 없을수도 있는데 굳이?
-        Address address = addressRepository.findDefaultAddressByUserId(user)
+        Address address = addressRepository.findDefaultAddressByUser(user)
                 .orElseThrow(() -> new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND));
         address.updateDefaultYN();
     }

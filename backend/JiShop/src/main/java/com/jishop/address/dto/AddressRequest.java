@@ -5,9 +5,9 @@ import com.jishop.member.domain.User;
 import jakarta.validation.constraints.NotBlank;
 
 public record AddressRequest(
-        @NotBlank
+        @NotBlank(message = "받는 사람 이름을 적어주세요")
         String recipient,
-        @NotBlank
+        @NotBlank(message = "휴대폰 번호를 입력해주세요")
         String phone,
         @NotBlank
         String zonecode,
