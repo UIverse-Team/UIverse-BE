@@ -1,5 +1,6 @@
 package com.jishop.address.domain;
 
+import com.jishop.address.dto.AddressRequest;
 import com.jishop.address.dto.AddressResponse;
 import com.jishop.common.util.BaseEntity;
 import com.jishop.member.domain.User;
@@ -18,6 +19,13 @@ public class Address extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
+    /**
+     * 받으시는 분, 전화번호 추가 예정
+     */
+    private String recipient;
+
+    private String phone;
+
     @Column(name="zone_code")
     private String zonecode;
 
@@ -29,8 +37,10 @@ public class Address extends BaseEntity {
     private boolean defaultYN;
 
     @Builder
-    public Address(User user, String zonecode, String address, String detailAddress, boolean defaultYN) {
+    public Address(User user, String recipient, String phone, String zonecode, String address, String detailAddress, boolean defaultYN) {
         this.user = user;
+        this.recipient = recipient;
+        this.phone = phone;
         this.zonecode = zonecode;
         this.address = address;
         this.detailAddress = detailAddress;
@@ -41,6 +51,13 @@ public class Address extends BaseEntity {
         this.defaultYN = false;
     }
 
-
+    public void updateAddress(AddressRequest request) {
+        this.recipient = request.recipient();
+        this.phone = request.phone();
+        this.zonecode = request.zonecode();
+        this.address = request.address();
+        this.detailAddress = request.detailAddress();
+        this.defaultYN = request.defaultYN();
+    }
 }
 

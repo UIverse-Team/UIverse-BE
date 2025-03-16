@@ -10,4 +10,7 @@ public interface AddressService {
 
     void addAddress(User user, AddressRequest request);
     List<AddressResponse> getAddressList(User user);
+    AddressResponse getAddress(Long addressId);
+    void deleteAddress(Long addressId);
+    void updateAddress(User user, Long addressId, AddressRequest request);
 }
