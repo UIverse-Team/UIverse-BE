@@ -1,18 +1,18 @@
 package com.jishop.address.domain;
 
 import com.jishop.address.dto.AddressRequest;
-import com.jishop.address.dto.AddressResponse;
 import com.jishop.common.util.BaseEntity;
 import com.jishop.member.domain.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
 @Table(name="addresses")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address extends BaseEntity {
 
     @JoinColumn(name = "user_id")
