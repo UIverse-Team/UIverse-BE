@@ -4,7 +4,6 @@ public record ProductRequest(
         int page,
         int size,
         String sort
-
         //TODO
         // 1. filter
 ){

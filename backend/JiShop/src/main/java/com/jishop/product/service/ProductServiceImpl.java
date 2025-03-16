@@ -24,35 +24,25 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PagedModel<ProductResponse> getProductList(ProductRequest productRequest) {
-        Page<Product> productPage;
 
-        // discount 정렬 처리
         if ("discount".equals(productRequest.sort())) {
             Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size());
-            productPage = productRepository.findAllOrderByDiscountRateDesc(pageable);
-        } else {
-            // 그 외 정렬 조건 처리
-            Sort sort;
-            switch (productRequest.sort()) {
-                case "wish":
-                    sort = Sort.by(Sort.Direction.DESC, "wishListCount");
-                    break;
-                case "latest":
-                    sort = Sort.by(Sort.Direction.DESC, "createdAt");
-                    break;
-                case "priceAsc":
-                    sort = Sort.by(Sort.Direction.ASC, "discountPrice");
-                    break;
-                case "priceDesc":
-                    sort = Sort.by(Sort.Direction.DESC, "discountPrice");
-                    break;
-                default:
-                    sort = Sort.by(Sort.Direction.DESC, "wishListCount");
-                    break;
-            }
-            Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size(), sort);
-            productPage = productRepository.findAll(pageable);
+            Page<Product> productPage = productRepository.findAllOrderByDiscountRateDesc(pageable);
+
+            return new PagedModel<>(productPage.map(ProductResponse::from));
         }
+
+        Sort sort = switch (productRequest.sort()) {
+            case "wish" -> Sort.by(Sort.Direction.DESC, "wishListCount");
+            case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "priceAsc" -> Sort.by(Sort.Direction.ASC, "discountPrice");
+            case "priceDesc" -> Sort.by(Sort.Direction.DESC, "discountPrice");
+            default -> Sort.by(Sort.Direction.DESC, "wishListCount");
+        };
+
+        Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size(), sort);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
 
         return new PagedModel<>(productPage.map(ProductResponse::from));
     }
