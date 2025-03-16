@@ -19,12 +19,12 @@ public class SaleProduct extends BaseEntity {
 
     private String name;
 
-    private String image;
-
-    private int quantity;
-
-    @ColumnDefault("0")
-    private Double productRating;
+//    private String image;
+//
+//    private int quantity;
+//
+//    @ColumnDefault("0")
+//    private Double productRating;
 
     @JoinColumn(name = "product_id")
     @ManyToOne(fetch = FetchType.LAZY)

@@ -3,22 +3,21 @@ package com.jishop.category.domain;
 import com.jishop.common.util.BaseEntity;
 import com.jishop.product.domain.Product;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "categories")
+@Table(name = "category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseEntity {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products = new ArrayList<>();
 
+    @Setter // parent 넣으려고 넣어줬다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", referencedColumnName = "current_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
     private Category parent;
@@ -41,6 +40,7 @@ public class Category extends BaseEntity {
     @Column(name = "level", nullable = false)
     private Integer level;
 
+    @Builder
     public Category(
             Category parent,
             Long currentId,
@@ -55,5 +55,10 @@ public class Category extends BaseEntity {
         this.wholeCategoryId = wholeCategoryId;
         this.wholeCategoryName = wholeCategoryName;
         this.level = level;
+    }
+
+    public void addChildCategory(Category child) {
+        this.children.add(child);
+        child.setParent(this);
     }
 }
