@@ -9,5 +9,5 @@ import java.util.List;
 public interface WishListService {
 
     void addProduct(User user, WishProductRequest request);
-    List<WishProductResponse> getWishProducts();
+    List<WishProductResponse> getWishProducts(User user);
 }

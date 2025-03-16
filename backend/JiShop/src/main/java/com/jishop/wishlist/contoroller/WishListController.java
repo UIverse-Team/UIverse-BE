@@ -12,5 +12,5 @@ import java.util.List;
 public interface WishListController {
 
     ResponseEntity<String> addWishProduct(User user, WishProductRequest request);
-    List<WishProductResponse> getWishProducts();
+    List<WishProductResponse> getWishProducts(User user);
 }

@@ -2,6 +2,7 @@ package com.jishop.wishlist.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
+import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.product.domain.Product;
 import com.jishop.product.repository.ProductRepository;
@@ -42,14 +43,13 @@ public class WishListServiceImpl implements WishListService {
     }
 
     @Override
-    public List<WishProductResponse> getWishProducts() {
+    public List<WishProductResponse> getWishProducts(User user) {
         // 전체 찾아오기
-        List<WishList> wishList = wishListRepository.findAll();
+        List<WishList> wishList = wishListRepository.findAllByUser(user);
         // 위시리스트에서 상품 id가져와서? 해당 아이디들로 해당 상품 내용으로 변환하기
         List<Long> productIds = wishList.stream().map(wish -> wish.getProduct().getId()).toList();
         List<Product> products = productRepository.findAllById(productIds);
 
-        return products.stream().map(product -> new WishProductResponse(product))
-                .toList();
+        return products.stream().map(WishProductResponse::new).toList();
     }
 }
