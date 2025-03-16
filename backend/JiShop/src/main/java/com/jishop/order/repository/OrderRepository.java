@@ -20,6 +20,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
+            "LEFT JOIN FETCH od.saleProduct sp " +
+            "LEFT JOIN FETCH sp.option " +
+            "LEFT JOIN FETCH sp.product " +
+            "LEFT JOIN FETCH sp.stock " +
+            "WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findByIdWithDetailsAndProducts(@Param("userId") Long userId, @Param("orderId") Long orderId);
+
+
+    @Query("SELECT DISTINCT o FROM Order o " +
+            "LEFT JOIN FETCH o.orderDetails od " +
+            "LEFT JOIN FETCH od.saleProduct sp " +
+            "LEFT JOIN FETCH sp.option " +
+            "LEFT JOIN FETCH sp.product " +
+            "LEFT JOIN FETCH sp.stock " +
             "WHERE o.userId = :userId " +
             "AND (:period = 'all' OR (o.createdAt >= :startDate AND o.createdAt <= :endDate))")
     List<Order> findAllWithDetailsByPeriod(@Param("userId") Long userId,

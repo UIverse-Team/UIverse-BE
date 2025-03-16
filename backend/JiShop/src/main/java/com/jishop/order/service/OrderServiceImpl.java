@@ -120,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<OrderDetailResponse> getOrder(User user, Long orderId){
-        Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
+        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         return convertToOrderDetailResponses(order.getOrderDetails());
@@ -168,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
             throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
 
         if(order.getStatus() == OrderStatus.PURCHASED_CONFIRMED)
-            throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
+            throw new DomainException(ErrorType.ORDER_ALREADY_CONFIRMED);
 
         List<OrderDetail> orderDetails = order.getOrderDetails();
         for(OrderDetail orderDetail : orderDetails){
