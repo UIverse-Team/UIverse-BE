@@ -1,7 +1,6 @@
 package com.jishop.review.service;
 
-import com.jishop.review.dto.MyPageReviewResponse;
-import com.jishop.review.dto.ReviewRequest;
+import com.jishop.review.dto.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 
@@ -11,16 +10,13 @@ public interface ReviewService {
 
     Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId);
 
-
-    PagedModel<?> getProductReviewsWithoutUser(Long productId, Pageable pageable);
+    PagedModel<ReviewWithOutUserResponse> getProductReviewsWithoutUser(Long productId, Pageable pageable);
     PagedModel<MyPageReviewResponse> getMyPageReviews(Long userId, Pageable pageable);
-    PagedModel<?> getProductReviewsWithUser(Long productId, Long userId, Pageable pageable);
+    PagedModel<ReviewWithUserResponse> getProductReviewsWithUser(Long productId, Long userId, Pageable pageable);
 
-    void likeReview(Long reviewId, Long userId);
+    void likeReview(LikerIdRequest userIdRequest, Long ReviewId);
+    void unlikeReview(LikerIdRequest userIdRequest, Long ReviewId);
 
+    void updateReview(Long reviewId, Long userId, ReviewRequest reviewRequest);
     void deleteReview(Long reviewId);
-
-    void updateReview(Long reviewId, ReviewRequest reviewRequest);
-
-
 }

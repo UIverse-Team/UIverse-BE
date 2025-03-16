@@ -7,9 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByOrderDetailId(Long orderDetailId);
+
+    @Query("select r from Review r join fetch r.user where r.id = :reviewId")
+    Optional<Review> findByReviewIdWithUser(@Param("reviewId") Long reviewId);
 
     @Query("select r from Review r join fetch r.user where r.product.id = :id and r.deleteStatus = false")
     Page<Review> findByProductIdWithUser(@Param("id") Long productId, Pageable pageable);
@@ -23,4 +28,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "left join LikeReview lr on r.id = lr.review.id and lr.user.id = :userId " +
             "where r.product.id = :productId and r.deleteStatus = false")
     Page<Object[]> findReviewsWithUserLike(@Param("productId") Long productId, @Param("userId") Long userId, Pageable pageable);
+
 }

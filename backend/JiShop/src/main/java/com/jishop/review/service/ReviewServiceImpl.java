@@ -7,23 +7,25 @@ import com.jishop.member.repository.UserRepository;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.Product;
+import com.jishop.review.domain.LikeReview;
 import com.jishop.review.domain.Review;
-import com.jishop.review.dto.MyPageReviewResponse;
-import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.dto.ReviewWithOutUserResponse;
-import com.jishop.review.dto.ReviewWithUserResponse;
+import com.jishop.review.dto.*;
+import com.jishop.review.repository.LikeReviewRepository;
 import com.jishop.review.repository.ReviewRepository;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+    private final LikeReviewRepository likeReviewRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ReviewProductRepository reviewProductRepository;
 
@@ -90,7 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PagedModel<?> getProductReviewsWithoutUser(Long productId, Pageable pageable) {
+    public PagedModel<ReviewWithOutUserResponse> getProductReviewsWithoutUser(Long productId, Pageable pageable) {
         //todo:
         // 1. 가져올거 -> 별점, 리뷰한 날짜, 사진, 옵션, tag 값, 대표 상품 값, 회원 이름?
         // 2. 주문 상세, 판매 상품 productId으로 review 확인 조인 List<order_detail> a 받아옴
@@ -104,13 +107,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PagedModel<?> getProductReviewsWithUser(Long productId, Long userId, Pageable pageable) {
+    public PagedModel<ReviewWithUserResponse> getProductReviewsWithUser(Long productId, Long userId, Pageable pageable) {
         //todo:
         // 1. 로그인 했을때.
         return new PagedModel<>(reviewRepository
                 .findReviewsWithUserLike(productId, userId, pageable)
                 .map(result -> {
-                    Review r = (Review) result[0];
+                            Review r = (Review) result[0];
                             Boolean isLike = (Boolean) result[1];
                             return ReviewWithUserResponse.from(r, isLike);
                         }
@@ -126,18 +129,64 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void likeReview(Long reviewId, Long userId) {
+    public void likeReview(LikerIdRequest likerIdRequest, Long reviewId) {
 
+        //todo:
+        // 1. 쿼리 개선
+        // 2. 동시성 고려
+        // 3. db 에러 잡아서 커스텀하기. 500 에러를 반환하여서.?
 
-//        LikeReview likeReview = LikeReview.builder()
-//                .user()
-//                .review()
-//                .build();
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
+        );
+
+        User user = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
+                () -> new DomainException(ErrorType.USER_NOT_FOUND)
+        );
+
+        LikeReview likeReview = LikeReview.builder()
+                .user(user)
+                .review(review)
+                .build();
+
+        likeReviewRepository.save(likeReview);
+        review.increaseLikeCount();
     }
 
     @Override
-    public void updateReview(Long reviewId, ReviewRequest reviewRequest) {
+    public void unlikeReview(LikerIdRequest likerIdRequest, Long reviewId) {
+        //todo:
+        // 1. 쿼리 개선
+        // 2. 동시성 락 걸기
 
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
+        );
+
+        User user = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
+                () -> new DomainException(ErrorType.USER_NOT_FOUND)
+        );
+
+        /**
+         * 이미 없는 값을 삭제하려고 한다면 에러를 터트려야할까??
+         */
+        int flag = likeReviewRepository.deleteByReviewAndUser(review, user);
+        if(flag == 1) {
+            review.decreaseLikeCount();
+        }
+    }
+
+    @Override
+    public void updateReview(Long reviewId, Long userId, ReviewRequest reviewRequest) {
+
+        Review review = reviewRepository.findByReviewIdWithUser(reviewId).orElseThrow(
+                () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
+        );
+
+        if (!Objects.equals(review.getUser().getId(), userId)) {
+            log.warn("작성한 리뷰와 사용자가 다릅니다.");
+            throw new DomainException(ErrorType.REVIEW_NOT_FOUND);
+        }
     }
 
     @Override

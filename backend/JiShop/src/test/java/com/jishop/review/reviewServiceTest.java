@@ -18,6 +18,7 @@ import com.jishop.product.domain.Product;
 import com.jishop.product.domain.SaleStatus;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.review.domain.tag.Tag;
+import com.jishop.review.dto.IdRequest;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.service.ReviewService;
 import com.jishop.saleproduct.domain.SaleProduct;
@@ -38,6 +39,7 @@ import java.util.UUID;
 
 @SpringBootTest
 public class reviewServiceTest {
+
     @Autowired
     private ReviewService reviewService;
 
@@ -243,7 +245,7 @@ public class reviewServiceTest {
     }
 
     @Test
-    @DisplayName("리뷰 좋아요 기능 만들기")
+    @DisplayName("리뷰 좋아요 테스트")
     void review_like() throws Exception {
         // given
         /**
@@ -253,11 +255,34 @@ public class reviewServiceTest {
          *
          */
         Long reviewId = 1L;
+
         Long userId = 1L;
+        IdRequest likerId= new IdRequest(userId);
 
-        reviewService.likeReview(reviewId, userId);
+        reviewService.likeReview(likerId, reviewId);
+        //when
+
+        //then
+
+    }
 
 
+    @Test
+    @DisplayName("리뷰 좋아요 취소 테스트")
+    void review_unlike() throws Exception {
+        // given
+        /**
+         * 뭘 줘야 할까?
+         * 리뷰할 id, 리뷰하는 유저 id
+         * 리뷰 좋아요 테이블도 만들고
+         *
+         */
+        Long reviewId = 1L;
+
+        Long userId = 1L;
+        IdRequest likerId= new IdRequest(userId);
+
+        reviewService.unlikeReview(likerId, reviewId);
         //when
 
         //then

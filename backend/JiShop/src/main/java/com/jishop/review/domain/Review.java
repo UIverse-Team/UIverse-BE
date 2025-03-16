@@ -2,7 +2,6 @@ package com.jishop.review.domain;
 
 import com.jishop.common.util.BaseEntity;
 import com.jishop.member.domain.User;
-import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.product.domain.Product;
 import com.jishop.review.domain.embed.ImageUrls;
@@ -15,7 +14,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -68,5 +66,13 @@ public class Review extends BaseEntity {
         this.orderDetail = orderDetail;
         this.productSummary = productSummary;
         this.imageUrls = new ImageUrls(imageUrls);
+    }
+
+    public void increaseLikeCount() {
+        likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+       likeCount--;
     }
 }

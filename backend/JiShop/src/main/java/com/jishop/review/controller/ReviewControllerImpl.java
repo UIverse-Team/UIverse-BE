@@ -1,10 +1,8 @@
 package com.jishop.review.controller;
 
-import com.jishop.review.dto.MyPageReviewResponse;
-import com.jishop.review.dto.ReviewRequest;
+import com.jishop.review.dto.*;
 import com.jishop.review.service.ReviewService;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -44,11 +42,11 @@ public class ReviewControllerImpl implements ReviewController {
         // 1. sort 값에 따른 필터링 기능 구현 및 검증..
 
         if (userId == null) {
-            PagedModel<?> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);
+            PagedModel<ReviewWithOutUserResponse> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);
             return ResponseEntity.ok(productReviews);
         }
 
-        PagedModel<?> productReviewsWithUser = reviewService.getProductReviewsWithUser(productId, userId, pageable);
+        PagedModel<ReviewWithUserResponse> productReviewsWithUser = reviewService.getProductReviewsWithUser(productId, userId, pageable);
 
         return ResponseEntity.ok(productReviewsWithUser);
     }
@@ -68,13 +66,21 @@ public class ReviewControllerImpl implements ReviewController {
     }
 
     @Override
-    public ResponseEntity<?> likeReview() {
-        return null;
+    @PostMapping("{reviewId}/likes")
+    public ResponseEntity<String> likeReview(@PathVariable(value = "reviewId") Long reviewId,
+                                        @RequestBody @Valid LikerIdRequest likerIdRequest) {
+
+        reviewService.likeReview(likerIdRequest, reviewId);
+
+        return ResponseEntity.ok("리뷰 좋아요 - 성공");
     }
 
     @Override
-    public ResponseEntity<?> unlikeReview() {
-        return null;
+    @DeleteMapping("{reviewId}/unlikes")
+    public ResponseEntity<String> unlikeReview(@PathVariable(value = "reviewId") Long reviewId,
+                                               @RequestBody @Valid LikerIdRequest likerIdRequest) {
+        reviewService.unlikeReview(likerIdRequest, reviewId);
+        return ResponseEntity.ok("리뷰 좋아요 취소 - 성공");
     }
 
 }
