@@ -42,6 +42,9 @@ public enum ErrorType {
     // STOCK
     INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
 
+    // STORE
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스토어가 존재하지 않습니다"),
+
     // Address
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
