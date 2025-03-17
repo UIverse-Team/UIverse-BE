@@ -1,13 +1,13 @@
-package com.jishop.wishlist.dto;
+package com.jishop.productwishlist.dto;
 
 import com.jishop.product.domain.Product;
 
-public record WishProductResponse(
+public record ProductWishProductResponse(
         Long productId,
         String productName,
         String mainImage
 ) {
-    public WishProductResponse(Product product){
+    public ProductWishProductResponse(Product product){
         this(product.getId(), product.getName(), product.getMainImage());
     }
 }
