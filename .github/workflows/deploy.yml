@@ -4,7 +4,7 @@ name: Deploy to AWS EB
 on:
   push:
     branches:
-      - develop
+      - be/feat/98
     types:
       - closed
     # 해당 파일 또는 폴더 하위 파일들이 변경되었을 때에만!!!
