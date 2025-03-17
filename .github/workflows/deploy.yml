@@ -41,10 +41,14 @@ jobs:
         working-directory: backend/JiShop
         run: ./gradlew clean build -x test
 
-      - name: Ensure submodules are included in ZIP
+      - name: Copy submodule files to deployment folder
         run: |
-          git submodule update --init --recursive  # 서브모듈 초기화
-          cp -r backend/JiShop/src/main/resources/config deploy/config  # 서브모듈 내 설정 파일을 배포 폴더로 복사
+          mkdir -p deploy/config
+          if [ -d "backend/JiShop/src/main/resources/config" ]; then
+            cp -r backend/JiShop/src/main/resources/config deploy/config
+          else
+            echo "Warning: config directory not found!"
+          fi
 
       # UTC가 기준이기 때문에 한국시간으로 맞추려면 +9시간 해야 한다
       - name: Get current time
