@@ -12,14 +12,14 @@ public record OrderRequest(
         @Valid AddressRequest address,
         List<OrderDetailRequest> orderDetailRequestList
 ){
-    public Order toEntity(User user){
+    public Order toEntity(User user) {
         return Order.builder()
-                .userId(user.getId())
-                .recipient(address.recipient())
-                .phone(address.phone())
-                .address(address.address())
-                .detailAddress(address.detailAddress())
-                .zonecode(address.zonecode())
+                .userId(user != null ? user.getId() : null)
+                .recipient(this.address.recipient())
+                .phone(this.address.phone())
+                .address(this.address.address())
+                .detailAddress(this.address.detailAddress())
+                .zonecode(this.address.zonecode())
                 .build();
     }
 }

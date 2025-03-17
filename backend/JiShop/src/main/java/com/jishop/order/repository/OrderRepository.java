@@ -42,4 +42,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                            @Param("endDate") LocalDateTime endDate);
 
     boolean existsByOrderNumber(String orderNumber);
+
+    Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);
 }

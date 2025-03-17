@@ -20,6 +20,7 @@ import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.runtime.directive.Foreach;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,53 +45,51 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
-        addressRepository.save(orderRequest.address().toEntity(user,false));
+        // 주소 저장 (회원인 경우만)
+        if (user != null) {
+            addressRepository.save(orderRequest.address().toEntity(user, false));
+        }
 
-        // 주문 번호 생성 (저장하지 않고 문자열만 받음)
+        // 주문 번호 생성
         String orderNumberStr = generateOrderNumber();
 
         // 주문 객체 생성
-        Order order = orderRequest.toEntity(user);
+        Order order;
+        if (user != null) {
+            order = orderRequest.toEntity(user).withOrderNumber(orderNumberStr);
+        } else {
+            order = Order.builder()
+                    .userId(null)
+                    .recipient(orderRequest.address().recipient())
+                    .phone(orderRequest.address().phone())
+                    .address(orderRequest.address().address())
+                    .detailAddress(orderRequest.address().detailAddress())
+                    .zonecode(orderRequest.address().zonecode())
+                    .orderNumber(orderNumberStr)
+                    .build();
+        }
 
-        // SaleProduct ID 리스트 추출
+        // SaleProduct 일괄 조회 및 맵 생성
         List<Long> saleProductIds = orderRequest.orderDetailRequestList().stream()
                 .map(OrderDetailRequest::saleProductId)
                 .toList();
 
-        // SaleProduct 일괄 조회 (N+1 문제 방지)
         List<SaleProduct> saleProducts = saleProductRepository.findAllByIdsForOrder(saleProductIds);
-
-        // ID로 SaleProduct 조회를 위한 Map 생성
         Map<Long, SaleProduct> saleProductMap = saleProducts.stream()
                 .collect(Collectors.toMap(SaleProduct::getId, sp -> sp));
 
+        // 주문 상세 처리
         List<OrderDetail> orderDetails = new ArrayList<>();
-
-        int totalPrice = 0;
-        String mainProductName = "";
-
-        List<OrderDetailRequest> orderDetailRequests = orderRequest.orderDetailRequestList();
-
-        for(OrderDetailRequest detailRequest : orderDetailRequests){
+        for (OrderDetailRequest detailRequest : orderRequest.orderDetailRequestList()) {
             Long saleProductId = detailRequest.saleProductId();
             int quantity = detailRequest.quantity();
 
-            //상품 조회 (맵에서 조회)
             SaleProduct saleProduct = saleProductMap.get(saleProductId);
-            if(saleProduct == null) {
-                throw new DomainException(ErrorType.PRODUCT_NOT_FOUND);
-            }
+            if (saleProduct == null) throw new DomainException(ErrorType.PRODUCT_NOT_FOUND);
 
-            // 재고 감소 처리 (재고 부족 시 예외 터짐)
             stockService.decreaseStock(saleProduct.getStock(), quantity);
 
-            // 옵션 추가 금액 계산
-            int price = saleProduct.getProduct().getDiscountPrice();
-            if(saleProduct.getOption() != null){
-                price += saleProduct.getOption().getOptionExtra();
-            }
-
-            // 주문 상세 생성
+            int price = calculatePrice(saleProduct);
             OrderDetail orderDetail = OrderDetail.builder()
                     .order(order)
                     .saleProduct(saleProduct)
@@ -99,31 +98,31 @@ public class OrderServiceImpl implements OrderService {
                     .build();
 
             orderDetails.add(orderDetail);
-            totalPrice += price * quantity;
         }
 
-        // 주문 상세가 1건일 경우
-        mainProductName = orderDetails.get(0).getSaleProduct().getName();
-
-        // 주문 상세가 2건 이상일 경우
-        if(orderDetailRequests.size() != 1)
-            mainProductName = mainProductName + " 외 " + (orderDetailRequests.size()-1) + "건";
-
         // 주문 정보 업데이트
-        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumberStr);
+        int totalPrice = orderDetails.stream()
+                .mapToInt(detail -> detail.getPrice() * detail.getQuantity())
+                .sum();
 
-        // 주문 저장
+        String mainProductName = orderDetails.get(0).getSaleProduct().getName();
+        if (orderDetails.size() > 1) {
+            mainProductName = mainProductName + " 외 " + (orderDetails.size() - 1) + "건";
+        }
+
+        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumberStr);
         orderRepository.save(order);
 
+        // 응답 생성
         List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
-
         return OrderResponse.fromOrder(order, orderDetailResponseList);
     }
 
-    //주문 단건 조회
+
+    //주문 상세 페이지
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDetailResponse> getOrder(User user, Long orderId){
+    public List<OrderDetailResponse> getOrder(User user, Long orderId) {
         Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
@@ -136,7 +135,6 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponse> getAllOrders(User user, String period) {
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime startDate = today;
-
         switch (period){
             case "1month":
                 startDate = today.minusMonths(1);
@@ -150,9 +148,7 @@ public class OrderServiceImpl implements OrderService {
                 startDate = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
                 break;
         }
-
         List<Order> orders = orderRepository.findAllWithDetailsByPeriod(user.getId(), period, startDate, today);
-
         return orders.stream()
                 .map(order -> {
                     List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
@@ -161,50 +157,58 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    //주문취소
+    //회원 주문 취소
     @Override
     @Transactional
-    public void cancelOrder(User user, Long orderId){
+    public void cancelOrder(User user, Long orderId) {
         Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
-        if(order.getStatus() == OrderStatus.ORDER_CANCELED)
+        //주문 취소가 가능한 지
+        validateOrderCancellation(order);
+        //재고 증가 및 주문 상태 변경
+        processOrderCancellation(order);
+    }
+
+    //주문 취소가 가능한 지
+    private void validateOrderCancellation(Order order) {
+        if (order.getStatus() == OrderStatus.ORDER_CANCELED)
             throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
 
-        if(order.getStatus() == OrderStatus.PURCHASED_CONFIRMED)
+        if (order.getStatus() == OrderStatus.PURCHASED_CONFIRMED)
             throw new DomainException(ErrorType.ORDER_ALREADY_CONFIRMED);
+    }
 
-        List<OrderDetail> orderDetails = order.getOrderDetails();
-        for(OrderDetail orderDetail : orderDetails){
-            // OrderDetail의 SaleProduct에서 Stock을 직접 사용
+    //재고 증가 및 주문 상태 변경
+    private void processOrderCancellation(Order order) {
+        // 재고 복구
+        for (OrderDetail orderDetail : order.getOrderDetails()) {
             SaleProduct saleProduct = orderDetail.getSaleProduct();
             int quantity = orderDetail.getQuantity();
-
-            // ID 대신 Stock 객체를 직접 전달
             stockService.increaseStock(saleProduct.getStock(), quantity);
         }
-        //주문 상태 변경
+
+        // 주문 상태 변경
         order.updateStatus(OrderStatus.ORDER_CANCELED);
         order.delete();
     }
 
-    // 바로 구매하기
+    //회원 바로 주문하기
     @Override
     public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
         // 상품 정보 조회
         SaleProduct saleProduct = saleProductRepository.findById(instantOrderRequest.saleProductId())
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
+        // 주문 상세 요청 생성
         OrderDetailRequest orderDetailRequest = new OrderDetailRequest(
                 saleProduct.getId(), saleProduct.getName(), instantOrderRequest.quantity()
         );
 
-        // 사용자가 입력한 주소 정보 사용
+        // 주소 저장 및 요청 생성
         Address shippingAddress = instantOrderRequest.address().toEntity(user, false);
-
         addressRepository.save(shippingAddress);
 
-        // Address 정보를 AddressRequest로 변환
         AddressRequest addressRequest = new AddressRequest(
                 shippingAddress.getRecipient(),
                 shippingAddress.getPhone(),
@@ -214,12 +218,74 @@ public class OrderServiceImpl implements OrderService {
                 shippingAddress.isDefaultYN()
         );
 
+        // 주문 요청 생성 및 주문 처리
         OrderRequest orderRequest = new OrderRequest(
                 addressRequest,
                 List.of(orderDetailRequest)
         );
 
         return createOrder(user, orderRequest);
+    }
+
+    //비회원 주문 생성
+    @Override
+    public ResponseEntity<OrderResponse> createGuestOrder(OrderRequest orderRequest) {
+        // 회원 주문 생성 메서드 재사용 (user = null)
+        OrderResponse response = createOrder(null, orderRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    //회원 주문 조회
+    @Override
+    public List<OrderDetailResponse> getGuestOrder(String orderNumber, String phone) {
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        return convertToOrderDetailResponses(order.getOrderDetails());
+    }
+
+    // 비회원 바로 주문
+    @Override
+    public ResponseEntity<OrderResponse> createGuestInstantOrder(InstantOrderRequest orderRequest) {
+        // 상품 정보 조회
+        SaleProduct saleProduct = saleProductRepository.findById(orderRequest.saleProductId())
+                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
+        // 주문 상세 요청 생성
+        OrderDetailRequest orderDetailRequest = new OrderDetailRequest(
+                saleProduct.getId(), saleProduct.getName(), orderRequest.quantity()
+        );
+
+        // 주소 요청 생성
+        AddressRequest addressRequest = new AddressRequest(
+                orderRequest.address().recipient(),
+                orderRequest.address().phone(),
+                orderRequest.address().zonecode(),
+                orderRequest.address().address(),
+                orderRequest.address().detailAddress(),
+                false
+        );
+
+        // 주문 요청 생성 및 주문 처리
+        OrderRequest request = new OrderRequest(
+                addressRequest,
+                List.of(orderDetailRequest)
+        );
+
+        // 회원 주문 생성 메서드 재사용 (user = null)
+        OrderResponse response = createOrder(null, request);
+        return ResponseEntity.ok(response);
+    }
+
+    //비회원 주문 취소
+    @Override
+    @Transactional
+    public void cancelGuestOrder(String orderNumber, String phone) {
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        validateOrderCancellation(order);
+        processOrderCancellation(order);
     }
 
     private List<OrderDetailResponse> convertToOrderDetailResponses(List<OrderDetail> details) {
@@ -262,32 +328,31 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
+    //
+    private int calculatePrice(SaleProduct saleProduct) {
+        int price = saleProduct.getProduct().getDiscountPrice();
+
+        if(saleProduct.getOption() != null) {
+            price += saleProduct.getOption().getOptionExtra();
+        }
+
+        return price;
+    }
+
     private static final int LENGTH = 5;
     private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";
 
+    //주문 번호 생성
     private String generateOrderNumber() {
-        /*
-         * 주문 번호 생성 로직
-         * 포맷은 TYYMMDDXXXXXX 이다.
-         * T : Type (O : Order)
-         * YY : 년도
-         * MM : 월
-         * DD : 일
-         * XXXXX : 5자리 영문자 + 숫자
-         */
-
         String orderTypeCode = "O"; //Order
-        //년도와 날짜 정보를 담는다: yymmdd 형식
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
         String formattedDate = currentDate.format(formatter);
 
-        //5자리 정수를 만든 후, 해당 정수가 존재하는지 확인을 반복한다
         String randomStr = "";
         Random random = new Random();
 
         do{
-            //숫자, 알파벳 대소문자로 이루어진 5자리 랜덤 문자열 생성
             StringBuilder sb = new StringBuilder(LENGTH);
             for(int i = 0; i < LENGTH; i++){
                 int randomIndex = random.nextInt(CHARACTERS.length());

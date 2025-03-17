@@ -7,10 +7,7 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
-import com.jishop.order.dto.InstantOrderRequest;
-import com.jishop.order.dto.OrderDetailResponse;
-import com.jishop.order.dto.OrderRequest;
-import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.dto.*;
 import com.jishop.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +72,41 @@ public class OrderControllerImpl implements OrderController {
 
         return ResponseEntity.ok(orderResponse);
     }
+
+    //비회원 구매하기
+    @Override
+    @PostMapping("/guest")
+    public ResponseEntity<OrderResponse> guestCreateOrder(@Valid @RequestBody OrderRequest orderRequest) {
+        return orderService.createGuestOrder(orderRequest);
+    }
+
+    //비회원 주문 조회하기
+    @Override
+    @GetMapping("/guest/{orderNumber}")
+    public ResponseEntity<List<OrderDetailResponse>> getOrderDetail(@PathVariable String orderNumber,
+                                                                    @RequestParam String phone) {
+        List<OrderDetailResponse> orderDetailList = orderService.getGuestOrder(orderNumber, phone);
+
+        return ResponseEntity.ok(orderDetailList);
+    }
+
+    //비회원 바로 주문하기
+    @Override
+    @PostMapping("/guest/instant")
+    public ResponseEntity<OrderResponse> guestCreateInstantOrder(@RequestBody @Valid InstantOrderRequest orderRequest) {
+        return orderService.createGuestInstantOrder(orderRequest);
+    }
+
+    //비회원 주문 취소하기
+    @Override
+    @PatchMapping("/guest/{orderNumber}")
+    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
+                                 @RequestParam String phone) {
+        orderService.cancelGuestOrder(orderNumber, phone);
+
+        return ResponseEntity.ok("주문이 취소되었습니다.");
+    }
+
 
     // 기본 배송지 가져오기
     @GetMapping("/default-address")

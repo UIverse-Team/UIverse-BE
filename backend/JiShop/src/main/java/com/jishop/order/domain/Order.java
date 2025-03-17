@@ -85,4 +85,9 @@ public class Order extends BaseEntity {
         this.detailAddress = detailAddress;
         this.orderNumber = orderNumber;
     }
+
+    public Order withOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+        return this;
+    }
 }
