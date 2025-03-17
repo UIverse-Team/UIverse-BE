@@ -2,7 +2,7 @@ name: Deploy to AWS EB
 
 # main 브랜치에 PR 병합되었을 때
 on:
-  pull_request:
+  push:
     branches:
       - develop
     types:
