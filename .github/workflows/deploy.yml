@@ -26,6 +26,7 @@ jobs:
         with:
           token: ${{ secrets.ACCESS_KEY }}
           submodules: true  # 서브모듈도 함께 가져옴
+
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -44,7 +45,7 @@ jobs:
         run: |
           mkdir -p deploy/config
           if [ -d "backend/JiShop/src/main/resources/config" ]; then
-            cp -r backend/JiShop/src/main/resources/config deploy/config
+            cp -r backend/JiShop/src/main/resources/config/. deploy/config/
           else
             echo "Warning: config directory not found!"
           fi
@@ -80,7 +81,7 @@ jobs:
           # EB 배포에 필요한 파일 복사
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
-          cp -r backend/JiShop/src/main/resources/config/. deploy/config  # 설정 파일 포함 
+          cp -r backend/JiShop/src/main/resources/config/. deploy/config/  # 설정 파일 포함 
           # 배포 패키지 압축
           cd deploy && zip -r deploy.zip
       - name: Deploy to EB
