@@ -16,9 +16,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 public class NaverServiceImpl extends AbstractOAuthService {
 
     public NaverServiceImpl(HttpSession httpSession,
-                             @Value("${naver.client.id}") String clientId,
-                             @Value("${naver.client.secret}") String clientSecret,
-                             @Value("${naver.redirect.uri}") String redirectUri) {
+                            @Value("${naver.client.id}") String clientId,
+                            @Value("${naver.client.secret}") String clientSecret,
+                            @Value("${naver.redirect.uri}") String redirectUri) {
         super(httpSession,
                 "https://nid.naver.com",
                 "https://openapi.naver.com",
@@ -75,4 +75,3 @@ public class NaverServiceImpl extends AbstractOAuthService {
         }
     }
 }
-
