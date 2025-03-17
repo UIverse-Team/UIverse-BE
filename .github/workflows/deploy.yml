@@ -24,6 +24,7 @@ jobs:
       - name: Checkout with submodules
         uses: actions/checkout@v3
         with:
+          token: ${{ secrets.ACCESS_KEY }}
           submodules: true  # 서브모듈도 함께 가져옴
 
       - name: Checkout
@@ -39,6 +40,11 @@ jobs:
       - name: Build with Gradle
         working-directory: backend/JiShop
         run: ./gradlew clean build -x test
+
+      - name: Ensure submodules are included in ZIP
+        run: |
+          git submodule update --init --recursive  # 서브모듈 초기화
+          cp -r backend/JiShop/src/main/resources/config deploy/config  # 서브모듈 내 설정 파일을 배포 폴더로 복사
 
       # UTC가 기준이기 때문에 한국시간으로 맞추려면 +9시간 해야 한다
       - name: Get current time
@@ -71,7 +77,7 @@ jobs:
           # EB 배포에 필요한 파일 복사
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
-          
+          cp -r backend/JiShop/src/main/resources/config deploy/config  # 설정 파일 포함 
           # 배포 패키지 압축
           cd deploy && zip -r deploy.zip .
       - name: Deploy to EB
