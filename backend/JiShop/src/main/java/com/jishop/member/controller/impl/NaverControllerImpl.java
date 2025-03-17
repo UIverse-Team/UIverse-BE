@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-public class NaverControllerImpl implements OAuthController {
+public class NaverControllerImpl {
 
     private final OauthService naverService;
     private final UserService userService;
@@ -37,9 +37,8 @@ public class NaverControllerImpl implements OAuthController {
         return ResponseEntity.ok(authUrl);
     }
 
-    @Override
     @GetMapping("/naver")
-    public ResponseEntity<String> authenticateUser(@RequestParam String code,
+    public ResponseEntity<String> authenticateNaverUser(@RequestParam String code,
                                                  @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
         Long userId = userService.processOAuthUser(userInfo, LoginType.NAVER);
