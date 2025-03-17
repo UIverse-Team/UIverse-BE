@@ -29,6 +29,7 @@ jobs:
           java-version: 17
           distribution: zulu
       - name: Pemission
+        working-directory: backend/JiShop
         run: chmod +x ./gradlew
       - name: Build with Gradle
         working-directory: backend/JiShop
