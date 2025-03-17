@@ -11,6 +11,7 @@ import com.jishop.order.dto.*;
 import com.jishop.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,12 +46,25 @@ public class OrderControllerImpl implements OrderController {
     }
 
     //주문 전체 조회
+//    @Override
+//    @GetMapping("/lists")
+//    public ResponseEntity<List<OrderResponse>> getOrderList(@CurrentUser User user,
+//                                          @RequestParam(value = "period", defaultValue = "all")String period){
+//        List<OrderResponse> responseList = orderService.getAllOrders(user, period);
+//
+//        return ResponseEntity.ok(responseList);
+//    }
+
+    //주문 전체 조회 (페이징 처리)
     @Override
     @GetMapping("/lists")
-    public ResponseEntity<List<OrderResponse>> getOrderList(@CurrentUser User user,
-                                          @RequestParam(value = "period", defaultValue = "all")String period){
-        List<OrderResponse> responseList = orderService.getAllOrders(user, period);
+    public ResponseEntity<Page<OrderResponse>> getOrderList(
+            @CurrentUser User user,
+            @RequestParam(value = "period", defaultValue = "all") String period,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
 
+        Page<OrderResponse> responseList = orderService.getPaginatedOrders(user, period, page, size);
         return ResponseEntity.ok(responseList);
     }
 

@@ -20,6 +20,8 @@ import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.runtime.directive.Foreach;
+import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,9 +132,36 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 주문 내역 전체 조회
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<OrderResponse> getAllOrders(User user, String period) {
+//        LocalDateTime today = LocalDateTime.now();
+//        LocalDateTime startDate = today;
+//        switch (period){
+//            case "1month":
+//                startDate = today.minusMonths(1);
+//                break;
+//            case "6months":
+//                startDate = today.minusMonths(6);
+//                break;
+//            case "all":
+//            default:
+//                // LocalDateTime.MIN 대신 충분히 과거의 날짜를 사용
+//                startDate = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+//                break;
+//        }
+//        List<Order> orders = orderRepository.findAllWithDetailsByPeriod(user.getId(), period, startDate, today);
+//        return orders.stream()
+//                .map(order -> {
+//                    List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
+//                    return OrderResponse.fromOrder(order, orderDetailResponseList);
+//                })
+//                .toList();
+//    }
+
+    //주문 전체 조회 페이징 처리
     @Override
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getAllOrders(User user, String period) {
+    public Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size) {
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime startDate = today;
         switch (period){
@@ -148,13 +177,34 @@ public class OrderServiceImpl implements OrderService {
                 startDate = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
                 break;
         }
-        List<Order> orders = orderRepository.findAllWithDetailsByPeriod(user.getId(), period, startDate, today);
-        return orders.stream()
+
+        //첫번째 쿼리: 페이징 된 ID 목록 가져오기
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Long> orderIdsPage = orderRepository.findOrderIdsByPeriod(
+                user.getId(), period, startDate, today, pageable
+        );
+
+        //ID가 없으면 빈 결과 반환
+        if(orderIdsPage.isEmpty())
+            return Page.empty(pageable);
+
+        //두번째 쿼리: ID 목록으로 상세 데이터 조회
+        List<Long> orderIds = orderIdsPage.getContent();
+        List<Order> orders = orderRepository.findOrdersWithDetailsByIds(orderIds);
+
+        // ID 순서에 맞게 정렬(두 번째 쿼리 결과의 순서를 첫 번째 쿼리와 일치시키기)
+        Map<Long, Order> orderMap = orders.stream()
+                .collect(Collectors.toMap(Order::getId, order -> order));
+
+        List<OrderResponse> orderResponses = orderIds.stream()
+                .map(orderMap::get)
+                .filter(Objects::nonNull)
                 .map(order -> {
-                    List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
-                    return OrderResponse.fromOrder(order, orderDetailResponseList);
+                    List<OrderDetailResponse> orderDetailResponses = convertToOrderDetailResponses(order.getOrderDetails());
+                    return OrderResponse.fromOrder(order, orderDetailResponses);
                 })
                 .toList();
+        return new PageImpl<>(orderResponses, pageable, orderIdsPage.getTotalElements());
     }
 
     //회원 주문 취소
