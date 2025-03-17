@@ -49,10 +49,25 @@ jobs:
       # EB에 CD 하기 위해 추가 작성
       - name: Generate deployment package
         run: |
-          mkdir deploy
-          cp backend/JiShop/build/libs/*.jar deploy/application.jar
+          mkdir -p deploy
+          
+          # 실행 가능한 JAR 찾기 (plain.jar 제외)
+          JAR_FILE=$(find backend/JiShop/build/libs -type f -name "*.jar" ! -name "*-plain.jar" | head -n 1)
+          
+          # JAR 파일이 없으면 오류 출력 후 종료
+          if [ -z "$JAR_FILE" ]; then
+            echo "Error: No executable JAR file found in build/libs"
+            exit 1
+          fi
+          
+          # 찾은 JAR 파일을 application.jar로 복사
+          cp "$JAR_FILE" deploy/application.jar
+          
+          # EB 배포에 필요한 파일 복사
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
+          
+          # 배포 패키지 압축
           cd deploy && zip -r deploy.zip .
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
