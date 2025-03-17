@@ -31,6 +31,7 @@ jobs:
       - name: Pemission
         run: chmod +x ./gradlew
       - name: Build with Gradle
+        working-directory: backend/JiShop
         run: ./gradlew clean build
 
       # UTC가 기준이기 때문에 한국시간으로 맞추려면 +9시간 해야 한다
