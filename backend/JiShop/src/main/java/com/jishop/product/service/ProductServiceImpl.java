@@ -3,8 +3,9 @@ package com.jishop.product.service;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.product.domain.Product;
-import com.jishop.product.dto.ProductRequest;
+import com.jishop.product.dto.ProductListRequest;
 import com.jishop.product.dto.ProductResponse;
+import com.jishop.product.dto.ProductSearchRequest;
 import com.jishop.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,16 +24,16 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    public PagedModel<ProductResponse> getProductList(ProductRequest productRequest) {
+    public PagedModel<ProductResponse> getProductList(ProductListRequest request) {
 
-        if ("discount".equals(productRequest.sort())) {
-            Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size());
+        if ("discount".equals(request.sort())) {
+            Pageable pageable = PageRequest.of(request.page(), request.size());
             Page<Product> productPage = productRepository.findAllOrderByDiscountRateDesc(pageable);
 
             return new PagedModel<>(productPage.map(ProductResponse::from));
         }
 
-        Sort sort = switch (productRequest.sort()) {
+        Sort sort = switch (request.sort()) {
             case "wish" -> Sort.by(Sort.Direction.DESC, "wishListCount");
             case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
             case "priceAsc" -> Sort.by(Sort.Direction.ASC, "discountPrice");
@@ -40,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
             default -> Sort.by(Sort.Direction.DESC, "wishListCount");
         };
 
-        Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size(), sort);
+        Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
         Page<Product> productPage = productRepository.findAll(pageable);
 
         return new PagedModel<>(productPage.map(ProductResponse::from));
@@ -55,17 +56,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PagedModel<ProductResponse> searchProducts(ProductRequest productRequest) {
+    public PagedModel<ProductResponse> searchProducts(ProductSearchRequest request) {
 
-        if ("discount".equals(productRequest.sort())) {
-            Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size());
+        if ("discount".equals(request.sort())) {
+            Pageable pageable = PageRequest.of(request.page(), request.size());
             Page<Product> productPage =
-                    productRepository.findByKeywordOrderByDiscountRateDesc(productRequest.keyword(), pageable);
+                    productRepository.findByKeywordOrderByDiscountRateDesc(request.keyword(), pageable);
 
             return new PagedModel<>(productPage.map(ProductResponse::from));
         }
 
-        Sort sort = switch (productRequest.sort()) {
+        Sort sort = switch (request.sort()) {
             case "wish" -> Sort.by(Sort.Direction.DESC, "wishListCount");
             case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
             case "priceAsc" -> Sort.by(Sort.Direction.ASC, "discountPrice");
@@ -73,8 +74,8 @@ public class ProductServiceImpl implements ProductService {
             default -> Sort.by(Sort.Direction.DESC, "wishListCount");
         };
 
-        Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size(), sort);
-        Page<Product> productPage = productRepository.findByKeyword(productRequest.keyword(), pageable);
+        Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
+        Page<Product> productPage = productRepository.findByKeyword(request.keyword(), pageable);
 
         return new PagedModel<>(productPage.map(ProductResponse::from));
     }
