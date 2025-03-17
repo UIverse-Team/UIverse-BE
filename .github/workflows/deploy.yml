@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - be/feat/98
-    types:
-      - closed
+#    types:
+#      - closed
     # 해당 파일 또는 폴더 하위 파일들이 변경되었을 때에만!!!
     paths:
       - src/**
