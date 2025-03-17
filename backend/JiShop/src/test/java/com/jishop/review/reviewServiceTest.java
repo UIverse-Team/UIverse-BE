@@ -18,7 +18,7 @@ import com.jishop.product.domain.Product;
 import com.jishop.product.domain.SaleStatus;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.review.domain.tag.Tag;
-import com.jishop.review.dto.IdRequest;
+import com.jishop.review.dto.LikerIdRequest;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.review.service.ReviewService;
 import com.jishop.saleproduct.domain.SaleProduct;
@@ -257,7 +257,7 @@ public class reviewServiceTest {
         Long reviewId = 1L;
 
         Long userId = 1L;
-        IdRequest likerId= new IdRequest(userId);
+        LikerIdRequest likerId= new LikerIdRequest(userId);
 
         reviewService.likeReview(likerId, reviewId);
         //when
@@ -280,7 +280,7 @@ public class reviewServiceTest {
         Long reviewId = 1L;
 
         Long userId = 1L;
-        IdRequest likerId= new IdRequest(userId);
+        LikerIdRequest likerId= new LikerIdRequest(userId);
 
         reviewService.unlikeReview(likerId, reviewId);
         //when
