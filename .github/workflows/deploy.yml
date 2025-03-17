@@ -79,7 +79,7 @@ jobs:
           # EB 배포에 필요한 파일 복사
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
-          cd deploy && zip -r deploy.zip
+          cd deploy && zip -r deploy.zip .
 #          cp -r backend/JiShop/src/main/resources/config. deploy/config  # 설정 파일 포함
           # 배포 패키지 압축
       - name: Deploy to EB
