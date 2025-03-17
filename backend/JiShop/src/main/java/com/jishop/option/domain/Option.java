@@ -21,4 +21,11 @@ public class Option extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "integer default 0")
     private int optionExtra;
+
+    public Option(final OptionCategory categoryType, final String optionValue, final int optionExtra) {
+        this.categoryType = categoryType;
+        this.optionValue = optionValue;
+        this.optionExtra = optionExtra;
+    }
 }
+

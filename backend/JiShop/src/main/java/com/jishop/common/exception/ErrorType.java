@@ -16,7 +16,7 @@ public enum ErrorType {
     // REVIEW
     REVIEW_DUPLICATE(HttpStatus.CONFLICT, "이미 리뷰를 작성했습니다."),
     RATING_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "별점은 1~5점을 해야한다."),
-
+    REVIEW_NOT_FOUND(HttpStatus.BAD_REQUEST, "작성하신 리뷰가 없습니다."),
     // NOTICE
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "공지사항이 존재하지 않습니다."),
 
@@ -40,7 +40,11 @@ public enum ErrorType {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "값을 잘못 입력했습니다."),
 
     // STOCK
-    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다");
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
+
+    // Address
+    DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
