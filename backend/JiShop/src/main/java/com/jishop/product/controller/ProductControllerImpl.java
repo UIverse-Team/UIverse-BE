@@ -1,6 +1,6 @@
 package com.jishop.product.controller;
 
-import com.jishop.product.dto.ProductRequest;
+import com.jishop.product.dto.ProductPageRequest;
 import com.jishop.product.dto.ProductResponse;
 import com.jishop.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductResponse> getProductList(@Validated ProductRequest productRequest) {
-        return productService.getProductList(productRequest);
+    public PagedModel<ProductResponse> getProductList(@Validated ProductPageRequest productPageRequest) {
+        return productService.getProductList(productPageRequest);
     }
 
     @Override

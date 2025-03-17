@@ -3,7 +3,7 @@ package com.jishop.product.service;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.product.domain.Product;
-import com.jishop.product.dto.ProductRequest;
+import com.jishop.product.dto.ProductPageRequest;
 import com.jishop.product.dto.ProductResponse;
 import com.jishop.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -23,16 +23,16 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     @Override
-    public PagedModel<ProductResponse> getProductList(ProductRequest productRequest) {
+    public PagedModel<ProductResponse> getProductList(ProductPageRequest productPageRequest) {
 
-        if ("discount".equals(productRequest.sort())) {
-            Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size());
+        if ("discount".equals(productPageRequest.sort())) {
+            Pageable pageable = PageRequest.of(productPageRequest.page(), productPageRequest.size());
             Page<Product> productPage = productRepository.findAllOrderByDiscountRateDesc(pageable);
 
             return new PagedModel<>(productPage.map(ProductResponse::from));
         }
 
-        Sort sort = switch (productRequest.sort()) {
+        Sort sort = switch (productPageRequest.sort()) {
             case "wish" -> Sort.by(Sort.Direction.DESC, "wishListCount");
             case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
             case "priceAsc" -> Sort.by(Sort.Direction.ASC, "discountPrice");
@@ -40,9 +40,8 @@ public class ProductServiceImpl implements ProductService {
             default -> Sort.by(Sort.Direction.DESC, "wishListCount");
         };
 
-        Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size(), sort);
+        Pageable pageable = PageRequest.of(productPageRequest.page(), productPageRequest.size(), sort);
         Page<Product> productPage = productRepository.findAll(pageable);
-
 
         return new PagedModel<>(productPage.map(ProductResponse::from));
     }

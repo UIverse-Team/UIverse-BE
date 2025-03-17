@@ -40,8 +40,8 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "sale_status", nullable = false)
     private SaleStatus saleStatus;
-    @Column(name = "labels", length = 50)
     @Enumerated(EnumType.STRING)
+    @Column(name = "labels", length = 50)
     private Labels labels;
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_status", nullable = false)
