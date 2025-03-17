@@ -1,12 +1,8 @@
 package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
-import jakarta.persistence.*;
 import com.jishop.common.util.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,44 +16,34 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
+    // 상품 정보
+    @Column(name = "name", nullable = false)
+    private String name;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @Column(name = "l_cat_id",  nullable = false)
-    private String lCatId;
-
-    @Column(name = "m_cat_id")
-    private String mCatId;
-
-    @Column(name = "s_cat_id")
-    private String sCatId;
-
     @Column(name = "mall_seq",  nullable = false)
     private String mallSeq;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
+    @Column(name = "manufacture_date", nullable = false)
+    private LocalDateTime manufactureDate;
+    @Column(name = "brand", nullable = false)
+    private String brand;
     @Column(name = "description", nullable = false)
     private String description;
-
     @Column(name = "origin_price", nullable = false)
     private int originPrice;
-
     @Column(name = "discount_price", nullable = false)
     private int discountPrice;
 
-    @Column(name = "manufacture_date", nullable = false)
-    private LocalDateTime manufactureDate;
-
+    // 상품 상태
     @Column(name = "secret", nullable = false)
     private Boolean secret;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "sale_status", nullable = false)
     private SaleStatus saleStatus;
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "labels", length = 50)
+    private Labels labels;
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_status", nullable = false)
     private DiscountStatus discountStatus;
@@ -66,36 +52,31 @@ public class Product extends BaseEntity {
     @Column(name = "is_discount", nullable = false)
     private Boolean isDiscount;
 
-    @Column(name = "brand", nullable = false)
-    private String brand;
-
     @Column(name = "wish_list_count", nullable = false, columnDefinition = "int default 0")
     private int wishListCount;
-
-    @Column(name = "labels", length = 50)
-    @Enumerated(EnumType.STRING)
-    private Labels labels;
+    @Column(name = "product_view_count", nullable = false, columnDefinition = "int default 0")
+    private int productViewCount;
 
     @Column(name = "main_image", nullable = false)
     private String mainImage;
-
     @Column(name = "image1")
     private String image1;
-
     @Column(name = "image2")
     private String image2;
-
     @Column(name = "image3")
     private String image3;
-
     @Column(name = "image4")
     private String image4;
-
     @Column(name = "detail_image")
     private String detailImage;
 
-    @Column(name = "product_view_count", nullable = false, columnDefinition = "int default 0")
-    private int productViewCount;
+    // 카테고리 분류
+    @Column(name = "l_cat_id",  nullable = false)
+    private String lCatId;
+    @Column(name = "m_cat_id")
+    private String mCatId;
+    @Column(name = "s_cat_id")
+    private String sCatId;
 
     @Builder
     public Product(Category category, String lCatId, String mCatId, String sCatId,
