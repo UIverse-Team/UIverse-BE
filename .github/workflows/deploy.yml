@@ -83,7 +83,7 @@ jobs:
           cp -r .ebextensions deploy/.ebextensions
           cp -r backend/JiShop/src/main/resources/config/. deploy/config/  # 설정 파일 포함 
           # 배포 패키지 압축
-          cd deploy && zip -r deploy.zip
+          cd deploy && zip -r deploy.zip . # . 을 붙혀야해요!
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
         with:
