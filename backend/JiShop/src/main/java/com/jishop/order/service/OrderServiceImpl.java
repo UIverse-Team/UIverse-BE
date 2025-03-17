@@ -1,5 +1,9 @@
 package com.jishop.order.service;
 
+import com.jishop.address.domain.Address;
+import com.jishop.address.dto.AddressRequest;
+import com.jishop.address.dto.AddressResponse;
+import com.jishop.address.repository.AddressRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
@@ -22,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,11 +38,14 @@ public class OrderServiceImpl implements OrderService {
     private final SaleProductRepository saleProductRepository;
     private final StockService stockService;
     private final ReviewRepository reviewRepository;
+    private final AddressRepository addressRepository;
 
     //주문 생성
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
+        addressRepository.save(orderRequest.address().toEntity(user,false));
+
         // 주문 번호 생성 (저장하지 않고 문자열만 받음)
         String orderNumberStr = generateOrderNumber();
 
@@ -187,7 +191,7 @@ public class OrderServiceImpl implements OrderService {
     // 바로 구매하기
     @Override
     public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
-        //상품 정보 조회
+        // 상품 정보 조회
         SaleProduct saleProduct = saleProductRepository.findById(instantOrderRequest.saleProductId())
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
@@ -195,13 +199,23 @@ public class OrderServiceImpl implements OrderService {
                 saleProduct.getId(), saleProduct.getName(), instantOrderRequest.quantity()
         );
 
-        //todo: 사용자의 주소지 끌고와서 넣기
+        // 사용자가 입력한 주소 정보 사용
+        Address shippingAddress = instantOrderRequest.address().toEntity(user, false);
+
+        addressRepository.save(shippingAddress);
+
+        // Address 정보를 AddressRequest로 변환
+        AddressRequest addressRequest = new AddressRequest(
+                shippingAddress.getRecipient(),
+                shippingAddress.getPhone(),
+                shippingAddress.getZonecode(),
+                shippingAddress.getAddress(),
+                shippingAddress.getDetailAddress(),
+                shippingAddress.isDefaultYN()
+        );
+
         OrderRequest orderRequest = new OrderRequest(
-                "receiver" + user.getName(),
-                "phone" + user.getPhone(),
-                "baseAddress",
-                "detailAddress",
-                "zipCode",
+                addressRequest,
                 List.of(orderDetailRequest)
         );
 
@@ -247,7 +261,6 @@ public class OrderServiceImpl implements OrderService {
                 ))
                 .toList();
     }
-
 
     private static final int LENGTH = 5;
     private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";

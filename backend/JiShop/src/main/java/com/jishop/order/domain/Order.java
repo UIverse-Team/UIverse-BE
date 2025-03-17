@@ -35,19 +35,19 @@ public class Order extends BaseEntity {
 
     //수령인
     @Column(nullable = false)
-    private String receiver;
+    private String recipient;
 
     //수령인 연락처
     @Column(nullable = false)
-    private String receiverNumber;
+    private String phone;
 
     //우편번호
     @Column(nullable = false)
-    private String zipCode;
+    private String zonecode;
 
     //기본주소
     @Column(nullable = false)
-    private String baseAddress;
+    private String address;
 
     //상세주소
     @Column(nullable = false)
@@ -59,29 +59,30 @@ public class Order extends BaseEntity {
     @Column(unique = true)
     private String orderNumber;
 
-    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
-        this.mainProductName = mainProductName;
-        this.totalPrice = totalPrice;
-        this.orderDetails.clear();
-        this.orderDetails.addAll(orderDetails);
-        this.orderNumber = orderNumber;
-    }
-
     public void updateStatus(OrderStatus status) {
         this.status = status;
     }
 
+    // 주문 정보 업데이트 메서드
+    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
+        this.mainProductName = mainProductName;
+        this.totalPrice = totalPrice;
+        this.orderDetails = orderDetails;
+        this.orderNumber = orderNumber;
+    }
+
     @Builder
-    public Order(Long userId, String mainProductName, int totalPrice, String receiver, String receiverNumber,
-                 String zipCode, String baseAddress, String detailAddress) {
+    public Order(Long userId, String mainProductName, int totalPrice, String recipient, String phone,
+                 String zonecode, String address, String detailAddress, String orderNumber) {
         this.userId = userId;
         this.status = OrderStatus.ORDER_RECEIVED;
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;
-        this.receiver = receiver;
-        this.receiverNumber = receiverNumber;
-        this.zipCode = zipCode;
-        this.baseAddress = baseAddress;
+        this.recipient = recipient;
+        this.phone = phone;
+        this.zonecode = zonecode;
+        this.address = address;
         this.detailAddress = detailAddress;
+        this.orderNumber = orderNumber;
     }
 }

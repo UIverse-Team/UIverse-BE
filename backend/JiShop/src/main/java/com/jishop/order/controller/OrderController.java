@@ -1,5 +1,6 @@
 package com.jishop.order.controller;
 
+import com.jishop.address.dto.AddressResponse;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.InstantOrderRequest;
 import com.jishop.order.dto.OrderDetailResponse;

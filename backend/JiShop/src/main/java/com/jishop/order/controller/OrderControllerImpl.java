@@ -1,5 +1,8 @@
 package com.jishop.order.controller;
 
+import com.jishop.address.domain.Address;
+import com.jishop.address.dto.AddressResponse;
+import com.jishop.address.repository.AddressRepository;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.InstantOrderRequest;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import java.util.List;
 public class OrderControllerImpl implements OrderController {
 
     private final OrderService orderService;
+    private final AddressRepository addressRepository;
 
     //주문 생성
     @Override
@@ -69,5 +74,21 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
-
+    // 기본 배송지 가져오기
+    @GetMapping("/default-address")
+    public ResponseEntity<AddressResponse> getDefaultAddress(@CurrentUser User user) {
+        Optional<Address> address = addressRepository.findDefaultAddressByUser(user);
+        if (address.isPresent()) {
+            AddressResponse response = new AddressResponse(
+                    address.get().getRecipient(),
+                    address.get().getPhone(),
+                    address.get().getZonecode(),
+                    address.get().getAddress(),
+                    address.get().getDetailAddress(),
+                    address.get().isDefaultYN()
+            );
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

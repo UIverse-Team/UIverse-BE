@@ -26,10 +26,10 @@ public record OrderResponse(
                 order.getStatus(),
                 order.getMainProductName(),
                 order.getTotalPrice(),
-                order.getReceiver(),
-                order.getReceiverNumber(),
-                order.getZipCode(),
-                order.getBaseAddress(),
+                order.getRecipient(),
+                order.getPhone(),
+                order.getZonecode(),
+                order.getAddress(),
                 order.getDetailAddress()
         );
     }
