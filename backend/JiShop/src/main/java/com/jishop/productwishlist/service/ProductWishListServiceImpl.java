@@ -34,8 +34,10 @@ public class ProductWishListServiceImpl implements ProductWishListService {
         // 해당 상품 id가 wishlist에 존재한다면? 해당 위시리스트 지우기
         if(wishproduct.isPresent()) {
             wishListRepository.delete(wishproduct.get());
+            product.decrementWishCount();
         }else{ // else문 꼭 필요함
             wishListRepository.save(request.toEntity(user, product));
+            product.incrementWishCount();
         }
     }
 

@@ -31,8 +31,10 @@ public class StoreWishListServiceImpl implements StoreWishListService {
         Optional<StoreWishList> wishStore = storeWishListRepository.findByUserAndStore(user, store);
         if(wishStore.isPresent()){
             storeWishListRepository.delete(wishStore.get());
-        }else{
+            store.decrementWishCount();
+        } else{
             storeWishListRepository.save(request.toEntity(user, store));
+            store.incrementWishCount();
         }
     }
 

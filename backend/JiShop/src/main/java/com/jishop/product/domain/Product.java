@@ -111,5 +111,13 @@ public class Product extends BaseEntity {
         this.detailImage = detailImage;
         this.productViewCount = productViewCount;
     }
+
+    public void incrementWishCount() {
+        this.wishListCount++;
+    }
+
+    public void decrementWishCount() {
+        if (this.wishListCount > 0) { this.wishListCount--;}
+    }
 }
 
