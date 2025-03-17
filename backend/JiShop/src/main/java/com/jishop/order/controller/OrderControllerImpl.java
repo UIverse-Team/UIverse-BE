@@ -3,6 +3,8 @@ package com.jishop.order.controller;
 import com.jishop.address.domain.Address;
 import com.jishop.address.dto.AddressResponse;
 import com.jishop.address.repository.AddressRepository;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.InstantOrderRequest;
@@ -89,6 +91,6 @@ public class OrderControllerImpl implements OrderController {
             );
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.notFound().build();
+        throw new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND);
     }
 }
