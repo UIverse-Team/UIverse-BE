@@ -8,8 +8,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
@@ -23,7 +26,6 @@ public class RedisConfig {
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return new GenericJackson2JsonRedisSerializer(redisObjectMapper());
     }
-
 
     public ObjectMapper redisObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -46,5 +48,26 @@ public class RedisConfig {
         // /auth/* 패턴에만 Redis 세션 저장소 적용 (즉, 로그인 관련 요청에만)
         registrationBean.setUrlPatterns(Arrays.asList("/auth/*"));
         return registrationBean;
+    }
+
+    // 인기 검색어,  RedisTemplate 빈 등록
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+
+        // Key는 String으로 직렬화
+        redisTemplate .setKeySerializer(new StringRedisSerializer());
+        // Value는 JSON 형식으로 직렬화 (redisObjectMapper 사용)
+        redisTemplate .setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
+
+        // Hash key/value도 동일하게 설정 (필요한 경우)
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
+
+        redisTemplate .afterPropertiesSet();
+
+        return redisTemplate;
     }
 }
