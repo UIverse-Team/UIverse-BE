@@ -37,7 +37,6 @@ jobs:
       - name: Build with Gradle
         working-directory: backend/JiShop
         run: ./gradlew clean build -x test
-
 #      - name: Copy submodule files to deployment folder
 #        run: |
 #          mkdir -p deploy/config
