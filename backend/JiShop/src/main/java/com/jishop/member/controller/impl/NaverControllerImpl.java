@@ -40,7 +40,7 @@ public class NaverControllerImpl implements OAuthController {
     @Override
     @GetMapping("/naver")
     public ResponseEntity<String> authenticateUser(@RequestParam String code,
-                                                 @RequestParam String state) {
+                                                   @RequestParam String state) {
         SocialUserInfo userInfo = naverService.authenticateUser(code, state);
         Long userId = userService.processOAuthUser(userInfo, LoginType.NAVER);
         httpSession.setAttribute("userId", userId);

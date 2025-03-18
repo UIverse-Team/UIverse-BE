@@ -19,9 +19,6 @@ public class Address extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    /**
-     * 받으시는 분, 전화번호 추가 예정
-     */
     private String recipient;
 
     private String phone;
