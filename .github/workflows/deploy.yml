@@ -59,6 +59,14 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
+      - name: Check .ebextensions before copying
+        run: |
+          if [ -d ".ebextensions" ]; then
+            echo ".ebextensions exists."
+          else
+            echo "Error: .ebextensions directory is missing!"
+            exit 1
+          fi
       # EB에 CD 하기 위해 추가 작성
       - name: Generate deployment package
         run: |
