@@ -6,19 +6,15 @@ import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class ProductQueryHelperImpl implements ProductQueryHelper {
-
-    private final JPAQueryFactory queryFactory;
-    private final QProduct product = QProduct.product;
-    private final QReviewProduct reviewProduct = QReviewProduct.reviewProduct;
 
     @Override
     public BooleanBuilder findProductsByCondition(ProductRequest request, QProduct product, QReviewProduct reviewProduct) {
@@ -103,16 +99,13 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
             }
 
             if (ratingBuilder.hasValue()) {
-
-                // 서브쿼리 방식
                 JPQLQuery<Long> subQuery = JPAExpressions
                         .select(reviewProduct.product.id)
                         .from(reviewProduct)
                         .where(ratingBuilder);
-
                 builder.and(product.id.in(subQuery));
 
-                // 직접 JOIN 방식 (메인 쿼리에 JOIN 조건 추가 필요)
+                // 아래는 직접 JOIN 방식 (메인 쿼리에 JOIN 조건 추가 필요)
                 // queryFactory.selectFrom(product)
                 //     .join(reviewProduct).on(product.id.eq(reviewProduct.productId))
                 //     .where(builder.and(ratingBuilder))

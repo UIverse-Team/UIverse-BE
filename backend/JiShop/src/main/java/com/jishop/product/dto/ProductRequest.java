@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public record ProductRequest(
+
         @NotBlank
         String keyword,
         int page,
