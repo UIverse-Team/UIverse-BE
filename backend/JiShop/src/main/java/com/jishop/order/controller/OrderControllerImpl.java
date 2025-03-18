@@ -1,18 +1,22 @@
 package com.jishop.order.controller;
 
+import com.jishop.address.domain.Address;
+import com.jishop.address.dto.AddressResponse;
+import com.jishop.address.repository.AddressRepository;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
-import com.jishop.order.dto.InstantOrderRequest;
-import com.jishop.order.dto.OrderDetailResponse;
-import com.jishop.order.dto.OrderRequest;
-import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.dto.*;
 import com.jishop.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import java.util.List;
 public class OrderControllerImpl implements OrderController {
 
     private final OrderService orderService;
+    private final AddressRepository addressRepository;
 
     //주문 생성
     @Override
@@ -40,13 +45,16 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderDetailResponse);
     }
 
-    //주문 전체 조회
+    //주문 전체 조회 (페이징 처리)
     @Override
     @GetMapping("/lists")
-    public ResponseEntity<List<OrderResponse>> getOrderList(@CurrentUser User user,
-                                          @RequestParam(value = "period", defaultValue = "all")String period){
-        List<OrderResponse> responseList = orderService.getAllOrders(user, period);
+    public ResponseEntity<Page<OrderResponse>> getOrderList(
+            @CurrentUser User user,
+            @RequestParam(value = "period", defaultValue = "all") String period,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
 
+        Page<OrderResponse> responseList = orderService.getPaginatedOrders(user, period, page, size);
         return ResponseEntity.ok(responseList);
     }
 
@@ -69,5 +77,56 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
+    //비회원 구매하기
+    @Override
+    @PostMapping("/guest")
+    public ResponseEntity<OrderResponse> guestCreateOrder(@Valid @RequestBody OrderRequest orderRequest) {
+        return orderService.createGuestOrder(orderRequest);
+    }
 
+    //비회원 주문 조회하기
+    @Override
+    @GetMapping("/guest/{orderNumber}")
+    public ResponseEntity<List<OrderDetailResponse>> getOrderDetail(@PathVariable String orderNumber,
+                                                                    @RequestParam String phone) {
+        List<OrderDetailResponse> orderDetailList = orderService.getGuestOrder(orderNumber, phone);
+
+        return ResponseEntity.ok(orderDetailList);
+    }
+
+    //비회원 바로 주문하기
+    @Override
+    @PostMapping("/guest/instant")
+    public ResponseEntity<OrderResponse> guestCreateInstantOrder(@RequestBody @Valid InstantOrderRequest orderRequest) {
+        return orderService.createGuestInstantOrder(orderRequest);
+    }
+
+    //비회원 주문 취소하기
+    @Override
+    @PatchMapping("/guest/{orderNumber}")
+    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
+                                 @RequestParam String phone) {
+        orderService.cancelGuestOrder(orderNumber, phone);
+
+        return ResponseEntity.ok("주문이 취소되었습니다.");
+    }
+
+
+    // 기본 배송지 가져오기
+    @GetMapping("/default-address")
+    public ResponseEntity<AddressResponse> getDefaultAddress(@CurrentUser User user) {
+        Optional<Address> address = addressRepository.findDefaultAddressByUser(user);
+        if (address.isPresent()) {
+            AddressResponse response = new AddressResponse(
+                    address.get().getRecipient(),
+                    address.get().getPhone(),
+                    address.get().getZonecode(),
+                    address.get().getAddress(),
+                    address.get().getDetailAddress(),
+                    address.get().isDefaultYN()
+            );
+            return ResponseEntity.ok(response);
+        }
+        throw new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND);
+    }
 }
