@@ -221,6 +221,8 @@ public class reviewServiceTest {
         // given
         Long productId = 3L;
 
+        System.out.println("dkfj");
+
         PageRequest pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
         PagedModel<?> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);
         //when
