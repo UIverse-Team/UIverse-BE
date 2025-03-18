@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "이메일 인증 API")
 public interface EmailCertificationController {
 
-    ResponseEntity<String> sendCertification(EmailRequest request, HttpServletResponse response);
+    ResponseEntity<String> sendCertificationForSignup(EmailRequest request, HttpServletResponse response);
+    ResponseEntity<String> sendCertificationForPasswordReset(EmailRequest request, HttpServletResponse response);
     ResponseEntity<String> certifyCode(String token, CertifyCodeRequest request);
 }
