@@ -17,4 +17,6 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
             "LEFT JOIN FETCH sp.stock " +
             "WHERE sp.id IN :ids")
     List<SaleProduct> findAllByIdsForOrder(@Param("ids") List<Long> ids);
+
+    boolean existsByNameContaining(String keyword);
 }
