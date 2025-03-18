@@ -16,7 +16,6 @@ public interface OrderController {
 
     ResponseEntity<OrderResponse> create(User user, OrderRequest orderRequest);
     ResponseEntity<List<OrderDetailResponse>> getOrder(User user, Long orderId);
-    //ResponseEntity<List<OrderResponse>> getOrderList(User user, String period);
     //페이징 처리
     ResponseEntity<Page<OrderResponse>> getOrderList(User user, String period, int page, int size);
     ResponseEntity<String> cancelOrder(User user, Long orderId);

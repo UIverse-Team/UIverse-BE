@@ -45,16 +45,6 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderDetailResponse);
     }
 
-    //주문 전체 조회
-//    @Override
-//    @GetMapping("/lists")
-//    public ResponseEntity<List<OrderResponse>> getOrderList(@CurrentUser User user,
-//                                          @RequestParam(value = "period", defaultValue = "all")String period){
-//        List<OrderResponse> responseList = orderService.getAllOrders(user, period);
-//
-//        return ResponseEntity.ok(responseList);
-//    }
-
     //주문 전체 조회 (페이징 처리)
     @Override
     @GetMapping("/lists")

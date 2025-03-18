@@ -131,34 +131,6 @@ public class OrderServiceImpl implements OrderService {
         return convertToOrderDetailResponses(order.getOrderDetails());
     }
 
-    // 주문 내역 전체 조회
-//    @Override
-//    @Transactional(readOnly = true)
-//    public List<OrderResponse> getAllOrders(User user, String period) {
-//        LocalDateTime today = LocalDateTime.now();
-//        LocalDateTime startDate = today;
-//        switch (period){
-//            case "1month":
-//                startDate = today.minusMonths(1);
-//                break;
-//            case "6months":
-//                startDate = today.minusMonths(6);
-//                break;
-//            case "all":
-//            default:
-//                // LocalDateTime.MIN 대신 충분히 과거의 날짜를 사용
-//                startDate = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
-//                break;
-//        }
-//        List<Order> orders = orderRepository.findAllWithDetailsByPeriod(user.getId(), period, startDate, today);
-//        return orders.stream()
-//                .map(order -> {
-//                    List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
-//                    return OrderResponse.fromOrder(order, orderDetailResponseList);
-//                })
-//                .toList();
-//    }
-
     //주문 전체 조회 페이징 처리
     @Override
     public Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size) {

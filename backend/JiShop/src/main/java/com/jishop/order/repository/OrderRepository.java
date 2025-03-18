@@ -50,19 +50,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "ORDER BY o.createdAt DESC")
     List<Order> findOrdersWithDetailsByIds(@Param("ids") List<Long> ids);
 
-    @Query("SELECT DISTINCT o FROM Order o " +
-            "LEFT JOIN FETCH o.orderDetails od " +
-            "LEFT JOIN FETCH od.saleProduct sp " +
-            "LEFT JOIN FETCH sp.option " +
-            "LEFT JOIN FETCH sp.product " +
-            "LEFT JOIN FETCH sp.stock " +
-            "WHERE o.userId = :userId " +
-            "AND (:period = 'all' OR (o.createdAt >= :startDate AND o.createdAt <= :endDate))")
-    List<Order> findAllWithDetailsByPeriod(@Param("userId") Long userId,
-                                           @Param("period") String period,
-                                           @Param("startDate") LocalDateTime startDate,
-                                           @Param("endDate") LocalDateTime endDate);
-
     boolean existsByOrderNumber(String orderNumber);
 
     Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);
