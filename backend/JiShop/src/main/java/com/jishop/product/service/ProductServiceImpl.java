@@ -3,18 +3,26 @@ package com.jishop.product.service;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.product.domain.Product;
-import com.jishop.product.dto.ProductListRequest;
+import com.jishop.product.domain.QProduct;
+import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
-import com.jishop.product.dto.ProductSearchRequest;
 import com.jishop.product.repository.ProductRepository;
+import com.jishop.reviewproduct.domain.QReviewProduct;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,29 +30,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final EntityManager entityManager;
+    private final JPAQueryFactory queryFactory;
 
     @Override
-    public PagedModel<ProductResponse> getProductList(ProductListRequest request) {
+    public PagedModel<ProductResponse> getProductList(ProductRequest request) {
 
-        if ("discount".equals(request.sort())) {
-            Pageable pageable = PageRequest.of(request.page(), request.size());
-            Page<Product> productPage = productRepository.findAllOrderByDiscountRateDesc(pageable);
+        BooleanBuilder filterBuilder = productRepository.findProductsByCondition(
+                request, QProduct.product, QReviewProduct.reviewProduct);
 
-            return new PagedModel<>(productPage.map(ProductResponse::from));
-        }
+        OrderSpecifier<?> orderSpecifier = addSorting(request.sort(), QProduct.product);
 
-        Sort sort = switch (request.sort()) {
-            case "wish" -> Sort.by(Sort.Direction.DESC, "wishListCount");
-            case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            case "priceAsc" -> Sort.by(Sort.Direction.ASC, "discountPrice");
-            case "priceDesc" -> Sort.by(Sort.Direction.DESC, "discountPrice");
-            default -> Sort.by(Sort.Direction.DESC, "wishListCount");
-        };
+        List<Product> results = getFilteredAndSortedResults(filterBuilder, orderSpecifier, request);
 
-        Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
-        Page<Product> productPage = productRepository.findAll(pageable);
+        long totalCount = queryFactory.selectFrom(QProduct.product)
+                .where(filterBuilder)
+                .fetchCount();
 
-        return new PagedModel<>(productPage.map(ProductResponse::from));
+        List<ProductResponse> productList = results.stream()
+                .map(ProductResponse::from).collect(Collectors.toList());
+
+        Pageable pageable = PageRequest.of(request.page(), request.size());
+
+        Page<ProductResponse> productResponsePage = new PageImpl<>(productList, pageable, totalCount);
+
+        return new PagedModel<>(productResponsePage);
     }
 
     @Override
@@ -55,28 +65,27 @@ public class ProductServiceImpl implements ProductService {
         return ProductResponse.from(product);
     }
 
-    @Override
-    public PagedModel<ProductResponse> searchProducts(ProductSearchRequest request) {
+    private List<Product> getFilteredAndSortedResults(
+            BooleanBuilder filterBuilder, OrderSpecifier orderSpecifier, ProductRequest request) {
 
-        if ("discount".equals(request.sort())) {
-            Pageable pageable = PageRequest.of(request.page(), request.size());
-            Page<Product> productPage =
-                    productRepository.findByKeywordOrderByDiscountRateDesc(request.keyword(), pageable);
+        QProduct product = QProduct.product;
 
-            return new PagedModel<>(productPage.map(ProductResponse::from));
-        }
+        return queryFactory.selectFrom(product)
+                .where(filterBuilder)
+                .orderBy(orderSpecifier)
+                .offset(request.page() * request.size())
+                .limit(request.size())
+                .fetch();
+    }
 
-        Sort sort = switch (request.sort()) {
-            case "wish" -> Sort.by(Sort.Direction.DESC, "wishListCount");
-            case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            case "priceAsc" -> Sort.by(Sort.Direction.ASC, "discountPrice");
-            case "priceDesc" -> Sort.by(Sort.Direction.DESC, "discountPrice");
-            default -> Sort.by(Sort.Direction.DESC, "wishListCount");
+    private OrderSpecifier<?> addSorting(String sort, QProduct product) {
+        return switch (sort) {
+            case "wish" -> product.wishListCount.desc();
+            case "latest" -> product.createdAt.desc();
+            case "priceAsc" -> product.discountPrice.asc();
+            case "priceDesc" -> product.discountPrice.desc();
+            case "discount" -> product.discountRate.desc();
+            default -> product.wishListCount.desc();
         };
-
-        Pageable pageable = PageRequest.of(request.page(), request.size(), sort);
-        Page<Product> productPage = productRepository.findByKeyword(request.keyword(), pageable);
-
-        return new PagedModel<>(productPage.map(ProductResponse::from));
     }
 }

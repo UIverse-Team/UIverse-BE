@@ -1,16 +1,16 @@
 package com.jishop.product.service;
 
-import com.jishop.product.dto.ProductListRequest;
+import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
-import com.jishop.product.dto.ProductSearchRequest;
 import org.springframework.data.web.PagedModel;
-
 
 public interface ProductService {
 
-    PagedModel<ProductResponse> getProductList(ProductListRequest request);
+    /**
+     * @param request 상품 조회/검색 요청 정보
+     * @return 페이징된 상품 응답 목록
+     */
+    PagedModel<ProductResponse> getProductList(ProductRequest request);
 
     ProductResponse getProduct(Long id);
-
-    PagedModel<ProductResponse> searchProducts(ProductSearchRequest request);
 }

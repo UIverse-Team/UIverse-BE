@@ -1,8 +1,7 @@
 package com.jishop.product.controller;
 
-import com.jishop.product.dto.ProductListRequest;
+import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
-import com.jishop.product.dto.ProductSearchRequest;
 import com.jishop.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;
@@ -21,7 +20,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductResponse> getProductList(@Validated ProductListRequest request) {
+    public PagedModel<ProductResponse> getProductList(@Validated ProductRequest request) {
         return productService.getProductList(request);
     }
 
@@ -29,11 +28,5 @@ public class ProductControllerImpl implements ProductController {
     @GetMapping("/{id}")
     public ProductResponse getProduct(@PathVariable Long id) {
         return productService.getProduct(id);
-    }
-
-    @Override
-    @GetMapping("/search")
-    public PagedModel<ProductResponse> searchProducts(@Validated ProductSearchRequest request) {
-        return productService.searchProducts(request);
     }
 }
