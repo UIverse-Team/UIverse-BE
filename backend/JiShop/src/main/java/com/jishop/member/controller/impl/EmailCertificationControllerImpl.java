@@ -17,14 +17,18 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
 
     private final EmailCertificationService emailService;
 
-    @PostMapping("/send")
-    public ResponseEntity<String> sendCertification(@RequestBody EmailRequest request, HttpServletResponse response) {
-        String token = emailService.sendCerificationCode(request);
-        Cookie cookie = new Cookie("certificationToken", token);
-        cookie.setPath("/");
-        cookie.setMaxAge(300);
-        cookie.setHttpOnly(true);
-        response.addCookie(cookie);
+    @PostMapping("/signup/send")
+    public ResponseEntity<String> sendCertificationForSignup(@RequestBody EmailRequest request, HttpServletResponse response) {
+        String token = emailService.sendCertificationCodeForSignup(request);
+        addCertificationCookie(response, token);
+
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/passwordReset/send")
+    public ResponseEntity<String> sendCertificationForPasswordReset(@RequestBody EmailRequest request, HttpServletResponse response) {
+        String token = emailService.sendCertificationCodeForPasswordReset(request);
+        addCertificationCookie(response, token);
 
         return ResponseEntity.ok(token);
     }
@@ -43,5 +47,13 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
         }
 
         return ResponseEntity.ok("인증 성공");
+    }
+
+    private void addCertificationCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie("certificationToken", token);
+        cookie.setPath("/");
+        cookie.setMaxAge(300);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
     }
 }

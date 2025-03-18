@@ -5,13 +5,11 @@ import com.jishop.member.dto.response.SocialUserInfo;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.AbstractOAuthService;
 import jakarta.servlet.http.HttpSession;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 
-@Slf4j
 @Service
 public class NaverServiceImpl extends AbstractOAuthService {
 
@@ -53,7 +51,6 @@ public class NaverServiceImpl extends AbstractOAuthService {
                     .bodyToMono(TokenResponse.class)
                     .block();
         } catch (Exception e) {
-            log.error("Error getting NAVER access token: {}", e.getMessage(), e);
             throw new RuntimeException("네이버 Access Token 가져오는 데 오류가 발생했습니다");
         }
     }
@@ -68,9 +65,8 @@ public class NaverServiceImpl extends AbstractOAuthService {
                 .block();
 
         if (naverResponse != null && naverResponse.response() != null) {
-            return naverResponse.response();
+            return naverResponse.response().toNaverSocialUserInfo();
         } else {
-            log.error("Failed to get user info from Naver: {}", naverResponse);
             throw new RuntimeException("네이버에서 사용자 정보를 가져오는데 실패했습니다.");
         }
     }
