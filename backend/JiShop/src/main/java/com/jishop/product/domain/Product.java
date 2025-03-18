@@ -1,15 +1,10 @@
-    package com.jishop.product.domain;
+package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
-import jakarta.persistence.*;
 import com.jishop.common.util.BaseEntity;
-import com.jishop.store.domain.Store;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,103 +12,85 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Table(name = "products")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
+    // 상품 정보
+    @Column(name = "name", nullable = false)
+    private String name;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @Column(name = "l_cat_id")
-    private String lCatId;
-
-    @Column(name = "m_cat_id")
-    private String mCatId;
-
-    @Column(name = "s_cat_id")
-    private String sCatId;
-
-    @Column(name = "store_seq")
-    private String storeSeq;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Column(name = "description", nullable = false)
-    private String description;
-
-    @Column(name = "origin_price", nullable = false)
-    private Integer originPrice;
-
-    @Column(name = "discount_price", nullable = false)
-    private Integer discountPrice;
-
+    @Column(name = "mall_seq",  nullable = false)
+    private String mallSeq;
     @Column(name = "manufacture_date", nullable = false)
     private LocalDateTime manufactureDate;
+    @Column(name = "brand", nullable = false)
+    private String brand;
+    @Column(name = "description", nullable = false)
+    private String description;
+    @Column(name = "origin_price", nullable = false)
+    private int originPrice;
+    @Column(name = "discount_price", nullable = false)
+    private int discountPrice;
 
+    // 상품 상태
     @Column(name = "secret", nullable = false)
     private Boolean secret;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "sale_status", nullable = false)
     private SaleStatus saleStatus;
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "labels", length = 50)
+    private Labels labels;
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_status", nullable = false)
     private DiscountStatus discountStatus;
 
-    @Column(name = "is_discount")
+    // "오늘의 특가" 구분 필드값
+    @Column(name = "is_discount", nullable = false)
     private Boolean isDiscount;
 
-    @Column(name = "brand", nullable = false)
-    private String brand;
+    @Column(name = "wish_list_count", nullable = false, columnDefinition = "int default 0")
+    private int wishListCount;
+    @Column(name = "product_view_count", nullable = false, columnDefinition = "int default 0")
+    private int productViewCount;
 
-    @Column(name = "rate", nullable = false)
-    private Double rate;
-
-    @Column(name = "review_count")
-    private Integer reviewCount;
-
-    @Column(name = "like_count")
-    private Integer likeCount;
-
-    @Column(name = "labels", length = 50)
-    @Enumerated(EnumType.STRING)
-    private Labels labels;
-
-    @Column(name = "delete_flag", nullable = false)
-    private Boolean deleteFlag;
-
-    @Column(name = "main_image")
+    @Column(name = "main_image", nullable = false)
     private String mainImage;
-
     @Column(name = "image1")
     private String image1;
-
     @Column(name = "image2")
     private String image2;
-
     @Column(name = "image3")
     private String image3;
-
     @Column(name = "image4")
     private String image4;
-
     @Column(name = "detail_image")
     private String detailImage;
 
+    // 카테고리 분류
+    @Column(name = "l_cat_id",  nullable = false)
+    private String lCatId;
+    @Column(name = "m_cat_id")
+    private String mCatId;
+    @Column(name = "s_cat_id")
+    private String sCatId;
+
+    @Builder
     public Product(Category category, String lCatId, String mCatId, String sCatId,
-            String storeSeq, String name, String description, Integer originPrice,
-            Integer discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
-            DiscountStatus discountStatus, Boolean isDiscount, String brand, Double rate, Integer reviewCount,
-            Integer likeCount, Labels labels,Boolean deleteFlag,
-            String mainImage, String image1, String image2, String image3, String image4, String detailImage
+            String mallSeq, String name, String description, int originPrice,
+            int discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+            DiscountStatus discountStatus, Boolean isDiscount, String brand, int wishListCount, Labels labels,
+            String mainImage, String image1, String image2, String image3, String image4, String detailImage,
+            int productViewCount
     ) {
         this.category = category;
         this.lCatId = lCatId;
         this.mCatId = mCatId;
         this.sCatId = sCatId;
-        this.storeSeq = storeSeq;
+        this.mallSeq = mallSeq;
         this.name = name;
         this.description = description;
         this.originPrice = originPrice;
@@ -124,17 +101,23 @@ public class Product extends BaseEntity {
         this.discountStatus = discountStatus;
         this.isDiscount = isDiscount;
         this.brand = brand;
-        this.rate = rate;
-        this.reviewCount = reviewCount;
-        this.likeCount = likeCount;
+        this.wishListCount = wishListCount;
         this.labels = labels;
-        this.deleteFlag = deleteFlag;
         this.mainImage = mainImage;
         this.image1 = image1;
         this.image2 = image2;
         this.image3 = image3;
         this.image4 = image4;
         this.detailImage = detailImage;
+        this.productViewCount = productViewCount;
+    }
+
+    public void incrementWishCount() {
+        this.wishListCount++;
+    }
+
+    public void decrementWishCount() {
+        if (this.wishListCount > 0) { this.wishListCount--;}
     }
 }
 

@@ -28,11 +28,18 @@ public class User extends BaseEntity implements Serializable {
     private String gender;
     private String phone;
 
-    // 주소 추가 예정
+    private boolean ageAgreement;
+    private boolean useAgreement;
+    private boolean picAgreement;
+    private boolean adAgreement;
 
     //소셜 회원가입
     @Builder
-    public User(String loginId, String password, String name, String birthDate, String gender, String phone, LoginType provider) {
+    public User(boolean ageAgreement, boolean useAgreement, boolean picAgreement, boolean adAgreement, String loginId, String password, String name, String birthDate, String gender, String phone, LoginType provider) {
+        this.ageAgreement = ageAgreement;
+        this.useAgreement = useAgreement;
+        this.picAgreement = picAgreement;
+        this.adAgreement = adAgreement;
         this.loginId = loginId;
         this.password = password;
         this.name = name;
@@ -40,5 +47,17 @@ public class User extends BaseEntity implements Serializable {
         this.gender = gender;
         this.phone = phone;
         this.provider = provider;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
     }
 }

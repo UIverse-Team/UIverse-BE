@@ -39,9 +39,6 @@ dependencies {
 	implementation 'org.json:json:20220924'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-	// Spring Batch
-	implementation 'org.springframework.boot:spring-boot-starter-batch'
-	testImplementation 'org.springframework.batch:spring-batch-test'
 
 	//coolSMS 사용을 위한 의존성
 	implementation 'net.nurigo:sdk:4.3.0'

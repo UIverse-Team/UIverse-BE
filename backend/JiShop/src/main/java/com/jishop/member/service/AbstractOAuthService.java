@@ -1,7 +1,7 @@
 package com.jishop.member.service;
 
-import com.jishop.member.dto.SocialUserInfo;
-import com.jishop.member.dto.TokenResponse;
+import com.jishop.member.dto.response.SocialUserInfo;
+import com.jishop.member.dto.response.TokenResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClient;

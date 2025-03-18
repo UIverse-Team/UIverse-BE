@@ -1,6 +1,7 @@
 package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
+import com.jishop.member.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,6 +21,12 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    // todo: 결제수단 매핑
+    private Long paymentId;
+
+    // todo: user 세션 가져오기
+    private Long userId;
+
     //대표상품명
     private String mainProductName;
 
@@ -28,19 +35,19 @@ public class Order extends BaseEntity {
 
     //수령인
     @Column(nullable = false)
-    private String receiver;
+    private String recipient;
 
     //수령인 연락처
     @Column(nullable = false)
-    private String receiverNumber;
+    private String phone;
 
     //우편번호
     @Column(nullable = false)
-    private String zipCode;
+    private String zonecode;
 
     //기본주소
     @Column(nullable = false)
-    private String baseAddress;
+    private String address;
 
     //상세주소
     @Column(nullable = false)
@@ -49,31 +56,38 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    @OneToOne
-    private OrderNumber orderNumber;
-
-    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, OrderNumber orderNumber) {
-        this.mainProductName = mainProductName;
-        this.totalPrice = totalPrice;
-        this.orderDetails.clear();
-        this.orderDetails.addAll(orderDetails);
-        this.orderNumber = orderNumber;
-    }
+    @Column(unique = true)
+    private String orderNumber;
 
     public void updateStatus(OrderStatus status) {
         this.status = status;
     }
 
+    // 주문 정보 업데이트 메서드
+    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
+        this.mainProductName = mainProductName;
+        this.totalPrice = totalPrice;
+        this.orderDetails = orderDetails;
+        this.orderNumber = orderNumber;
+    }
+
     @Builder
-    public Order(String mainProductName, int totalPrice, String receiver, String receiverNumber,
-                 String zipCode, String baseAddress, String detailAddress) {
+    public Order(Long userId, String mainProductName, int totalPrice, String recipient, String phone,
+                 String zonecode, String address, String detailAddress, String orderNumber) {
+        this.userId = userId;
         this.status = OrderStatus.ORDER_RECEIVED;
         this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;
-        this.receiver = receiver;
-        this.receiverNumber = receiverNumber;
-        this.zipCode = zipCode;
-        this.baseAddress = baseAddress;
+        this.recipient = recipient;
+        this.phone = phone;
+        this.zonecode = zonecode;
+        this.address = address;
         this.detailAddress = detailAddress;
+        this.orderNumber = orderNumber;
+    }
+
+    public Order withOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+        return this;
     }
 }
