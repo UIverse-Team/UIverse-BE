@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +19,7 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
     private final EmailCertificationService emailService;
 
     @PostMapping("/signup/send")
-    public ResponseEntity<String> sendCertificationForSignup(@RequestBody EmailRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> sendCertificationForSignup(@RequestBody @Validated EmailRequest request, HttpServletResponse response) {
         String token = emailService.sendCertificationCodeForSignup(request);
         addCertificationCookie(response, token);
 
@@ -26,7 +27,7 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
     }
 
     @PostMapping("/passwordReset/send")
-    public ResponseEntity<String> sendCertificationForPasswordReset(@RequestBody EmailRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> sendCertificationForPasswordReset(@RequestBody @Validated EmailRequest request, HttpServletResponse response) {
         String token = emailService.sendCertificationCodeForPasswordReset(request);
         addCertificationCookie(response, token);
 
