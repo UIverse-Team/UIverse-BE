@@ -91,12 +91,22 @@ public class OrderServiceImpl implements OrderService {
 
             stockService.decreaseStock(saleProduct.getStock(), quantity);
 
-            int price = calculatePrice(saleProduct);
+            int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+            int orderPrice = saleProduct.getProduct().getOriginPrice();
+            int discountPrice = orderPrice - paymentPrice;
+
+            if(saleProduct.getOption() != null){
+                paymentPrice += saleProduct.getOption().getOptionExtra();
+                orderPrice += saleProduct.getOption().getOptionExtra();
+            }
+
             OrderDetail orderDetail = OrderDetail.builder()
                     .order(order)
                     .saleProduct(saleProduct)
                     .quantity(quantity)
-                    .price(price)
+                    .paymentPrice(paymentPrice)
+                    .orderPrice(orderPrice)
+                    .discountPrice(discountPrice)
                     .build();
 
             orderDetails.add(orderDetail);
@@ -104,15 +114,10 @@ public class OrderServiceImpl implements OrderService {
 
         // 주문 정보 업데이트
         int totalPrice = orderDetails.stream()
-                .mapToInt(detail -> detail.getPrice() * detail.getQuantity())
+                .mapToInt(detail -> detail.getPaymentPrice() * detail.getQuantity())
                 .sum();
 
-        String mainProductName = orderDetails.get(0).getSaleProduct().getName();
-        if (orderDetails.size() > 1) {
-            mainProductName = mainProductName + " 외 " + (orderDetails.size() - 1) + "건";
-        }
-
-        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumberStr);
+        order.updateOrderInfo(totalPrice, orderDetails, orderNumberStr);
         orderRepository.save(order);
 
         // 응답 생성
@@ -322,9 +327,11 @@ public class OrderServiceImpl implements OrderService {
                             detail.getSaleProduct().getId(),
                             detail.getSaleProduct().getName(),
                             detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                            detail.getPrice(),
+                            detail.getPaymentPrice(),
+                            detail.getOrderPrice(),
+                            detail.getDiscountPrice(),
                             detail.getQuantity(),
-                            detail.getPrice() * detail.getQuantity(),
+                            detail.getPaymentPrice() * detail.getQuantity(),
                             false // 구매확정 상태가 아니면 리뷰 작성 불가
                     ))
                     .toList();
@@ -342,9 +349,11 @@ public class OrderServiceImpl implements OrderService {
                         detail.getSaleProduct().getId(),
                         detail.getSaleProduct().getName(),
                         detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                        detail.getPrice(),
+                        detail.getPaymentPrice(),
+                        detail.getOrderPrice(),
+                        detail.getDiscountPrice(),
                         detail.getQuantity(),
-                        detail.getPrice() * detail.getQuantity(),
+                        detail.getPaymentPrice() * detail.getQuantity(),
                         !reviewedOrderDetailIds.contains(detail.getId()) // 리뷰가 없는 경우만 true
                 ))
                 .toList();

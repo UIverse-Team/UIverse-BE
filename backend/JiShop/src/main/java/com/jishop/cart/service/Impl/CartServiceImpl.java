@@ -12,6 +12,8 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
+import com.jishop.stock.domain.Stock;
+import com.jishop.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +45,18 @@ public class CartServiceImpl implements CartService {
         SaleProduct saleProduct = saleProductRepository.findById(addCartRequest.saleProductId())
                 .orElseThrow(()->new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
+        int requestQuantity = addCartRequest.quantity();
+        Stock stock = saleProduct.getStock();
+
         Cart cart = cartRepository.findByUserAndSaleProduct(user, saleProduct).orElse(null);
+
+        //기존 장바구니에 있는 수량 확인
+        int existingQuantity = (cart != null) ? cart.getQuantity() : 0;
+
+        // 요청 수량 + 기존 수량이 재고보다 많으면 예외
+        if(!stock.hasStock(existingQuantity + requestQuantity))
+            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
 
         //이미 장바구니에 있으면 수량 업데이트!
         if(cart != null){
@@ -65,6 +78,11 @@ public class CartServiceImpl implements CartService {
     public CartDetailResponse updateCart(User user, UpdateCartRequest updateCartRequest) {
         Cart cart = cartRepository.findById(updateCartRequest.cartId())
                 .orElseThrow(()-> new DomainException(ErrorType.CART_ITEM_NOT_FOUND));
+
+        Stock stock = cart.getSaleProduct().getStock();
+
+        if(!stock.hasStock(updateCartRequest.quantity()))
+            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
 
         cart.updateQuantity(updateCartRequest.quantity());
 

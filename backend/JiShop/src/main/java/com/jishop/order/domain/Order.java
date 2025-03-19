@@ -27,9 +27,6 @@ public class Order extends BaseEntity {
     // todo: user 세션 가져오기
     private Long userId;
 
-    //대표상품명
-    private String mainProductName;
-
     //총 주문 금액
     private int totalPrice;
 
@@ -64,19 +61,17 @@ public class Order extends BaseEntity {
     }
 
     // 주문 정보 업데이트 메서드
-    public void updateOrderInfo(String mainProductName, int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
-        this.mainProductName = mainProductName;
+    public void updateOrderInfo(int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
         this.totalPrice = totalPrice;
         this.orderDetails = orderDetails;
         this.orderNumber = orderNumber;
     }
 
     @Builder
-    public Order(Long userId, String mainProductName, int totalPrice, String recipient, String phone,
+    public Order(Long userId, int totalPrice, String recipient, String phone,
                  String zonecode, String address, String detailAddress, String orderNumber) {
         this.userId = userId;
         this.status = OrderStatus.ORDER_RECEIVED;
-        this.mainProductName = mainProductName;
         this.totalPrice = totalPrice;
         this.recipient = recipient;
         this.phone = phone;
