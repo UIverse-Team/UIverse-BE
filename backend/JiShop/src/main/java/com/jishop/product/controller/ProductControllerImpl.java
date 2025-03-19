@@ -1,5 +1,7 @@
 package com.jishop.product.controller;
 
+import com.jishop.member.annotation.CurrentUser;
+import com.jishop.member.domain.User;
 import com.jishop.product.dto.ProductListResponse;
 import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
@@ -27,7 +29,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping("/{id}")
-    public ProductResponse getProduct(@PathVariable Long id) {
-        return productService.getProduct(id);
+    public ProductResponse getProduct(@CurrentUser User user,  @PathVariable Long id) {
+        return productService.getProduct(user, id);
     }
 }

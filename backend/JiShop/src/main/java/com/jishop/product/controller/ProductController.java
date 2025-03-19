@@ -1,5 +1,6 @@
 package com.jishop.product.controller;
 
+import com.jishop.member.domain.User;
 import com.jishop.product.dto.ProductListResponse;
 import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
@@ -11,5 +12,5 @@ public interface ProductController {
 
     PagedModel<ProductListResponse> getProductList(ProductRequest request);
 
-    ProductResponse getProduct(Long id);
+    ProductResponse getProduct(User user, Long id);
 }

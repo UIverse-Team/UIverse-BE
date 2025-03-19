@@ -9,7 +9,6 @@ import com.jishop.product.dto.ProductListResponse;
 import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
 import com.jishop.product.repository.ProductRepository;
-import com.jishop.productwishlist.domain.ProductWishList;
 import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
@@ -56,11 +55,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getProduct(Long id) {
+    public ProductResponse getProduct(User user, Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-        return ProductResponse.from(product);
+        Boolean isWished = false;
+        if (user != null) {
+            isWished = productRepository.findProductWishStatusByUserAndProduct(user, product).orElse(false);
+        }
+
+        return ProductResponse.from(product, isWished);
     }
 
     private OrderSpecifier<?> addSorting(String sort, QProduct product) {
