@@ -2,12 +2,10 @@ package com.jishop.order.service;
 
 import com.jishop.address.domain.Address;
 import com.jishop.address.dto.AddressRequest;
-import com.jishop.address.dto.AddressResponse;
 import com.jishop.address.repository.AddressRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
-import com.jishop.member.repository.UserRepository;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
@@ -19,10 +17,7 @@ import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.velocity.runtime.directive.Foreach;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,12 +86,22 @@ public class OrderServiceImpl implements OrderService {
 
             stockService.decreaseStock(saleProduct.getStock(), quantity);
 
-            int price = calculatePrice(saleProduct);
+            int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+            int orderPrice = saleProduct.getProduct().getOriginPrice();
+            int discountPrice = orderPrice - paymentPrice;
+
+            if(saleProduct.getOption() != null){
+                paymentPrice += saleProduct.getOption().getOptionExtra();
+                orderPrice += saleProduct.getOption().getOptionExtra();
+            }
+
             OrderDetail orderDetail = OrderDetail.builder()
                     .order(order)
                     .saleProduct(saleProduct)
                     .quantity(quantity)
-                    .price(price)
+                    .paymentPrice(paymentPrice)
+                    .orderPrice(orderPrice)
+                    .discountPrice(discountPrice)
                     .build();
 
             orderDetails.add(orderDetail);
@@ -104,15 +109,10 @@ public class OrderServiceImpl implements OrderService {
 
         // 주문 정보 업데이트
         int totalPrice = orderDetails.stream()
-                .mapToInt(detail -> detail.getPrice() * detail.getQuantity())
+                .mapToInt(detail -> detail.getPaymentPrice() * detail.getQuantity())
                 .sum();
 
-        String mainProductName = orderDetails.get(0).getSaleProduct().getName();
-        if (orderDetails.size() > 1) {
-            mainProductName = mainProductName + " 외 " + (orderDetails.size() - 1) + "건";
-        }
-
-        order.updateOrderInfo(mainProductName, totalPrice, orderDetails, orderNumberStr);
+        order.updateOrderInfo(totalPrice, orderDetails, orderNumberStr);
         orderRepository.save(order);
 
         // 응답 생성
@@ -231,14 +231,7 @@ public class OrderServiceImpl implements OrderService {
         Address shippingAddress = instantOrderRequest.address().toEntity(user, false);
         addressRepository.save(shippingAddress);
 
-        AddressRequest addressRequest = new AddressRequest(
-                shippingAddress.getRecipient(),
-                shippingAddress.getPhone(),
-                shippingAddress.getZonecode(),
-                shippingAddress.getAddress(),
-                shippingAddress.getDetailAddress(),
-                shippingAddress.isDefaultYN()
-        );
+        AddressRequest addressRequest = instantOrderRequest.address();
 
         // 주문 요청 생성 및 주문 처리
         OrderRequest orderRequest = new OrderRequest(
@@ -251,14 +244,16 @@ public class OrderServiceImpl implements OrderService {
 
     //비회원 주문 생성
     @Override
-    public ResponseEntity<OrderResponse> createGuestOrder(OrderRequest orderRequest) {
+    public OrderResponse createGuestOrder(OrderRequest orderRequest) {
         // 회원 주문 생성 메서드 재사용 (user = null)
         OrderResponse response = createOrder(null, orderRequest);
-        return ResponseEntity.ok(response);
+
+        return response;
     }
 
     //회원 주문 조회
     @Override
+    @Transactional
     public List<OrderDetailResponse> getGuestOrder(String orderNumber, String phone) {
         Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
@@ -268,7 +263,8 @@ public class OrderServiceImpl implements OrderService {
 
     // 비회원 바로 주문
     @Override
-    public ResponseEntity<OrderResponse> createGuestInstantOrder(InstantOrderRequest orderRequest) {
+    @Transactional
+    public OrderResponse createGuestInstantOrder(InstantOrderRequest orderRequest) {
         // 상품 정보 조회
         SaleProduct saleProduct = saleProductRepository.findById(orderRequest.saleProductId())
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
@@ -296,7 +292,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 회원 주문 생성 메서드 재사용 (user = null)
         OrderResponse response = createOrder(null, request);
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     //비회원 주문 취소
@@ -322,9 +318,11 @@ public class OrderServiceImpl implements OrderService {
                             detail.getSaleProduct().getId(),
                             detail.getSaleProduct().getName(),
                             detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                            detail.getPrice(),
+                            detail.getPaymentPrice(),
+                            detail.getOrderPrice(),
+                            detail.getDiscountPrice(),
                             detail.getQuantity(),
-                            detail.getPrice() * detail.getQuantity(),
+                            detail.getPaymentPrice() * detail.getQuantity(),
                             false // 구매확정 상태가 아니면 리뷰 작성 불가
                     ))
                     .toList();
@@ -342,9 +340,11 @@ public class OrderServiceImpl implements OrderService {
                         detail.getSaleProduct().getId(),
                         detail.getSaleProduct().getName(),
                         detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                        detail.getPrice(),
+                        detail.getPaymentPrice(),
+                        detail.getOrderPrice(),
+                        detail.getDiscountPrice(),
                         detail.getQuantity(),
-                        detail.getPrice() * detail.getQuantity(),
+                        detail.getPaymentPrice() * detail.getQuantity(),
                         !reviewedOrderDetailIds.contains(detail.getId()) // 리뷰가 없는 경우만 true
                 ))
                 .toList();
