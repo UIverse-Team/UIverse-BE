@@ -8,6 +8,7 @@ import com.jishop.member.domain.User;
 import org.springframework.stereotype.Service;
 
 public interface CartService {
+
     CartResponse getCart(User user);
     CartDetailResponse addCartItem(User user, AddCartRequest addCartRequest);
     CartDetailResponse updateCart(User user, UpdateCartRequest updateCartRequest);
