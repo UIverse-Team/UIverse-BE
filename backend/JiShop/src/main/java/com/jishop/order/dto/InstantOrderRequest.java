@@ -1,7 +1,12 @@
 package com.jishop.order.dto;
 
+import com.jishop.address.dto.AddressRequest;
+import jakarta.validation.constraints.Positive;
+
 public record InstantOrderRequest(
         Long saleProductId,
-        int quantity
+        @Positive
+        int quantity,
+        AddressRequest address
 ) {
 }

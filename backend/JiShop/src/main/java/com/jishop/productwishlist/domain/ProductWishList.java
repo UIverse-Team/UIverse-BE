@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 public class ProductWishList extends BaseEntity {
 
     // 유저 id
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     // 상품 id
@@ -35,5 +35,14 @@ public class ProductWishList extends BaseEntity {
         this.user = user;
         this.product = product;
         this.productWishStatus = productWishStatus;
+        this.productWishStatus = false;
+    }
+
+    public void onStatus(){
+        this.productWishStatus = true;
+    }
+
+    public void offStatus(){
+        this.productWishStatus = false;
     }
 }

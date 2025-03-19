@@ -9,6 +9,9 @@ import com.jishop.productwishlist.domain.ProductWishList;
 import com.jishop.productwishlist.dto.ProductWishProductRequest;
 import com.jishop.productwishlist.dto.ProductWishProductResponse;
 import com.jishop.productwishlist.repository.ProductWishListRepository;
+import com.jishop.store.domain.Store;
+import com.jishop.storewishlist.domain.StoreWishList;
+import com.jishop.storewishlist.dto.StoreWishRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +29,22 @@ public class ProductWishListServiceImpl implements ProductWishListService {
 
     @Override
     public void addProduct(User user, ProductWishProductRequest request) {
-        // 상품 들고오기
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(()->new DomainException(ErrorType.PRODUCT_NOT_FOUND));
-        // 해당 상품 id 들고오기
+
         Optional<ProductWishList> wishproduct = wishListRepository.findByUserAndProduct(user, product);
-        // 해당 상품 id가 wishlist에 존재한다면? 해당 위시리스트 지우기
-        if(wishproduct.isPresent()) {
-            wishListRepository.delete(wishproduct.get());
+
+        if(wishproduct.isEmpty()) {
+            ProductWishList newWish = request.toEntity(user, product);
+            newWish.onStatus();
+            wishListRepository.save(newWish);
+            product.incrementWishCount();
         }else{ // else문 꼭 필요함
-            wishListRepository.save(request.toEntity(user, product));
+            ProductWishList existingWish = wishproduct.get();
+            existingWish.offStatus();
+            wishListRepository.delete(existingWish);
+            product.decrementWishCount();
+
         }
     }
 

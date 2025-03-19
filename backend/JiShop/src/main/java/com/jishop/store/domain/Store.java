@@ -20,8 +20,19 @@ public class Store extends BaseEntity {
     @Column(name = "mall_name", nullable = false)
     private String mallName;
 
+    @Column(name = "wish_count", nullable = false, columnDefinition = "int default 0")
+    private int wishCount;
+
     public Store(String mallSeq, String mallName) {
         this.mallSeq = mallSeq;
         this.mallName = mallName;
+    }
+
+    public void incrementWishCount() {
+        this.wishCount++;
+    }
+
+    public void decrementWishCount() {
+        if (this.wishCount > 0) { this.wishCount--;}
     }
 }

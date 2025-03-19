@@ -28,19 +28,25 @@ public class OrderDetail extends BaseEntity {
 
     //수량
     private int quantity;
-    //가격
-    private int price;
+    //결제가격
+    private int paymentPrice;
+    //주문가격
+    private int orderPrice;
+    //할인금액
+    private int discountPrice;
     //할인유형
     private String discountType;
     //할인값
     private double discountValue;
 
     @Builder
-    public OrderDetail(Order order, SaleProduct saleProduct, int quantity, int price){
+    public OrderDetail(Order order, SaleProduct saleProduct, int quantity, int paymentPrice, int orderPrice, int discountPrice) {
         this.order = order;
         this.saleProduct = saleProduct;
         this.quantity = quantity;
-        this.price = price;
+        this.paymentPrice = paymentPrice;
+        this.orderPrice = orderPrice;
+        this.discountPrice = discountPrice;
     }
 
 

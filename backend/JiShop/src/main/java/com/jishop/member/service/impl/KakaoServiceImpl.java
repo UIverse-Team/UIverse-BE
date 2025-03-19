@@ -1,17 +1,16 @@
 package com.jishop.member.service.impl;
 
+import com.jishop.member.dto.response.BasicSocialUserInfo;
 import com.jishop.member.dto.response.KakaoUserResponse;
 import com.jishop.member.dto.response.SocialUserInfo;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.AbstractOAuthService;
 import jakarta.servlet.http.HttpSession;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 
-@Slf4j
 @Service
 public class KakaoServiceImpl extends AbstractOAuthService {
 
@@ -53,7 +52,6 @@ public class KakaoServiceImpl extends AbstractOAuthService {
                     .bodyToMono(TokenResponse.class)
                     .block();
         } catch (Exception e) {
-            log.error("Error getting KAKAO access token: {}", e.getMessage(), e);
             throw new RuntimeException("카카오 Access Token 가져오는 데 오류가 발생했습니다");
         }
     }
@@ -70,7 +68,7 @@ public class KakaoServiceImpl extends AbstractOAuthService {
     }
 
     private SocialUserInfo convertToSocialUserInfo(KakaoUserResponse response) {
-        return new SocialUserInfo(
+        return new BasicSocialUserInfo(
                 String.valueOf(response.id()),
                 response.kakaoAccount().profile().nickname(),
                 response.kakaoAccount().email()

@@ -5,10 +5,7 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.*;
-import com.jishop.member.dto.response.FindUserResponse;
-import com.jishop.member.dto.response.SocialUserInfo;
-import com.jishop.member.dto.response.UserIdResponse;
-import com.jishop.member.dto.response.UserResponse;
+import com.jishop.member.dto.response.*;
 import com.jishop.member.repository.UserRepository;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,25 +23,44 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    @Override
     public Long processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
-        // 이미 아이디 존재시 회원가입이 아닌 로그인으로 바꿈
-        userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
-                .orElseGet(() -> {
-                    // If not, create a new user
-                    User user = User.builder()
-                            .loginId(socialUserInfo.id())
-                            .name(socialUserInfo.name())
-                            .password(null)
-                            .provider(provider)
-                            .build();
+        if (provider == LoginType.NAVER && socialUserInfo instanceof NaverSocialUserInfo naverInfo) {
+            Optional<User> optionalUser = userRepository.findByLoginIdAndProvider(naverInfo.email(), provider);
 
-                    return userRepository.save(user);
-                });
+            if (optionalUser.isEmpty()) {
+                User user = User.builder()
+                        .loginId(naverInfo.email())
+                        .name(naverInfo.name())
+                        .gender(naverInfo.gender())
+                        .phone(naverInfo.mobile())
+                        .birthDate(naverInfo.birthday())
+                        .provider(provider)
+                        .build();
+                userRepository.save(user);
+            }
 
-        User user = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider).orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-        Long userId = user.getId();
+            User user = userRepository.findByLoginIdAndProvider(naverInfo.email(), provider)
+                    .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
-        return userId;
+            return user.getId();
+        } else {
+            Optional<User> optionalUser = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider);
+
+            if (optionalUser.isEmpty()) {
+                User user = User.builder()
+                        .loginId(socialUserInfo.id())
+                        .name(socialUserInfo.name())
+                        .provider(provider)
+                        .build();
+                userRepository.save(user);
+            }
+
+            User user = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
+                    .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+            return user.getId();
+        }
     }
 
     public void emailcheck(Step1Request request){
@@ -61,7 +79,6 @@ public class UserServiceImpl implements UserService {
 
         return FindUserResponse.of(user);
     }
-
 
     // user id 들고오는 서비스 필요
     public UserIdResponse findUserId(EmailRequest request){

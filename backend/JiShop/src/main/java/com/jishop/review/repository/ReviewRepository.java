@@ -5,13 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByOrderDetailId(Long orderDetailId);
+
+    @Query("SELECT r.orderDetail.id FROM Review r WHERE r.orderDetail.id IN :orderDetailIds")
+    List<Long> findOrderDetailIdsWithReviews(List<Long> orderDetailIds);
 
     @Query("select r from Review r join fetch r.user where r.id = :reviewId")
     Optional<Review> findByReviewIdWithUser(@Param("reviewId") Long reviewId);

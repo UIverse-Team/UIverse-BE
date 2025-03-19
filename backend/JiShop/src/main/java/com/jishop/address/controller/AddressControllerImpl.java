@@ -5,7 +5,6 @@ import com.jishop.address.dto.AddressResponse;
 import com.jishop.address.service.AddressService;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

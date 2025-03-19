@@ -15,4 +15,5 @@ public interface ProductWishListRepository extends JpaRepository<ProductWishList
     @Lock(LockModeType.OPTIMISTIC)
     Optional<ProductWishList> findByUserAndProduct(User user, Product product);
     List<ProductWishList> findAllByUser(User user);
+
 }
