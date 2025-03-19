@@ -117,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         // 응답 생성
-        List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
+        List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails(), user);
         return OrderResponse.fromOrder(order, orderDetailResponseList);
     }
 
@@ -129,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
-        return convertToOrderDetailResponses(order.getOrderDetails());
+        return convertToOrderDetailResponses(order.getOrderDetails(), user);
     }
 
     //주문 전체 조회 페이징 처리
@@ -173,7 +173,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(orderMap::get)
                 .filter(Objects::nonNull)
                 .map(order -> {
-                    List<OrderDetailResponse> orderDetailResponses = convertToOrderDetailResponses(order.getOrderDetails());
+                    List<OrderDetailResponse> orderDetailResponses = convertToOrderDetailResponses(order.getOrderDetails(), user);
                     return OrderResponse.fromOrder(order, orderDetailResponses);
                 })
                 .toList();
@@ -259,7 +259,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
-        return convertToOrderDetailResponses(order.getOrderDetails());
+        return convertToOrderDetailResponses(order.getOrderDetails(), null);
     }
 
     // 비회원 바로 주문
@@ -307,7 +307,7 @@ public class OrderServiceImpl implements OrderService {
         processOrderCancellation(order);
     }
 
-    private List<OrderDetailResponse> convertToOrderDetailResponses(List<OrderDetail> details) {
+    private List<OrderDetailResponse> convertToOrderDetailResponses(List<OrderDetail> details, User user) {
         // 주문 상태가 구매확정인 주문만 리뷰 작성 가능
         boolean isPurchaseConfirmed = !details.isEmpty() &&
                 details.get(0).getOrder().getStatus() == OrderStatus.PURCHASED_CONFIRMED;
@@ -327,7 +327,13 @@ public class OrderServiceImpl implements OrderService {
                             detail.getPaymentPrice() * detail.getQuantity(),
                             false, // 구매확정 상태가 아니면 리뷰 작성 불가
                             detail.getSaleProduct().getProduct().getBrand(),
-                            detail.getOrder().getCreatedAt()
+                            detail.getOrder().getCreatedAt(),
+                            detail.getOrder().getRecipient(),
+                            detail.getOrder().getPhone(),
+                            detail.getOrder().getZonecode(),
+                            detail.getOrder().getAddress(),
+                            detail.getOrder().getDetailAddress(),
+                            user.getLoginId()
                     ))
                     .toList();
         }
@@ -352,7 +358,14 @@ public class OrderServiceImpl implements OrderService {
                         detail.getPaymentPrice() * detail.getQuantity(),
                         !reviewedOrderDetailIds.contains(detail.getId()), // 리뷰가 없는 경우만 true
                         detail.getSaleProduct().getProduct().getBrand(),
-                        detail.getOrder().getCreatedAt()
+                        detail.getOrder().getCreatedAt(),
+                        detail.getOrder().getRecipient(),
+                        detail.getOrder().getPhone(),
+                        detail.getOrder().getZonecode(),
+                        detail.getOrder().getAddress(),
+                        detail.getOrder().getDetailAddress(),
+                        user.getLoginId()
+
                 ))
                 .toList();
     }

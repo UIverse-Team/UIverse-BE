@@ -12,26 +12,22 @@ public record OrderResponse(
         List<OrderDetailResponse> orderDetailResponseList,
         OrderStatus orderStatus,
         int totalPrice,
-        String receiver,
-        String receiverNumber,
-        String zipCode,
-        String baseAddress,
-        String detailAddress,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        int totalQuantity
 ){
     public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
+        int totalQuantity = orderDetailResponseList.stream()
+                .mapToInt(OrderDetailResponse::quantity)
+                .sum();
+
         return new OrderResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 orderDetailResponseList,
                 order.getStatus(),
                 order.getTotalPrice(),
-                order.getRecipient(),
-                order.getPhone(),
-                order.getZonecode(),
-                order.getAddress(),
-                order.getDetailAddress(),
-                order.getCreatedAt()
+                order.getCreatedAt(),
+                totalQuantity
         );
     }
 }

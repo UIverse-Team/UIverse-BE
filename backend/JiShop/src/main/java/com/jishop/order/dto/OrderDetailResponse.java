@@ -15,6 +15,12 @@ public record OrderDetailResponse(
         int totalPrice,
         boolean canReview,
         String brand,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String receiver,
+        String receiverNumber,
+        String zipCode,
+        String baseAddress,
+        String detailAddress,
+        String email
 ) {
 }
