@@ -1,20 +1,24 @@
 package com.jishop.product.implementation;
 
+import com.jishop.product.domain.Product;
 import com.jishop.product.domain.QProduct;
 import com.jishop.product.dto.ProductRequest;
 import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class ProductQueryHelperImpl implements ProductQueryHelper {
+
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public BooleanBuilder findProductsByCondition(ProductRequest request, QProduct product, QReviewProduct reviewProduct) {
@@ -27,6 +31,28 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         addKeyword(request.keyword(), product, builder);
 
         return builder;
+    }
+
+    @Override
+    public List<Product> getFilteredAndSortedResults(
+            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest request) {
+
+        QProduct product = QProduct.product;
+
+        return queryFactory.selectFrom(product)
+                .where(filterBuilder)
+                .orderBy(orderSpecifier)
+                .offset(request.page() * request.size())
+                .limit(request.size())
+                .fetch();
+    }
+
+    @Override
+    public long countFilteredProducts(BooleanBuilder filterBuilder) {
+        QProduct product = QProduct.product;
+        return queryFactory.selectFrom(product)
+                .where(filterBuilder)
+                .fetchCount();
     }
 
     private static void addPriceRangesFiltering(List<String> priceRanges, QProduct product, BooleanBuilder builder) {
