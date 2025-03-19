@@ -21,8 +21,8 @@ public interface OrderService {
     Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size);
     void cancelOrder(User user, Long orderId);
     OrderResponse createInstantOrder(User user, InstantOrderRequest orderRequest);
-    ResponseEntity<OrderResponse> createGuestOrder(OrderRequest orderRequest);
+    OrderResponse createGuestOrder(OrderRequest orderRequest);
     List<OrderDetailResponse> getGuestOrder(String orderNumber, String phoneNumber);
-    ResponseEntity<OrderResponse> createGuestInstantOrder(InstantOrderRequest orderRequest);
+    OrderResponse createGuestInstantOrder(InstantOrderRequest orderRequest);
     void cancelGuestOrder(String orderNumber, String phoneNumber);
 }

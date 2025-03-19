@@ -24,7 +24,6 @@ public class Order extends BaseEntity {
     // todo: 결제수단 매핑
     private Long paymentId;
 
-    // todo: user 세션 가져오기
     private Long userId;
 
     //총 주문 금액

@@ -81,7 +81,9 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PostMapping("/guest")
     public ResponseEntity<OrderResponse> guestCreateOrder(@Valid @RequestBody OrderRequest orderRequest) {
-        return orderService.createGuestOrder(orderRequest);
+        OrderResponse response = orderService.createGuestOrder(orderRequest);
+
+        return ResponseEntity.ok(response);
     }
 
     //비회원 주문 조회하기
@@ -98,7 +100,9 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PostMapping("/guest/instant")
     public ResponseEntity<OrderResponse> guestCreateInstantOrder(@RequestBody @Valid InstantOrderRequest orderRequest) {
-        return orderService.createGuestInstantOrder(orderRequest);
+        OrderResponse response = orderService.createGuestInstantOrder(orderRequest);
+
+        return ResponseEntity.ok(response);
     }
 
     //비회원 주문 취소하기
@@ -115,18 +119,16 @@ public class OrderControllerImpl implements OrderController {
     // 기본 배송지 가져오기
     @GetMapping("/default-address")
     public ResponseEntity<AddressResponse> getDefaultAddress(@CurrentUser User user) {
-        Optional<Address> address = addressRepository.findDefaultAddressByUser(user);
-        if (address.isPresent()) {
-            AddressResponse response = new AddressResponse(
-                    address.get().getRecipient(),
-                    address.get().getPhone(),
-                    address.get().getZonecode(),
-                    address.get().getAddress(),
-                    address.get().getDetailAddress(),
-                    address.get().isDefaultYN()
-            );
-            return ResponseEntity.ok(response);
-        }
-        throw new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND);
+        return addressRepository.findDefaultAddressByUser(user)
+                .map(address -> new AddressResponse(
+                        address.getRecipient(),
+                        address.getPhone(),
+                        address.getZonecode(),
+                        address.getAddress(),
+                        address.getDetailAddress(),
+                        address.isDefaultYN()
+                ))
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND));
     }
 }
