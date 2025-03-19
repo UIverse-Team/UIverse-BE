@@ -97,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
 
             OrderDetail orderDetail = OrderDetail.builder()
                     .order(order)
+                    .orderNumber(orderNumberStr)
                     .saleProduct(saleProduct)
                     .quantity(quantity)
                     .paymentPrice(paymentPrice)
@@ -315,6 +316,7 @@ public class OrderServiceImpl implements OrderService {
             return details.stream()
                     .map(detail -> new OrderDetailResponse(
                             detail.getId(),
+                            detail.getOrderNumber(),
                             detail.getSaleProduct().getId(),
                             detail.getSaleProduct().getName(),
                             detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
@@ -337,6 +339,7 @@ public class OrderServiceImpl implements OrderService {
         return details.stream()
                 .map(detail -> new OrderDetailResponse(
                         detail.getId(),
+                        detail.getOrderNumber(),
                         detail.getSaleProduct().getId(),
                         detail.getSaleProduct().getName(),
                         detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,

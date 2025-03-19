@@ -2,6 +2,7 @@ package com.jishop.order.dto;
 
 public record OrderDetailResponse(
         Long id,
+        String orderNumer,
         Long saleProductId,
         String productName,
         String optionValue,
