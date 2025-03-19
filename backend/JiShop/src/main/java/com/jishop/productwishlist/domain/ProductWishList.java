@@ -24,6 +24,8 @@ public class ProductWishList extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 
+    private boolean productWishStatus;
+
     @Version
     private Long version; // 낙관적 락을 위한 필드
 
@@ -31,5 +33,14 @@ public class ProductWishList extends BaseEntity {
     public ProductWishList(User user, Product product) {
         this.user = user;
         this.product = product;
+        this.productWishStatus = false;
+    }
+
+    public void onStatus(){
+        this.productWishStatus = true;
+    }
+
+    public void offStatus(){
+        this.productWishStatus = false;
     }
 }

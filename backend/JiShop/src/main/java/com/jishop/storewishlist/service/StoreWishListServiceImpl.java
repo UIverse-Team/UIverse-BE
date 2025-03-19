@@ -24,17 +24,22 @@ public class StoreWishListServiceImpl implements StoreWishListService {
     private final StoreRepository storeRepository;
     private final StoreWishListRepository storeWishListRepository;
 
-    public void addWishStore(User user, StoreWishRequest request){
+    public void addWishStore(User user, StoreWishRequest request) {
         Store store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new DomainException(ErrorType.STORE_NOT_FOUND));
 
         Optional<StoreWishList> wishStore = storeWishListRepository.findByUserAndStore(user, store);
-        if(wishStore.isPresent()){
-            storeWishListRepository.delete(wishStore.get());
-            store.decrementWishCount();
-        } else{
-            storeWishListRepository.save(request.toEntity(user, store));
+
+        if (wishStore.isEmpty()) {
+            StoreWishList newWish = request.toEntity(user, store);
+            newWish.onStatus();
+            storeWishListRepository.save(newWish);
             store.incrementWishCount();
+        } else {
+            StoreWishList existingWish = wishStore.get();
+            existingWish.offStatus();
+            storeWishListRepository.delete(existingWish);
+            store.decrementWishCount();
         }
     }
 
