@@ -2,6 +2,7 @@ package com.jishop.product.dto;
 
 import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
+import com.jishop.productwishlist.domain.ProductWishList;
 
 public record ProductResponse(
         String name,
@@ -12,16 +13,12 @@ public record ProductResponse(
         Boolean isDiscount,
         String brand,
         String[] images,
-        String detailImage
+        String detailImage,
+        Boolean isWished
 ) {
-    public static ProductResponse from(Product product) {
-        String[] images = new String[] {
-                product.getMainImage(),
-                product.getImage1(),
-                product.getImage2(),
-                product.getImage3(),
-                product.getImage4()
-        };
+    public static ProductResponse from(Product product, ProductWishList productWishList) {
+
+        boolean isWished = productWishList != null && productWishList.isProductWishStatus();
 
         return new ProductResponse(
                 product.getName(),
@@ -31,8 +28,11 @@ public record ProductResponse(
                 product.getDiscountPrice(),
                 product.getIsDiscount(),
                 product.getBrand(),
-                images,
-                product.getDetailImage()
+                new String[] {
+                        product.getMainImage(), product.getImage1(), product.getImage2(), product.getImage3(), product.getImage4()
+                },
+                product.getDetailImage(),
+                isWished
         );
     }
 }

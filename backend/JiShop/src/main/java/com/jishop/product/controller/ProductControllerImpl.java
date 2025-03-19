@@ -1,5 +1,6 @@
 package com.jishop.product.controller;
 
+import com.jishop.product.dto.ProductListResponse;
 import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
 import com.jishop.product.service.ProductService;
@@ -20,7 +21,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductResponse> getProductList(@Validated ProductRequest request) {
+    public PagedModel<ProductListResponse> getProductList(@Validated ProductRequest request) {
         return productService.getProductList(request);
     }
 
