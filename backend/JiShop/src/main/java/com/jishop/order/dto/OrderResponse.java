@@ -3,6 +3,7 @@ package com.jishop.order.dto;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponse(
@@ -15,7 +16,8 @@ public record OrderResponse(
         String receiverNumber,
         String zipCode,
         String baseAddress,
-        String detailAddress
+        String detailAddress,
+        LocalDateTime createdAt
 ){
     public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
         return new OrderResponse(
@@ -28,7 +30,8 @@ public record OrderResponse(
                 order.getPhone(),
                 order.getZonecode(),
                 order.getAddress(),
-                order.getDetailAddress()
+                order.getDetailAddress(),
+                order.getCreatedAt()
         );
     }
 }

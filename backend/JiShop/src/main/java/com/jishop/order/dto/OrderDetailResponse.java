@@ -1,5 +1,7 @@
 package com.jishop.order.dto;
 
+import java.time.LocalDateTime;
+
 public record OrderDetailResponse(
         Long id,
         String orderNumber,
@@ -12,6 +14,7 @@ public record OrderDetailResponse(
         int quantity,
         int totalPrice,
         boolean canReview,
-        String brand
+        String brand,
+        LocalDateTime createdAt
 ) {
 }
