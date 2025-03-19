@@ -2,7 +2,7 @@ package com.jishop.order.dto;
 
 public record OrderDetailResponse(
         Long id,
-        String orderNumer,
+        String orderNumber,
         Long saleProductId,
         String productName,
         String optionValue,
@@ -11,6 +11,7 @@ public record OrderDetailResponse(
         int discountPrice,
         int quantity,
         int totalPrice,
-        boolean canReview
+        boolean canReview,
+        String brand
 ) {
 }

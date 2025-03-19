@@ -325,7 +325,8 @@ public class OrderServiceImpl implements OrderService {
                             detail.getDiscountPrice(),
                             detail.getQuantity(),
                             detail.getPaymentPrice() * detail.getQuantity(),
-                            false // 구매확정 상태가 아니면 리뷰 작성 불가
+                            false, // 구매확정 상태가 아니면 리뷰 작성 불가
+                            detail.getSaleProduct().getProduct().getBrand()
                     ))
                     .toList();
         }
@@ -348,7 +349,8 @@ public class OrderServiceImpl implements OrderService {
                         detail.getDiscountPrice(),
                         detail.getQuantity(),
                         detail.getPaymentPrice() * detail.getQuantity(),
-                        !reviewedOrderDetailIds.contains(detail.getId()) // 리뷰가 없는 경우만 true
+                        !reviewedOrderDetailIds.contains(detail.getId()), // 리뷰가 없는 경우만 true
+                        detail.getSaleProduct().getProduct().getBrand()
                 ))
                 .toList();
     }
