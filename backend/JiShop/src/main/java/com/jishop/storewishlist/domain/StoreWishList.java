@@ -22,6 +22,8 @@ public class StoreWishList extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
 
+    private boolean storeWishStatus;
+
     @Version
     private Long version;
 
@@ -29,5 +31,14 @@ public class StoreWishList extends BaseEntity {
     public StoreWishList(User user, Store store) {
         this.user = user;
         this.store = store;
+        this.storeWishStatus = false;
+    }
+
+    public void onStatus(){
+        this.storeWishStatus = true;
+    }
+
+    public void offStatus(){
+        this.storeWishStatus = false;
     }
 }
