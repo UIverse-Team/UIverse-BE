@@ -35,7 +35,6 @@ public class reviewRepositoryTest {
         //then
 
     }
-
     private PageRequest getCreatedAt() {
         return PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
@@ -53,6 +52,18 @@ public class reviewRepositoryTest {
             System.out.println(review.getProduct().getName());
         });
 
+        //then
+    }
+
+    @Test
+    @DisplayName("상품 리뷰 가져오기")
+    void getReviewProduct() throws Exception {
+        // given
+        Review review = reviewRepository.findByReviewIdAndUserId(1L, 5L).orElseThrow(
+                () -> new IllegalStateException("sdfkj")
+        );
+        //when
+        System.out.println(review.getProductSummary());
         //then
 
     }

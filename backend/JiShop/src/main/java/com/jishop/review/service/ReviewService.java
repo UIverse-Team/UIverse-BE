@@ -17,6 +17,6 @@ public interface ReviewService {
     void likeReview(LikerIdRequest userIdRequest, Long ReviewId);
     void unlikeReview(LikerIdRequest userIdRequest, Long ReviewId);
 
-    void updateReview(Long reviewId, Long userId, ReviewRequest reviewRequest);
-    void deleteReview(Long reviewId);
+    void updateReview(Long reviewId, Long userId, UpdateReviewRequest updateReviewRequest);
+    void deleteReview(Long reviewId, Long productId, Long userId);
 }

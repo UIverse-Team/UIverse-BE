@@ -21,5 +21,4 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
             "WHERE sp.id IN :ids")
     List<SaleProduct> findAllByIdsForOrder(@Param("ids") List<Long> ids);
 
-    boolean existsByNameContaining(String keyword);
 }

@@ -35,7 +35,7 @@ public class ReviewControllerImpl implements ReviewController {
 
     @Override
     @GetMapping("/products/{productId}")
-    public ResponseEntity<PagedModel<?>> getProdcutReview(@RequestParam(value = "userId", required = false) Long userId,
+    public ResponseEntity<PagedModel<?>> getProductReview(@RequestParam(value = "userId", required = false) Long userId,
                                                           @PathVariable("productId") Long productId,
                                                           @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         //todo: 추가사항
@@ -79,8 +79,33 @@ public class ReviewControllerImpl implements ReviewController {
     @DeleteMapping("{reviewId}/unlikes")
     public ResponseEntity<String> unlikeReview(@PathVariable(value = "reviewId") Long reviewId,
                                                @RequestBody @Valid LikerIdRequest likerIdRequest) {
+
         reviewService.unlikeReview(likerIdRequest, reviewId);
+
         return ResponseEntity.ok("리뷰 좋아요 취소 - 성공");
     }
 
+    @Override
+    @PatchMapping("/{reviewId}/products/{prodcutId}/delete")
+    public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
+                                               @PathVariable("productId") Long prodcutId,
+                                               //사용자 아이디
+                                               @RequestParam("userId") Long userId) {
+
+        reviewService.deleteReview(reviewId, prodcutId, userId);
+
+        return ResponseEntity.ok("리뷰 삭제 - 성공");
+    }
+
+    @Override
+    @PatchMapping("/{reviewId}")
+    public ResponseEntity<String> updateReview(@PathVariable("reviewId") Long reviewId,
+                                               // 사용자 아이디
+                                               @RequestParam("userId") Long userId,
+                                               @RequestBody UpdateReviewRequest updateReviewRequest){
+
+        reviewService.updateReview(reviewId,userId,updateReviewRequest);
+
+        return ResponseEntity.ok("리뷰 수정 - 성공");
+    }
 }

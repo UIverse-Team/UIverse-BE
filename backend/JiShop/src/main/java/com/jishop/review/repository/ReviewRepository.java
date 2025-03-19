@@ -34,4 +34,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "where r.product.id = :productId and r.deleteStatus = false")
     Page<Object[]> findReviewsWithUserLike(@Param("productId") Long productId, @Param("userId") Long userId, Pageable pageable);
 
+    @Query("select r from Review r where r.id = :reviewId and r.user.id = :userId")
+    Optional<Review> findByReviewIdAndUserId(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
 }
