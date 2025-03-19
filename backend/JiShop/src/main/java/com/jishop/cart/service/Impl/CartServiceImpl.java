@@ -62,7 +62,7 @@ public class CartServiceImpl implements CartService {
         if(cart != null){
             cart.updateQuantity(addCartRequest.quantity());
         } else {
-            cart = cart.builder()
+            cart = Cart.builder()
                     .user(user)
                     .saleProduct(saleProduct)
                     .quantity(addCartRequest.quantity())
