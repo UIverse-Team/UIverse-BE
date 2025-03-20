@@ -3,10 +3,7 @@ package com.jishop.member.service.impl;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
-import com.jishop.member.dto.request.RecoveryPWRequest;
-import com.jishop.member.dto.request.SignInFormRequest;
-import com.jishop.member.dto.request.UserNameRequest;
-import com.jishop.member.dto.request.UserPhoneRequest;
+import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.UserResponse;
 import com.jishop.member.repository.UserRepository;
 import com.jishop.member.service.AuthService;
@@ -49,7 +46,19 @@ public class AuthServiceImpl implements AuthService {
      *  추후 변경 필요 user 필요
      * @param request
      */
-    public void recoveryPW(User user, RecoveryPWRequest request){
+    public void recoveryPW(RecoveryPWRequest request){
+        User user = userRepository.findByLoginId(request.email())
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+        if(passwordEncoder.matches(request.password(), user.getPassword())){
+            throw new DomainException(ErrorType.PASSWORD_EXISTS);
+        }
+
+        String password = passwordEncoder.encode(request.password());
+        user.updatePassword(password);
+    }
+
+    public void updatePW(User user, UserNewPasswordRequest request){
         if(passwordEncoder.matches(request.password(), user.getPassword())){
             throw new DomainException(ErrorType.PASSWORD_EXISTS);
         }
@@ -76,5 +85,6 @@ public class AuthServiceImpl implements AuthService {
     public void deleteUser(User user) {
         user.delete();
     }
+
 }
 

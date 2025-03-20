@@ -5,7 +5,6 @@ import com.jishop.member.controller.UserController;
 import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
-import com.jishop.member.dto.response.UserIdResponse;
 import com.jishop.member.dto.response.UserResponse;
 import com.jishop.member.service.AuthService;
 import com.jishop.member.service.UserService;
@@ -27,20 +26,22 @@ public class UserControllerImpl implements UserController {
         return userService.findUser(request);
     }
 
-    @PostMapping("/finduser")
-    public UserIdResponse emailUser(@RequestBody @Validated EmailRequest request) {
-        return userService.findUserId(request);
+    @PatchMapping("/recoverypw")
+    public ResponseEntity<String> recoveryPW(@RequestBody @Validated RecoveryPWRequest request) {
+        authService.recoveryPW(request);
+
+        return ResponseEntity.ok().body("비밀번호 뱐경완료!");
     }
 
-    @PatchMapping("/recoverypw")
-    public ResponseEntity<String> recoverypw(@CurrentUser User user, @RequestBody @Validated RecoveryPWRequest request) {
-        authService.recoveryPW(user, request);
+    @PatchMapping("/password")
+    public ResponseEntity<String> updatePW(@CurrentUser User user, @RequestBody @Validated UserNewPasswordRequest request) {
+        authService.updatePW(user, request);
 
         return ResponseEntity.ok().body("비밀번호 뱐경완료!");
     }
 
     /**
-     * todo: 회원 정보 조회
+     * todo: 회원 정보 조회 -> 더 많은 정보
      *  추후 수정 필요
      */
     @GetMapping()

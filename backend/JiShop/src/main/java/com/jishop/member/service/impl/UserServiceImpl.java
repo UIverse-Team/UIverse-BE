@@ -77,6 +77,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPhone(request.phone())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
+        if(user.isDeleteStatus()) throw new DomainException(ErrorType.USER_NOT_FOUND);
+
         return FindUserResponse.of(user);
     }
 
@@ -87,5 +89,4 @@ public class UserServiceImpl implements UserService {
 
         return UserIdResponse.from(user.getId());
     }
-
 }
