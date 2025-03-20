@@ -35,7 +35,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PagedModel<ProductListResponse> getProductList(ProductRequest request) {
-
         BooleanBuilder filterBuilder = productRepository
                 .findProductsByCondition(request, QProduct.product, QReviewProduct.reviewProduct);
 
@@ -43,12 +42,12 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> results = productRepository.getFilteredAndSortedResults(filterBuilder, orderSpecifier, request);
 
+        List<ProductListResponse> productList = results.stream()
+                .map(ProductListResponse::from).collect(Collectors.toList());
+
         long totalCount = productRepository.countFilteredProducts(filterBuilder);
 
-        List<ProductListResponse> productList = results.stream().map(ProductListResponse::from).collect(Collectors.toList());
-
         Pageable pageable = PageRequest.of(request.page(), request.size());
-
         Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);
