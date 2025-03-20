@@ -1,6 +1,9 @@
 package com.jishop.product.controller;
 
-import com.jishop.product.dto.ProductPageRequest;
+import com.jishop.member.annotation.CurrentUser;
+import com.jishop.member.domain.User;
+import com.jishop.product.dto.ProductListResponse;
+import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
 import com.jishop.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +23,13 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductResponse> getProductList(@Validated ProductPageRequest productPageRequest) {
-        return productService.getProductList(productPageRequest);
+    public PagedModel<ProductListResponse> getProductList(@Validated ProductRequest request) {
+        return productService.getProductList(request);
     }
 
     @Override
     @GetMapping("/{id}")
-    public ProductResponse getProduct(@PathVariable Long id) {
-        return productService.getProduct(id);
+    public ProductResponse getProduct(@CurrentUser User user,  @PathVariable Long id) {
+        return productService.getProduct(user, id);
     }
 }

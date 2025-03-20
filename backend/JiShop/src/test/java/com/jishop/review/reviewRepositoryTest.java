@@ -3,7 +3,6 @@ package com.jishop.review;
 import com.jishop.review.domain.Review;
 import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
