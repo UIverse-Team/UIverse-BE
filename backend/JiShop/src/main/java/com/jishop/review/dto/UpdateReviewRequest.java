@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UpdateReviewRequest(
 
-        @NotBlank(message = "리뷰 내용은 필요합니다.")
+        @NotBlank(message = "리뷰 내용은 필수입니다.")
         String content,
         Tag tag,
         int rating

@@ -66,9 +66,17 @@ public class ReviewControllerImpl implements ReviewController {
     }
 
     @Override
+    @GetMapping("{reviewId}/detail")
+    public ResponseEntity<MyPageDetailReviewResponse> getMyPageDetailReview(@PathVariable("reviewId") Long reviewId,
+                                                                            @RequestParam("userId") Long userId) {
+
+        return ResponseEntity.ok(reviewService.getMyPageDetailReview(reviewId, userId));
+    }
+
+    @Override
     @PostMapping("{reviewId}/likes")
     public ResponseEntity<String> likeReview(@PathVariable(value = "reviewId") Long reviewId,
-                                        @RequestBody @Valid LikerIdRequest likerIdRequest) {
+                                             @RequestBody @Valid LikerIdRequest likerIdRequest) {
 
         reviewService.likeReview(likerIdRequest, reviewId);
 
@@ -101,9 +109,9 @@ public class ReviewControllerImpl implements ReviewController {
     public ResponseEntity<String> updateReview(@PathVariable("reviewId") Long reviewId,
                                                // 사용자 아이디
                                                @RequestParam("userId") Long userId,
-                                               @RequestBody UpdateReviewRequest updateReviewRequest){
+                                               @RequestBody @Valid UpdateReviewRequest updateReviewRequest) {
 
-        reviewService.updateReview(reviewId,userId,updateReviewRequest);
+        reviewService.updateReview(reviewId, userId, updateReviewRequest);
 
         return ResponseEntity.ok("리뷰 수정 - 성공");
     }

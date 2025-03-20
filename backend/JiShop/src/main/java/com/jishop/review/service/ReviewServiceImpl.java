@@ -127,6 +127,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public MyPageDetailReviewResponse getMyPageDetailReview(Long reviewId, Long userId) {
+        return reviewRepository
+                .findByIdAndUserId(reviewId, userId)
+                .map(MyPageDetailReviewResponse::from)
+                .orElseThrow(() -> new DomainException(ErrorType.REVIEW_NOT_FOUND));
+    }
+
+    @Override
     public void likeReview(LikerIdRequest likerIdRequest, Long reviewId) {
 
         //todo:
@@ -198,11 +206,11 @@ public class ReviewServiceImpl implements ReviewService {
                 () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
         );
 
-        if(!review.getUser().getId().equals(userId)) {
+        if (!review.getUser().getId().equals(userId)) {
             throw new DomainException(ErrorType.MATCH_NOT_USER);
         }
 
-        if(review.isDeleteStatus()){
+        if (review.isDeleteStatus()) {
             throw new DomainException(ErrorType.DATA_ALREADY_DELETED);
 
         }

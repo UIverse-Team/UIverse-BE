@@ -23,4 +23,6 @@ public interface ReviewService {
     void updateReview(Long reviewId, Long userId, UpdateReviewRequest updateReviewRequest);
 
     void deleteReview(Long reviewId, Long userId);
+
+    MyPageDetailReviewResponse getMyPageDetailReview(Long reviewId, Long userId);
 }

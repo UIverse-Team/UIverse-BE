@@ -6,9 +6,7 @@ import jakarta.persistence.LockModeType;
 import kotlin.OptIn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -42,11 +40,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Review r join fetch r.user u join fetch r.product p where r.id = :id")
     Optional<Review> findByIdWithLock(@Param("id") Long reviewId);
+
+    Optional<Review> findByIdAndUserId(Long reviewId, Long userId);
+
     /**
      * 사용 보류
      */
     @Query("select r from Review r join fetch r.user where r.id = :reviewId")
     Optional<Review> findByReviewIdWithUser(@Param("reviewId") Long reviewId);
+    @Modifying
     @Query("update Review r set r.deleteStatus = true where r.id = :id and r.user.id = :userId and r.deleteStatus = false")
     int deleteReviewAtomic(@Param("id") Long reviewId, @Param("userId") Long userId);
 

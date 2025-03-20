@@ -1,6 +1,7 @@
 package com.jishop.review;
 
 import com.jishop.review.domain.Review;
+import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
@@ -64,6 +65,22 @@ public class reviewRepositoryTest {
         );
         //when
         System.out.println(review.getProductSummary());
+        //then
+
+    }
+
+    @Test
+    @DisplayName("리뷰 아이디, 유저 아이디로 가져오는 레포 테스트")
+    void getuserIdandreviewIdReview() throws Exception {
+        // given
+        MyPageReviewResponse myPageReviewResponse = reviewRepository.findByIdAndUserId(7L, 3L).map(MyPageReviewResponse::from).orElseThrow(
+                () -> new IllegalStateException("sdfkj")
+        );
+
+        System.out.println(myPageReviewResponse);
+
+        //when
+
         //then
 
     }
