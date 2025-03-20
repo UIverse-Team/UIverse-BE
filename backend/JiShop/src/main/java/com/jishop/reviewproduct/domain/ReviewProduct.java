@@ -31,8 +31,14 @@ public class ReviewProduct extends BaseEntity {
         this.reviewScore = reviewScore;
     }
 
-    public void updateRating(int rating) {
+    public void increaseRating(int rating) {
         reviewCount++;
         reviewScore += rating;
+    }
+
+    public void decreaseRating(int rating) {
+        reviewCount--;
+        reviewScore -= rating;
+
     }
 }
