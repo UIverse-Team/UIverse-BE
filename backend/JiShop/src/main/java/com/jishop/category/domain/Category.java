@@ -10,14 +10,15 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "category")
+@Table(name = "category", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_category_current_id", columnNames = "current_id")})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseEntity {
 
     @OneToMany(mappedBy = "category")
     private final List<Product> products = new ArrayList<>();
 
-    @Setter // parent 넣으려고 넣어줬다.
+    @Setter // parent 삽입을 위한 setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", referencedColumnName = "current_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
     private Category parent;

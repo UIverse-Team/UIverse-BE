@@ -27,7 +27,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
 
         addPriceRangesFiltering(request.priceRanges(), product, builder);
         addRatingsFilter(request.ratings(), reviewProduct, product, builder);
-        addCategory(request.category(), product, builder);
+//        addCategory(request.category(), product, builder);
         addKeyword(request.keyword(), product, builder);
 
         return builder;

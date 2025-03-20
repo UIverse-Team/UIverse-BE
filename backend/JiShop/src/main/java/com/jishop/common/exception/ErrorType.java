@@ -29,6 +29,10 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보를 찾을 수 없습니다."),
 
+    // Category
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+    CATEGORY_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리에 대한 결과가 없습니다."),
+
     // ORDER
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"주문을 찾을 수 없습니다"),
     ORDER_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND,"주문상세를 찾을 수 없습니다"),
