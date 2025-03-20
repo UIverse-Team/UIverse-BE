@@ -17,10 +17,14 @@ import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.SaleStatus;
 import com.jishop.product.repository.ProductRepository;
+import com.jishop.review.domain.Review;
 import com.jishop.review.domain.tag.Tag;
 import com.jishop.review.dto.LikerIdRequest;
 import com.jishop.review.dto.ReviewRequest;
+import com.jishop.review.repository.ReviewRepository;
 import com.jishop.review.service.ReviewService;
+import com.jishop.reviewproduct.domain.ReviewProduct;
+import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,12 +40,23 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 public class reviewServiceTest {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewProductRepository reviewProductRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -237,7 +252,7 @@ public class reviewServiceTest {
         Long userId = 2L;
 
         PageRequest pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
-        PagedModel<?> productReviews = reviewService.getProductReviewsWithUser(productId,userId, pageable);
+        PagedModel<?> productReviews = reviewService.getProductReviewsWithUser(productId, userId, pageable);
         //when
 
         //then
@@ -257,7 +272,7 @@ public class reviewServiceTest {
         Long reviewId = 1L;
 
         Long userId = 1L;
-        LikerIdRequest likerId= new LikerIdRequest(userId);
+        LikerIdRequest likerId = new LikerIdRequest(userId);
 
         reviewService.likeReview(likerId, reviewId);
         //when
@@ -280,7 +295,7 @@ public class reviewServiceTest {
         Long reviewId = 1L;
 
         Long userId = 1L;
-        LikerIdRequest likerId= new LikerIdRequest(userId);
+        LikerIdRequest likerId = new LikerIdRequest(userId);
 
         reviewService.unlikeReview(likerId, reviewId);
         //when
@@ -295,8 +310,40 @@ public class reviewServiceTest {
         // given
         Long reviewId = 1L;
         Long userId = 1L;
-        Long productId = 3L;
-        reviewService.deleteReview(reviewId, productId, userId);
+        reviewService.deleteReview(reviewId, userId);
+
+        //when
+
+        //then
+    }
+
+    @Test
+    @DisplayName("리뷰 삭제 동시성 테스트")
+    void review_delete() throws Exception {
+        // given
+
+        int threadCount = 55; // 5개의 스레드에서 동시에 삭제 요청
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        Long userId = 2L;
+        Long reviewId = 9L;
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    reviewService.deleteReview(reviewId, userId);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await(); // 모든 스레드가 실행될 때까지 대기
+
+        executorService.shutdown();
+        ReviewProduct rp = reviewProductRepository.findByProductId(3L);
+        assertThat(rp.getReviewCount()).isEqualTo(2);
+        assertThat(rp.getReviewScore()).isEqualTo(4);
 
         //when
 

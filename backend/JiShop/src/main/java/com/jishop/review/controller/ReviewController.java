@@ -22,5 +22,5 @@ public interface ReviewController {
 
     ResponseEntity<String> updateReview(Long reviewId, Long userId, UpdateReviewRequest updateReviewRequest);
 
-    ResponseEntity<String> deleteReview(Long reviewsId, Long productId, Long userId);
+    ResponseEntity<String> deleteReview(Long reviewId, Long userId);
 }

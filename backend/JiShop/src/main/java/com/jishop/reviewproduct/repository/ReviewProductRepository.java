@@ -15,6 +15,8 @@ public interface ReviewProductRepository extends JpaRepository<ReviewProduct, Lo
 
     @Modifying
     @Query("UPDATE ReviewProduct rp SET rp.reviewScore = rp.reviewScore - :rating, rp.reviewCount = rp.reviewCount - 1 " +
-            "WHERE rp.product.id = :productId")
-    void decreaseRatingAtomic(@Param("productId") Long productId, @Param("rating") int rating);
+            "WHERE rp.product = :product")
+    void decreaseRatingAtomic(@Param("product") Product product, @Param("rating") int rating);
+
+    ReviewProduct findByProductId(Long productId);
 }

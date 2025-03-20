@@ -1,9 +1,13 @@
 package com.jishop.review.repository;
 
+import com.jishop.member.domain.User;
 import com.jishop.review.domain.Review;
+import jakarta.persistence.LockModeType;
+import kotlin.OptIn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,8 +22,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r.orderDetail.id FROM Review r WHERE r.orderDetail.id IN :orderDetailIds")
     List<Long> findOrderDetailIdsWithReviews(List<Long> orderDetailIds);
 
-    @Query("select r from Review r join fetch r.user where r.id = :reviewId")
-    Optional<Review> findByReviewIdWithUser(@Param("reviewId") Long reviewId);
 
     @Query("select r from Review r join fetch r.user where r.product.id = :id and r.deleteStatus = false")
     Page<Review> findByProductIdWithUser(@Param("id") Long productId, Pageable pageable);
@@ -36,4 +38,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("select r from Review r where r.id = :reviewId and r.user.id = :userId")
     Optional<Review> findByReviewIdAndUserId(@Param("reviewId") Long reviewId, @Param("userId") Long userId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Review r join fetch r.user u join fetch r.product p where r.id = :id")
+    Optional<Review> findByIdWithLock(@Param("id") Long reviewId);
+    /**
+     * 사용 보류
+     */
+    @Query("select r from Review r join fetch r.user where r.id = :reviewId")
+    Optional<Review> findByReviewIdWithUser(@Param("reviewId") Long reviewId);
+    @Query("update Review r set r.deleteStatus = true where r.id = :id and r.user.id = :userId and r.deleteStatus = false")
+    int deleteReviewAtomic(@Param("id") Long reviewId, @Param("userId") Long userId);
+
 }

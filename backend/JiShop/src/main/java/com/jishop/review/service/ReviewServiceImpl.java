@@ -156,6 +156,7 @@ public class ReviewServiceImpl implements ReviewService {
         //todo:
         // 1. 쿼리 개선
         // 2. 동시성 락 걸기 개선 해야함..
+        // 3. 레디스 고려.
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
@@ -185,21 +186,30 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReview(Long reviewId, Long productId, Long userId) {
+    public void deleteReview(Long reviewId, Long userId) {
         //todo:
         // 1. 이미 삭제한 리뷰인지 확인.
         // 2. 상품 리뷰가 상품이 삭제 되었는지 확인해야 되나?
         // 3. 리뷰 삭제 동시성 처리 어떻게 해주냐?? -> 단순하게 update해준다.
         // 4. 동시성 문제 - 같은 유저가 리뷰에 동시 2번 이상 눌렀을때 생각..
-        Review review = reviewRepository.findByReviewIdAndUserId(reviewId, userId).orElseThrow(
-                () -> new DomainException(ErrorType.MATCH_NOT_USER)
+        // 5. 비관락 적용
+
+        Review review = reviewRepository.findByIdWithLock(reviewId).orElseThrow(
+                () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
         );
+
+        if(!review.getUser().getId().equals(userId)) {
+            throw new DomainException(ErrorType.MATCH_NOT_USER);
+        }
 
         if(review.isDeleteStatus()){
             throw new DomainException(ErrorType.DATA_ALREADY_DELETED);
-        }
 
-        reviewProductRepository.decreaseRatingAtomic(productId, review.getRating());
+        }
+        Product product = review.getProduct();
+
+        reviewProductRepository.decreaseRatingAtomic(product, review.getRating());
         review.delete();
+        reviewRepository.save(review);
     }
 }

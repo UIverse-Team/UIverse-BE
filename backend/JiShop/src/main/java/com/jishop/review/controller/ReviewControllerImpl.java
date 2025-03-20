@@ -86,13 +86,12 @@ public class ReviewControllerImpl implements ReviewController {
     }
 
     @Override
-    @PatchMapping("/{reviewId}/products/{prodcutId}/delete")
+    @PatchMapping("/{reviewId}/delete")
     public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
-                                               @PathVariable("productId") Long prodcutId,
                                                //사용자 아이디
                                                @RequestParam("userId") Long userId) {
 
-        reviewService.deleteReview(reviewId, prodcutId, userId);
+        reviewService.deleteReview(reviewId, userId);
 
         return ResponseEntity.ok("리뷰 삭제 - 성공");
     }
