@@ -4,6 +4,7 @@ import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 
 public record ProductResponse(
+
         String name,
         Labels labels,
         String description,
@@ -17,7 +18,6 @@ public record ProductResponse(
         Object isWished
 ) {
     public static ProductResponse from(Product product, Boolean isWished) {
-
         Object wishStatus = isWished != null && isWished ? true : new String[0];
 
         return new ProductResponse(

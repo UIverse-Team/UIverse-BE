@@ -22,12 +22,11 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
 
     @Override
     public BooleanBuilder findProductsByCondition(ProductRequest request, QProduct product, QReviewProduct reviewProduct) {
-
         BooleanBuilder builder = new BooleanBuilder();
 
         addPriceRangesFiltering(request.priceRanges(), product, builder);
         addRatingsFilter(request.ratings(), reviewProduct, product, builder);
-        addCategory(request.category(), product, builder);
+//        addCategory(request.category(), product, builder);
         addKeyword(request.keyword(), product, builder);
 
         return builder;
@@ -36,13 +35,12 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
     @Override
     public List<Product> getFilteredAndSortedResults(
             BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest request) {
-
         QProduct product = QProduct.product;
 
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
                 .orderBy(orderSpecifier)
-                .offset(request.page() * request.size())
+                .offset((long) request.page() * request.size())
                 .limit(request.size())
                 .fetch();
     }
@@ -50,13 +48,13 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
     @Override
     public long countFilteredProducts(BooleanBuilder filterBuilder) {
         QProduct product = QProduct.product;
+
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
                 .fetchCount();
     }
 
     private static void addPriceRangesFiltering(List<String> priceRanges, QProduct product, BooleanBuilder builder) {
-
         BooleanBuilder priceBuilder = new BooleanBuilder();
 
         for (String range : priceRanges) {
@@ -77,7 +75,6 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
 
     private static void addRatingsFilter(
             List<Integer> ratings, QReviewProduct reviewProduct, QProduct product, BooleanBuilder builder) {
-
         if (ratings.size() != 5 ||
                 !ratings.contains(1) ||
                 !ratings.contains(2) ||

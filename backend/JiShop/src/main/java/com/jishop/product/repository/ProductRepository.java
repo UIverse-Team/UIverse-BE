@@ -23,7 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
 //            "p.name LIKE %:keyword% OR " +
 //            "p.description LIKE %:keyword%")
 //    Page<Product> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
-
     @Query("SELECT pw.productWishStatus FROM ProductWishList pw WHERE pw.user = :user AND pw.product = :product")
     Optional<Boolean> findProductWishStatusByUserAndProduct(
             @Param("user") User user,
