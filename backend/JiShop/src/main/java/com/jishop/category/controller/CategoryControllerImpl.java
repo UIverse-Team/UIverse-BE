@@ -18,6 +18,7 @@ public class CategoryControllerImpl implements CategoryController {
     public PagedModel<CategoryResponse> getProductListByCategory(
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int page) {
+        if (page < 0 || page > 100) {page = 0;}
 
         return categoryService.getProductsByCategory(categoryId, page);
     }

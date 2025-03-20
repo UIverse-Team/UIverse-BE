@@ -21,7 +21,6 @@ public class Category extends BaseEntity {
 
     @OneToMany(mappedBy = "category")
     private final List<Product> products = new ArrayList<>();
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", referencedColumnName = "current_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
     private Category parent;
@@ -52,10 +51,5 @@ public class Category extends BaseEntity {
         this.wholeCategoryId = wholeCategoryId;
         this.wholeCategoryName = wholeCategoryName;
         this.level = level;
-    }
-
-    public void addChildCategory(Category child) {
-        this.children.add(child);
-        child.setParent(this);
     }
 }
