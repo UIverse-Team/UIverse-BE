@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorType {
 
+    // COMMON
+    DATA_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 데이터 입니다."),
+    MATCH_NOT_USER(HttpStatus.NOT_FOUND,"해당 권한이 없는 유저입니다." ),
+
     // USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 존재하는 이메일 입니다."),
@@ -52,7 +56,7 @@ public enum ErrorType {
     // STORE
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스토어가 존재하지 않습니다"),
 
-    // Address
+    // Address,
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
 

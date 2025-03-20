@@ -26,6 +26,8 @@ public class OrderDetail extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private SaleProduct saleProduct;
 
+    //주문 번호
+    private String orderNumber;
     //수량
     private int quantity;
     //결제가격
@@ -40,8 +42,9 @@ public class OrderDetail extends BaseEntity {
     private double discountValue;
 
     @Builder
-    public OrderDetail(Order order, SaleProduct saleProduct, int quantity, int paymentPrice, int orderPrice, int discountPrice) {
+    public OrderDetail(Order order, String orderNumber, SaleProduct saleProduct, int quantity, int paymentPrice, int orderPrice, int discountPrice) {
         this.order = order;
+        this.orderNumber = orderNumber;
         this.saleProduct = saleProduct;
         this.quantity = quantity;
         this.paymentPrice = paymentPrice;

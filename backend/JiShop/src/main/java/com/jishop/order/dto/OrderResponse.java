@@ -3,32 +3,31 @@ package com.jishop.order.dto;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponse(
         Long id,
         String orderNumber,
-        List<OrderDetailResponse> orderDetailResponseList,
+        List<OrderProductResponse> orderProducts,
         OrderStatus orderStatus,
         int totalPrice,
-        String receiver,
-        String receiverNumber,
-        String zipCode,
-        String baseAddress,
-        String detailAddress
+        LocalDateTime createdAt,
+        int totalQuantity
 ){
-    public static OrderResponse fromOrder(Order order, List<OrderDetailResponse> orderDetailResponseList) {
+    public static OrderResponse fromOrder(Order order, List<OrderProductResponse> orderProducts) {
+        int totalQuantity = orderProducts.stream()
+                .mapToInt(OrderProductResponse::quantity)
+                .sum();
+
         return new OrderResponse(
                 order.getId(),
                 order.getOrderNumber(),
-                orderDetailResponseList,
+                orderProducts,
                 order.getStatus(),
                 order.getTotalPrice(),
-                order.getRecipient(),
-                order.getPhone(),
-                order.getZonecode(),
-                order.getAddress(),
-                order.getDetailAddress()
+                order.getCreatedAt(),
+                totalQuantity
         );
     }
 }
