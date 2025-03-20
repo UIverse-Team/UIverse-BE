@@ -6,6 +6,7 @@ import com.jishop.order.domain.OrderDetail;
 import com.jishop.product.domain.Product;
 import com.jishop.review.domain.embed.ImageUrls;
 import com.jishop.review.domain.tag.Tag;
+import com.jishop.review.dto.UpdateReviewRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -74,5 +75,11 @@ public class Review extends BaseEntity {
 
     public void decreaseLikeCount() {
        likeCount--;
+    }
+
+    public void updateReview(UpdateReviewRequest updateReviewRequest) {
+        this.content = updateReviewRequest.content();
+        this.rating = updateReviewRequest.rating();
+        this.tag = updateReviewRequest.tag();
     }
 }

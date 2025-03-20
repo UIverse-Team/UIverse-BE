@@ -16,7 +16,7 @@ public record MyPageReviewResponse(
         List<String> images,
         LocalDate createAt,
         String option,
-        String name
+        String userName
 ) {
     public static MyPageReviewResponse from(Review review) {
         User user = review.getUser();
