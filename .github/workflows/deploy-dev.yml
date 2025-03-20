@@ -2,11 +2,11 @@ name: Deploy to AWS EB
 
 # main 브랜치에 PR 병합되었을 때
 on:
-  push:
+  pull_request:
     branches:
-      - be/feat/98
-#    types:
-#      - closed
+      - develop
+    types:
+      - closed
     # 해당 파일 또는 폴더 하위 파일들이 변경되었을 때에만!!!
     paths:
       - backend/JiShop/src/**
