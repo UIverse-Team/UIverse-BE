@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/categoies")
+@RequestMapping("/categories")
 public class CategoryControllerImpl implements CategoryController {
 
     private final CategoryService categoryService;
