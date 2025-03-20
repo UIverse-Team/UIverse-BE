@@ -18,13 +18,10 @@ public class CategoryService {
 
     public PagedModel<CategoryResponse> getProductsByCategory(Long categoryId, int page) {
         Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "wishListCount"));
-        Page<Product> productResponses = categoryRepository.findProductsByTopLevelCategoryId(categoryId, pageable);
+        Page<Product> productPage = categoryRepository.findProductsByTopLevelCategoryId(categoryId, pageable);
 
-        CategoryResponse categoryResponse = CategoryResponse.from(productResponses.getContent());
-        Page<CategoryResponse> productPage = new PageImpl<>(
-                List.of(categoryResponse), pageable, productResponses.getTotalElements()
-        );
+        Page<CategoryResponse> categoryResponsePage = productPage.map(product -> CategoryResponse.from(List.of(product)));
 
-        return new PagedModel<>(productPage);
+        return new PagedModel<>(categoryResponsePage);
     }
 }
