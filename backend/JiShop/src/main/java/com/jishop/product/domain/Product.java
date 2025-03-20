@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +21,7 @@ public class Product extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     @Column(name = "mall_seq",  nullable = false)
     private String mallSeq;
@@ -34,6 +35,8 @@ public class Product extends BaseEntity {
     private int originPrice;
     @Column(name = "discount_price", nullable = false)
     private int discountPrice;
+    @Column(name = "discount_rate", nullable = false)
+    private BigDecimal discountRate;
 
     // 상품 상태
     @Column(name = "secret", nullable = false)
@@ -80,8 +83,8 @@ public class Product extends BaseEntity {
 
     @Builder
     public Product(Category category, String lCatId, String mCatId, String sCatId,
-            String mallSeq, String name, String description, int originPrice,
-            int discountPrice, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+            String mallSeq, String name, String description, int originPrice, int discountPrice,
+            BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
             DiscountStatus discountStatus, Boolean isDiscount, String brand, int wishListCount, Labels labels,
             String mainImage, String image1, String image2, String image3, String image4, String detailImage,
             int productViewCount
@@ -95,6 +98,7 @@ public class Product extends BaseEntity {
         this.description = description;
         this.originPrice = originPrice;
         this.discountPrice = discountPrice;
+        this.discountRate = discountRate;
         this.manufactureDate = manufactureDate;
         this.secret = secret;
         this.saleStatus = saleStatus;

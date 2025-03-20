@@ -15,15 +15,14 @@ import java.util.List;
 public interface OrderController {
 
     ResponseEntity<OrderResponse> create(User user, OrderRequest orderRequest);
-    ResponseEntity<List<OrderDetailResponse>> getOrder(User user, Long orderId);
+    ResponseEntity<OrderDetailPageResponse> getOrder(User user, Long orderId);
     //페이징 처리
     ResponseEntity<Page<OrderResponse>> getOrderList(User user, String period, int page, int size);
     ResponseEntity<String> cancelOrder(User user, Long orderId);
     ResponseEntity<OrderResponse> createInstantOrder(User user, InstantOrderRequest orderRequest);
     //비회원 주문
     ResponseEntity<OrderResponse> guestCreateOrder(OrderRequest orderRequest);
-    //비회원 장바구니 주문
-    ResponseEntity<List<OrderDetailResponse>> getOrderDetail(String orderNumber, String phone);
+    ResponseEntity<OrderDetailPageResponse> getOrderDetail(String orderNumber, String phone);
     //비회원 바로 주문
     ResponseEntity<OrderResponse> guestCreateInstantOrder(InstantOrderRequest orderRequest);
     ResponseEntity<String> cancelGuestOrder(String orderNumber, String phone);

@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -84,7 +83,7 @@ public class ReviewServiceImpl implements ReviewService {
                     return reviewProductRepository.save(newReviewProduct);
                 });
 
-        reviewProduct.updateRating(reviewRequest.rating());
+        reviewProduct.increaseRating(reviewRequest.rating());
 
         // 리뷰 저장
         Review review = reviewRepository.save(reviewRequest.toEntity(images, product, orderDetail, user, productSummary));
@@ -128,6 +127,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public MyPageDetailReviewResponse getMyPageDetailReview(Long reviewId, Long userId) {
+        return reviewRepository
+                .findByIdAndUserId(reviewId, userId)
+                .map(MyPageDetailReviewResponse::from)
+                .orElseThrow(() -> new DomainException(ErrorType.REVIEW_NOT_FOUND));
+    }
+
+    @Override
     public void likeReview(LikerIdRequest likerIdRequest, Long reviewId) {
 
         //todo:
@@ -156,7 +163,8 @@ public class ReviewServiceImpl implements ReviewService {
     public void unlikeReview(LikerIdRequest likerIdRequest, Long reviewId) {
         //todo:
         // 1. 쿼리 개선
-        // 2. 동시성 락 걸기
+        // 2. 동시성 락 걸기 개선 해야함..
+        // 3. 레디스 고려.
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
@@ -170,27 +178,46 @@ public class ReviewServiceImpl implements ReviewService {
          * 이미 없는 값을 삭제하려고 한다면 에러를 터트려야할까??
          */
         int flag = likeReviewRepository.deleteByReviewAndUser(review, user);
-        if(flag == 1) {
+        if (flag == 1) {
             review.decreaseLikeCount();
         }
     }
 
     @Override
-    public void updateReview(Long reviewId, Long userId, ReviewRequest reviewRequest) {
+    public void updateReview(Long reviewId, Long userId, UpdateReviewRequest updateReviewRequest) {
 
-        Review review = reviewRepository.findByReviewIdWithUser(reviewId).orElseThrow(
-                () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
+        Review review = reviewRepository.findByReviewIdAndUserId(reviewId, userId).orElseThrow(
+                () -> new DomainException(ErrorType.MATCH_NOT_USER)
         );
 
-        if (!Objects.equals(review.getUser().getId(), userId)) {
-            log.warn("작성한 리뷰와 사용자가 다릅니다.");
-            throw new DomainException(ErrorType.REVIEW_NOT_FOUND);
-        }
+        review.updateReview(updateReviewRequest);
     }
 
     @Override
-    public void deleteReview(Long reviewId) {
+    public void deleteReview(Long reviewId, Long userId) {
+        //todo:
+        // 1. 이미 삭제한 리뷰인지 확인.
+        // 2. 상품 리뷰가 상품이 삭제 되었는지 확인해야 되나?
+        // 3. 리뷰 삭제 동시성 처리 어떻게 해주냐?? -> 단순하게 update해준다.
+        // 4. 동시성 문제 - 같은 유저가 리뷰에 동시 2번 이상 눌렀을때 생각..
+        // 5. 비관락 적용
 
+        Review review = reviewRepository.findByIdWithLock(reviewId).orElseThrow(
+                () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
+        );
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw new DomainException(ErrorType.MATCH_NOT_USER);
+        }
+
+        if (review.isDeleteStatus()) {
+            throw new DomainException(ErrorType.DATA_ALREADY_DELETED);
+
+        }
+        Product product = review.getProduct();
+
+        reviewProductRepository.decreaseRatingAtomic(product, review.getRating());
+        review.delete();
+        reviewRepository.save(review);
     }
-
 }

@@ -39,8 +39,8 @@ public class OrderControllerImpl implements OrderController {
     //주문 내역 단건 조회
     @Override
     @GetMapping("/{orderId}")
-    public ResponseEntity<List<OrderDetailResponse>> getOrder(@CurrentUser User user, @PathVariable Long orderId){
-        List<OrderDetailResponse> orderDetailResponse = orderService.getOrder(user, orderId);
+    public ResponseEntity<OrderDetailPageResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
+        OrderDetailPageResponse orderDetailResponse = orderService.getOrder(user, orderId);
 
         return ResponseEntity.ok(orderDetailResponse);
     }
@@ -89,9 +89,9 @@ public class OrderControllerImpl implements OrderController {
     //비회원 주문 조회하기
     @Override
     @GetMapping("/guest/{orderNumber}")
-    public ResponseEntity<List<OrderDetailResponse>> getOrderDetail(@PathVariable String orderNumber,
+    public ResponseEntity<OrderDetailPageResponse> getOrderDetail(@PathVariable String orderNumber,
                                                                     @RequestParam String phone) {
-        List<OrderDetailResponse> orderDetailList = orderService.getGuestOrder(orderNumber, phone);
+        OrderDetailPageResponse orderDetailList = orderService.getGuestOrder(orderNumber, phone);
 
         return ResponseEntity.ok(orderDetailList);
     }
