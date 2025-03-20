@@ -1,5 +1,6 @@
 package com.jishop.member.service;
 
+import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.RecoveryPWRequest;
 import com.jishop.member.dto.request.SignInFormRequest;
 import com.jishop.member.dto.request.UserNameRequest;
@@ -11,8 +12,9 @@ public interface AuthService {
 
     void signIn(SignInFormRequest form, HttpSession session);
     String loginStr(Long userId);
-    void recoveryPW(Long userId, RecoveryPWRequest request);
-    UserResponse getUser(Long userId);
-    void updateUserName(Long userId, UserNameRequest request);
-    void updatePhone(Long userId, UserPhoneRequest request);
+    void recoveryPW(User user, RecoveryPWRequest request);
+    UserResponse getUser(User user);
+    void updateUserName(User user, UserNameRequest request);
+    void updatePhone(User user, UserPhoneRequest request);
+    void deleteUser(User user);
 }

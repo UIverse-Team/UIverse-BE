@@ -1,6 +1,8 @@
 package com.jishop.member.controller.impl;
 
+import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.controller.UserController;
+import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
 import com.jishop.member.dto.response.UserIdResponse;
@@ -21,30 +23,28 @@ public class UserControllerImpl implements UserController {
     private final AuthService authService;
 
     @PostMapping("/recoveryid")
-    public FindUserResponse findUser(@RequestBody @Validated FindUserRequest request){
+    public FindUserResponse findUser(@RequestBody @Validated FindUserRequest request) {
         return userService.findUser(request);
     }
 
     @PostMapping("/finduser")
-    public UserIdResponse emailUser(@RequestBody @Validated EmailRequest request){
+    public UserIdResponse emailUser(@RequestBody @Validated EmailRequest request) {
         return userService.findUserId(request);
     }
 
     @PatchMapping("/recoverypw")
-    public ResponseEntity<String> recoverypw(@RequestBody @Validated RecoveryPWRequest request){
-        Long userid = 1l;
-        authService.recoveryPW(userid, request);
+    public ResponseEntity<String> recoverypw(@CurrentUser User user, @RequestBody @Validated RecoveryPWRequest request) {
+        authService.recoveryPW(user, request);
 
         return ResponseEntity.ok().body("비밀번호 뱐경완료!");
     }
 
-    /** todo: 회원 정보 조회
+    /**
+     * todo: 회원 정보 조회
      *  추후 수정 필요
      */
     @GetMapping()
-    public UserResponse getUser(){
-        long user = 1L;
-
+    public UserResponse getUser(@CurrentUser User user) {
         return authService.getUser(user);
     }
 
@@ -53,20 +53,22 @@ public class UserControllerImpl implements UserController {
      * 이름, 전화번호
      */
     @PatchMapping("/name")
-    public ResponseEntity<String> updateUserName(Long userId, @RequestBody @Validated UserNameRequest request) {
-        long user = 1L;
+    public ResponseEntity<String> updateUserName(@CurrentUser User user, @RequestBody @Validated UserNameRequest request) {
         authService.updateUserName(user, request);
 
         return ResponseEntity.ok("이름 변경 완료!");
     }
 
     @PatchMapping("/phone")
-    public ResponseEntity<String> updatePhone(Long userId, @RequestBody @Validated UserPhoneRequest request) {
-        long user = 1L;
+    public ResponseEntity<String> updatePhone(@CurrentUser User user, @RequestBody @Validated UserPhoneRequest request) {
         authService.updatePhone(user, request);
 
         return ResponseEntity.ok("번호 변경 완료!");
     }
 
-    // todo: 회원 주소 추가?
+    @PostMapping("/deleteId")
+    public ResponseEntity<String> deleteUser(@CurrentUser User user) {
+        authService.deleteUser(user);
+        return ResponseEntity.ok("탈퇴 처리 완료!");
+    }
 }

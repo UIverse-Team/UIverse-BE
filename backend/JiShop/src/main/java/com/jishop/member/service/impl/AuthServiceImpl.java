@@ -32,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
         if(!passwordEncoder.matches(form.password(), user.getPassword())) {
             throw new DomainException(ErrorType.USER_NOT_FOUND);
         }
+        if(user.isDeleteStatus()) throw new DomainException(ErrorType.USER_NOT_FOUND);
 
         session.setAttribute("userId", user.getId());
     };
@@ -48,40 +49,32 @@ public class AuthServiceImpl implements AuthService {
      *  추후 변경 필요 user 필요
      * @param request
      */
-    public void recoveryPW(Long userId, RecoveryPWRequest request){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
+    public void recoveryPW(User user, RecoveryPWRequest request){
         if(passwordEncoder.matches(request.password(), user.getPassword())){
             throw new DomainException(ErrorType.PASSWORD_EXISTS);
         }
+
         String password = passwordEncoder.encode(request.password());
         user.updatePassword(password);
     }
 
     // todo: 회원 정보 조회
-    public UserResponse getUser(Long id){
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
+    public UserResponse getUser(User user){
         return UserResponse.from(user);
     }
 
     // todo: 회원 정보 수정 (이름, 전화번호)
-    public void updateUserName(Long id, UserNameRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+    public void updateUserName(User user, UserNameRequest request) {
         user.updateName(request.name());
     }
 
-    public void updatePhone(Long id, UserPhoneRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+    public void updatePhone(User user, UserPhoneRequest request) {
         user.updatePhone(request.phone());
     }
 
-
-    // todo: 회원 주소 추가?
-
+    @Override
+    public void deleteUser(User user) {
+        user.delete();
+    }
 }
 
