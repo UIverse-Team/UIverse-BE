@@ -15,7 +15,7 @@ import java.util.List;
 public class Category extends BaseEntity {
 
     @OneToMany(mappedBy = "category")
-    private List<Product> products = new ArrayList<>();
+    private final List<Product> products = new ArrayList<>();
 
     @Setter // parent 넣으려고 넣어줬다.
     @ManyToOne(fetch = FetchType.LAZY)

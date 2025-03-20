@@ -4,6 +4,7 @@ import com.jishop.member.dto.request.EmailRequest;
 
 public interface EmailCertificationService {
 
-    String sendCerificationCode(EmailRequest request);
-    boolean certifyCode(String token, String request);
+    String sendCertificationCodeForSignup(EmailRequest request);
+    String sendCertificationCodeForPasswordReset(EmailRequest request);
+    boolean certifyCode(String token, String code);
 }

@@ -5,8 +5,11 @@ public record OrderDetailResponse(
         Long saleProductId,
         String productName,
         String optionValue,
-        int price,
+        int paymentPrice,
+        int orderPrice,
+        int discountPrice,
         int quantity,
-        int totalPrice
+        int totalPrice,
+        boolean canReview
 ) {
 }

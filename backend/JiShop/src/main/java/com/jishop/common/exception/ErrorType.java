@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorType {
 
+    // COMMON
+    DATA_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 데이터 입니다."),
+    MATCH_NOT_USER(HttpStatus.NOT_FOUND,"해당 권한이 없는 유저입니다." ),
+
     // USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 존재하는 이메일 입니다."),
@@ -36,11 +40,21 @@ public enum ErrorType {
     ORDER_ALREADY_CONFIRMED(HttpStatus.BAD_REQUEST,"이미 구매 확정된 주문입니다."),
     ORDER_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "주문이 이미 취소되었습니다."),
 
+    //CART
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니 상품을 찾을 수 없습니다."),
+
     // VALIDATION
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "값을 잘못 입력했습니다."),
 
     // STOCK
-    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다");
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
+
+    // STORE
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스토어가 존재하지 않습니다"),
+
+    // Address,
+    DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

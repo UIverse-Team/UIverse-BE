@@ -38,6 +38,13 @@ dependencies {
     // org.json (JSONObject 사용을 위한 의존성)
 	implementation 'org.json:json:20220924'
 
+
+	// Querydsl
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
 	//coolSMS 사용을 위한 의존성
 	implementation 'net.nurigo:sdk:4.3.0'
 	implementation 'net.nurigo:javaSDK:2.2'
@@ -70,6 +77,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.session:spring-session-data-redis'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// Logstash를 위한 logstash-logback-encoder
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
 }
 
 // naver 구현 요청을 위한 의존성 주입

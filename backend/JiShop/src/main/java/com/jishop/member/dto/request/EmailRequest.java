@@ -1,10 +1,14 @@
 package com.jishop.member.dto.request;
 
 import com.jishop.member.domain.EmailCertification;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
 public record EmailRequest(
+        @Email
+        @NotBlank
         String email
 ) {
     public EmailCertification toEntity(String token, String cerfitication){
