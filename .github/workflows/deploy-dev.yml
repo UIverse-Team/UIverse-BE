@@ -46,7 +46,9 @@ jobs:
         id: current-time
         with:
           format: YYYY-MM-DDTHH-mm-ss
-          utcOffset: "+09:00- name: Show Current Time
+          utcOffset: "+09:00"
+
+      - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
       # EB에 CD 하기 위해 추가 작성
