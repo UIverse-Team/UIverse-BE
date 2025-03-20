@@ -38,7 +38,7 @@ public class AddressControllerImpl implements AddressController {
     }
 
     // todo: 배송지 변경
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<String> updateAddress(@CurrentUser User user, @PathVariable Long id,
                                                 @RequestBody @Validated AddressRequest request) {
         addressService.updateAddress(user, id, request);

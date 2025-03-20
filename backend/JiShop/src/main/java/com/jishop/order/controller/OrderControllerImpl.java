@@ -121,6 +121,7 @@ public class OrderControllerImpl implements OrderController {
     public ResponseEntity<AddressResponse> getDefaultAddress(@CurrentUser User user) {
         return addressRepository.findDefaultAddressByUser(user)
                 .map(address -> new AddressResponse(
+                        address.getId(),
                         address.getRecipient(),
                         address.getPhone(),
                         address.getZonecode(),

@@ -50,7 +50,8 @@ public enum ErrorType {
 
     // Address
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
-    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다."),
+    DEFAULT_ADDRESS_REQUIRED(HttpStatus.NOT_FOUND, "기본 배송지가 꼭 필요합니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
