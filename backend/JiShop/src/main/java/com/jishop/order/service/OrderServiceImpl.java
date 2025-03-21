@@ -1,7 +1,5 @@
 package com.jishop.order.service;
 
-import com.jishop.address.domain.Address;
-import com.jishop.address.dto.AddressRequest;
 import com.jishop.address.repository.AddressRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -55,7 +53,10 @@ public class OrderServiceImpl implements OrderService {
 
         //주문(Order)에 detail, 총 금액 업데이트
         int totalPrice = calculateTotalPrice(orderDetails);
-        order.updateOrderInfo(totalPrice, orderDetails, order.getOrderNumber());
+        int totalDiscount = calculateDiscountPrice(orderDetails);
+        int totalPayment = calculatePaymentPrice(orderDetails);
+
+        order.updateOrderInfo(totalPrice, totalDiscount, totalPayment, orderDetails, order.getOrderNumber());
         orderRepository.save(order);
 
         //Response 반환
@@ -100,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
         return createOrderDetailPageResponse(order, user);
     }
 
-    //회원 주문 조회
+    //비회원 주문 조회
     @Override
     @Transactional
     public OrderDetailPageResponse getGuestOrder(String orderNumber, String phone) {
@@ -179,6 +180,30 @@ public class OrderServiceImpl implements OrderService {
         processCancellation(order);
     }
 
+    //회원,비회원 주문 취소 상세 페이지
+    @Override
+    public OrderCancelResponse getCancelPage(User user, Long orderId) {
+        Order order;
+
+        if(user != null){
+            order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        } else {
+            order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        }
+
+        OrderDetailPageResponse pageResponse = createOrderDetailPageResponse(order, user);
+
+        return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
+    }
+
+    @Override
+    public OrderCancelResponse cancelGuestOrder(Long orderId) {
+        return getCancelPage(null, orderId);
+    }
+
+
     private Order createOrderEntity(User user, OrderRequest orderRequest) {
         String orderNumber = generateOrderNumber();
 
@@ -251,6 +276,19 @@ public class OrderServiceImpl implements OrderService {
 
     private int calculateTotalPrice(List<OrderDetail> orderDetails) {
         return orderDetails.stream()
+                .mapToInt(detail -> detail.getOrderPrice()
+                        * detail.getQuantity())
+                .sum();
+    }
+
+    private int calculateDiscountPrice(List<OrderDetail> orderDetails){
+        return orderDetails.stream()
+                .mapToInt(detail -> detail.getDiscountPrice() * detail.getQuantity())
+                .sum();
+    }
+
+    private int calculatePaymentPrice(List<OrderDetail> orderDetails) {
+        return orderDetails.stream()
                 .mapToInt(detail -> detail.getPaymentPrice() * detail.getQuantity())
                 .sum();
     }
@@ -296,9 +334,12 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
         return new OrderDetailPageResponse(
+                order.getId(),
                 order.getOrderNumber(),
                 order.getStatus(),
                 order.getTotalPrice(),
+                order.getDiscountPrice(),
+                order.getPaymentPrice(),
                 order.getCreatedAt(),
                 order.getRecipient(),
                 order.getPhone(),
@@ -321,7 +362,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Update order status
-        order.updateStatus(OrderStatus.ORDER_CANCELED);
+        order.updateStatus(OrderStatus.ORDER_CANCELED, LocalDateTime.now());
         order.delete();
     }
 

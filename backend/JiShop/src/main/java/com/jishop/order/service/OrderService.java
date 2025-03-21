@@ -1,14 +1,8 @@
 package com.jishop.order.service;
 
-import com.jishop.address.domain.Address;
-import com.jishop.address.dto.AddressResponse;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 public interface OrderService {
 
@@ -22,4 +16,6 @@ public interface OrderService {
     OrderDetailPageResponse getGuestOrder(String orderNumber, String phoneNumber);
     OrderResponse createGuestInstantOrder(InstantOrderRequest orderRequest);
     void cancelGuestOrder(String orderNumber, String phoneNumber);
+    OrderCancelResponse getCancelPage(User user, Long orderId);
+    OrderCancelResponse cancelGuestOrder(Long orderId);
 }

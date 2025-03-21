@@ -1,6 +1,5 @@
 package com.jishop.order.controller;
 
-import com.jishop.address.domain.Address;
 import com.jishop.address.dto.AddressResponse;
 import com.jishop.address.repository.AddressRepository;
 import com.jishop.common.exception.DomainException;
@@ -15,9 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/orders")
@@ -29,10 +25,15 @@ public class OrderControllerImpl implements OrderController {
     //주문 생성
     @Override
     @PostMapping
-    public ResponseEntity<OrderResponse> create(@CurrentUser User user,
+    public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
                                     @Valid @RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
 
+        OrderResponse orderResponse;
+        if(user != null){
+            orderResponse = orderService.createOrder(user, orderRequest);
+        } else {
+            orderResponse = orderService.createGuestOrder(orderRequest);
+        }
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -72,37 +73,25 @@ public class OrderControllerImpl implements OrderController {
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid InstantOrderRequest orderRequest) {
 
-        OrderResponse orderResponse = orderService.createInstantOrder(user, orderRequest);
+        OrderResponse orderResponse;
+
+        if(user != null){
+            orderResponse = orderService.createInstantOrder(user, orderRequest);
+        } else {
+            orderResponse = orderService.createGuestInstantOrder(orderRequest);
+        }
 
         return ResponseEntity.ok(orderResponse);
-    }
-
-    //비회원 구매하기
-    @Override
-    @PostMapping("/guest")
-    public ResponseEntity<OrderResponse> guestCreateOrder(@Valid @RequestBody OrderRequest orderRequest) {
-        OrderResponse response = orderService.createGuestOrder(orderRequest);
-
-        return ResponseEntity.ok(response);
     }
 
     //비회원 주문 조회하기
     @Override
     @GetMapping("/guest/{orderNumber}")
-    public ResponseEntity<OrderDetailPageResponse> getOrderDetail(@PathVariable String orderNumber,
+    public ResponseEntity<OrderDetailPageResponse> getGuestOrderDetail(@PathVariable String orderNumber,
                                                                     @RequestParam String phone) {
         OrderDetailPageResponse orderDetailList = orderService.getGuestOrder(orderNumber, phone);
 
         return ResponseEntity.ok(orderDetailList);
-    }
-
-    //비회원 바로 주문하기
-    @Override
-    @PostMapping("/guest/instant")
-    public ResponseEntity<OrderResponse> guestCreateInstantOrder(@RequestBody @Valid InstantOrderRequest orderRequest) {
-        OrderResponse response = orderService.createGuestInstantOrder(orderRequest);
-
-        return ResponseEntity.ok(response);
     }
 
     //비회원 주문 취소하기
@@ -113,6 +102,15 @@ public class OrderControllerImpl implements OrderController {
         orderService.cancelGuestOrder(orderNumber, phone);
 
         return ResponseEntity.ok("주문이 취소되었습니다.");
+    }
+
+    //주문 취소 페이지
+    @Override
+    @GetMapping("/getCancel/{orderId}")
+    public ResponseEntity<OrderCancelResponse> getOrderCancel(@CurrentUser User user, @PathVariable Long orderId) {
+        OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId);
+
+        return ResponseEntity.ok(orderCancelResponse);
     }
 
 

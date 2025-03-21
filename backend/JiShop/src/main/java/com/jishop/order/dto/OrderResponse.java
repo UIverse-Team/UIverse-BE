@@ -25,7 +25,7 @@ public record OrderResponse(
                 order.getOrderNumber(),
                 orderProducts,
                 order.getStatus(),
-                order.getTotalPrice(),
+                order.getPaymentPrice(),
                 order.getCreatedAt(),
                 totalQuantity
         );

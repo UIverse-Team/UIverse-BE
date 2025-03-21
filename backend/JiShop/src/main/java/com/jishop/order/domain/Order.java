@@ -1,14 +1,15 @@
 package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
-import com.jishop.member.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,6 +29,12 @@ public class Order extends BaseEntity {
 
     //총 주문 금액
     private int totalPrice;
+
+    //총 할인 금액
+    private int discountPrice;
+
+    //총 결제 금액 (총 주문 금액 - 총 할인 금액)
+    private int paymentPrice;
 
     //수령인
     @Column(nullable = false)
@@ -55,13 +62,16 @@ public class Order extends BaseEntity {
     @Column(unique = true)
     private String orderNumber;
 
-    public void updateStatus(OrderStatus status) {
+    public void updateStatus(OrderStatus status, LocalDateTime time) {
         this.status = status;
+        this.setUpdatedAt(time);
     }
 
     // 주문 정보 업데이트 메서드
-    public void updateOrderInfo(int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
+    public void updateOrderInfo(int totalPrice, int totalDiscountPrice, int totalPaymentPrice, List<OrderDetail> orderDetails, String orderNumber) {
         this.totalPrice = totalPrice;
+        this.discountPrice = totalDiscountPrice;
+        this.paymentPrice = totalPaymentPrice;
         this.orderDetails = orderDetails;
         this.orderNumber = orderNumber;
     }

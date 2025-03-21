@@ -1,9 +1,11 @@
 package com.jishop.order.repository;
 
 import com.jishop.order.domain.Order;
+import com.jishop.order.domain.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -52,5 +54,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     boolean existsByOrderNumber(String orderNumber);
 
+    Optional<Order> findById(Long orderId);
+
     Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);
+
+    //스케쥴러를 위한 쿼리
+    @Modifying
+    @Query("UPDATE Order o SET o.status = :newStatus " +
+            "WHERE o.status = :currentStatus " +
+            "AND o.createdAt <= :cutoff " +
+            "AND o.status <> 'DELIVERED'")
+    int bulkUpdateStatus(@Param("currentStatus") OrderStatus currentStatus,
+                         @Param("newStatus") OrderStatus newStatus,
+                         @Param("cutoff") LocalDateTime cutoff);
 }
