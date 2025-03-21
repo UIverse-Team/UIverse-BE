@@ -2,8 +2,8 @@ package com.jishop.product.controller;
 
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
-import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +33,11 @@ public class ProductControllerImpl implements ProductController {
     @GetMapping("/{id}")
     public ProductResponse getProduct(@CurrentUser User user,  @PathVariable Long id) {
         return productService.getProduct(user, id);
+    }
+
+    @Override
+    @GetMapping("/popular")
+    public List<ProductListResponse> getProductByWishTopTen() {
+        return productService.getProductByWishTopTen();
     }
 }

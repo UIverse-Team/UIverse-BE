@@ -5,12 +5,13 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.QProduct;
-import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.implementation.ProductQueryHelper;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.product.repository.ProductRepositoryQueryDsl;
+import com.jishop.productwishlist.repository.ProductWishListRepository;
 import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
@@ -37,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
     private final ReviewProductRepository reviewProductRepository;
     private final ProductQueryHelper productQueryHelper;
     private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
+    private final ProductWishListRepository productWishListRepository;
 
     @Override
     public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest) {
@@ -80,6 +82,13 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return ProductResponse.from(product, isWished, reviewCount, reviewRate);
+    }
+
+    @Override
+    public List<ProductListResponse> getProductByWishTopTen() {
+        List<Product> products = productWishListRepository.getProductByWishTopTen();
+
+        return products.stream().map(ProductListResponse::from).collect(Collectors.toList());
     }
 
     private OrderSpecifier<?> addSorting(String sort, QProduct product) {
