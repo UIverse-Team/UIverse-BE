@@ -23,8 +23,8 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductListResponse> getProductList(@Validated ProductRequest request) {
-        return productService.getProductList(request);
+    public PagedModel<ProductListResponse> getProductList(@Validated ProductRequest productRequest) {
+        return productService.getProductList(productRequest);
     }
 
     @Override

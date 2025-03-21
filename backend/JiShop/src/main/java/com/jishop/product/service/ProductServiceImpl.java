@@ -8,8 +8,12 @@ import com.jishop.product.domain.QProduct;
 import com.jishop.product.dto.ProductListResponse;
 import com.jishop.product.dto.ProductRequest;
 import com.jishop.product.dto.ProductResponse;
+import com.jishop.product.implementation.ProductQueryHelper;
 import com.jishop.product.repository.ProductRepository;
+import com.jishop.product.repository.ProductRepositoryQueryDsl;
 import com.jishop.reviewproduct.domain.QReviewProduct;
+import com.jishop.reviewproduct.domain.ReviewProduct;
+import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import lombok.RequiredArgsConstructor;
@@ -30,22 +34,26 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ReviewProductRepository reviewProductRepository;
+    private final ProductQueryHelper productQueryHelper;
+    private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
 
     @Override
-    public PagedModel<ProductListResponse> getProductList(ProductRequest request) {
-        BooleanBuilder filterBuilder = productRepository
-                .findProductsByCondition(request, QProduct.product, QReviewProduct.reviewProduct);
+    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest) {
+        BooleanBuilder filterBuilder = productQueryHelper
+                .findProductsByCondition(productRequest, QProduct.product, QReviewProduct.reviewProduct);
 
-        OrderSpecifier<?> orderSpecifier = addSorting(request.sort(), QProduct.product);
+        OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), QProduct.product);
 
-        List<Product> results = productRepository.getFilteredAndSortedResults(filterBuilder, orderSpecifier, request);
+        List<Product> results = productRepositoryQueryDsl
+                .getFilteredAndSortedResults(filterBuilder, orderSpecifier, productRequest);
 
         List<ProductListResponse> productList = results.stream()
                 .map(ProductListResponse::from).collect(Collectors.toList());
 
-        long totalCount = productRepository.countFilteredProducts(filterBuilder);
+        long totalCount = productRepositoryQueryDsl.countFilteredProducts(filterBuilder);
 
-        Pageable pageable = PageRequest.of(request.page(), request.size());
+        Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size());
         Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);
@@ -61,7 +69,19 @@ public class ProductServiceImpl implements ProductService {
             isWished = productRepository.findProductWishStatusByUserAndProduct(user, product).orElse(false);
         }
 
-        return ProductResponse.from(product, isWished);
+        ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
+
+        int reviewCount = 0;
+        int reviewRate = 0;
+
+        if (reviewProduct != null) {
+            reviewCount = reviewProduct.getReviewCount();
+            if (reviewCount > 0) {
+                reviewRate = reviewProduct.getReviewScore() / reviewCount;
+            }
+        }
+
+        return ProductResponse.from(product, isWished, reviewCount, reviewRate);
     }
 
     private OrderSpecifier<?> addSorting(String sort, QProduct product) {
