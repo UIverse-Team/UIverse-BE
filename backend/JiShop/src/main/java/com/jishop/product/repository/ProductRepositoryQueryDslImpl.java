@@ -20,13 +20,13 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
 
     @Override
     public List<Product> getFilteredAndSortedResults(
-            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest productRequest) {
+            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest productRequest, int page, int size) {
 
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
                 .orderBy(orderSpecifier)
-                .offset((long) productRequest.page() * productRequest.size())
-                .limit(productRequest.size())
+                .offset((long) page * size)
+                .limit(size)
                 .fetch();
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 public interface ProductRepositoryQueryDsl {
 
     List<Product> getFilteredAndSortedResults(
-            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest request);
+            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest request, int page, int size);
 
     long countFilteredProducts(BooleanBuilder filterBuilder);
 }

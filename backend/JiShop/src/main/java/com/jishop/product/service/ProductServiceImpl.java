@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
         OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), QProduct.product);
 
         List<Product> results = productRepositoryQueryDsl
-                .getFilteredAndSortedResults(filterBuilder, orderSpecifier, productRequest);
+                .getFilteredAndSortedResults(filterBuilder, orderSpecifier, productRequest, page, size);
 
         List<ProductListResponse> productList = results.stream()
                 .map(ProductListResponse::from).collect(Collectors.toList());
