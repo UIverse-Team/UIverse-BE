@@ -1,5 +1,7 @@
 package com.jishop.order.controller;
 
+import com.jishop.address.dto.AddressResponse;
+import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,4 +34,6 @@ public interface OrderController {
 
     //취소 상세페이지
     ResponseEntity<OrderCancelResponse> getOrderCancel(User user, Long orderId);
+
+    ResponseEntity<AddressResponse> getDefaultAddress( User user);
 }

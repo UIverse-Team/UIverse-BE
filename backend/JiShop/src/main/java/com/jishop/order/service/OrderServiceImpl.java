@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final ReviewRepository reviewRepository;
     private final AddressRepository addressRepository;
 
-    //주문 생성
+    //주문 생성 - 통합
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
         return OrderResponse.fromOrder(order, orderProductResponses);
     }
 
-    //회원 바로 주문하기
+    //바로 주문하기 (회원/비회원 통합)
     @Override
     public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
         //InstantOrderRequest => OrderRequest
@@ -74,41 +74,23 @@ public class OrderServiceImpl implements OrderService {
         return createOrder(user, orderRequest);
     }
 
-    //비회원 주문 생성
-    @Override
-    public OrderResponse createGuestOrder(OrderRequest orderRequest) {
-        // 회원 주문 생성 메서드 재사용 (user = null)
-        return createOrder(null, orderRequest);
-    }
-
-    // 비회원 바로 주문
-    @Override
-    @Transactional
-    public OrderResponse createGuestInstantOrder(InstantOrderRequest orderRequest) {
-        //InstantOrderRequest => OrderRequest
-        OrderRequest guestInstantOrder = convertInstantToOrderRequest(orderRequest);
-
-        return createOrder(null, guestInstantOrder);
-    }
-
-    //주문 상세 페이지
+    // 주문 상세 조회 (회원/비회원 통합)
     @Override
     @Transactional(readOnly = true)
-    public OrderDetailPageResponse getOrder(User user, Long orderId) {
-        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
+        Order order;
+
+        if(user != null){
+            //회원 주문 조회
+            order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        } else {
+            //비회원 주문 조회
+            order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        }
 
         return createOrderDetailPageResponse(order, user);
-    }
-
-    //비회원 주문 조회
-    @Override
-    @Transactional
-    public OrderDetailPageResponse getGuestOrder(String orderNumber, String phone) {
-        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
-
-        return createOrderDetailPageResponse(order, null);
     }
 
     //주문 전체 조회 페이징 처리
@@ -160,28 +142,27 @@ public class OrderServiceImpl implements OrderService {
         return new PageImpl<>(orderResponses, pageable, orderIdsPage.getTotalElements());
     }
 
-    //회원 주문 취소
+    //주문 취소 - (회원/비회원 통합)
     @Override
     @Transactional
-    public void cancelOrder(User user, Long orderId) {
-        Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
+        Order order;
 
-        processCancellation(order);
-    }
-
-    //비회원 주문 취소
-    @Override
-    @Transactional
-    public void cancelGuestOrder(String orderNumber, String phone) {
-        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        if(user != null) {
+            //회원 주문 취소
+            order = orderRepository.findByIdWithDetails(user.getId(), orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        } else {
+            order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                    .orElseThrow(()-> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        }
 
         processCancellation(order);
     }
 
     //회원,비회원 주문 취소 상세 페이지
     @Override
+    @Transactional(readOnly = true)
     public OrderCancelResponse getCancelPage(User user, Long orderId) {
         Order order;
 
@@ -198,31 +179,18 @@ public class OrderServiceImpl implements OrderService {
         return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
     }
 
-    @Override
-    public OrderCancelResponse cancelGuestOrder(Long orderId) {
-        return getCancelPage(null, orderId);
-    }
-
-
     private Order createOrderEntity(User user, OrderRequest orderRequest) {
         String orderNumber = generateOrderNumber();
 
-        Order order;
-        if(user != null){
-            order = orderRequest.toEntity(user).withOrderNumber(orderNumber);
-        } else {
-            order = Order.builder()
-                    .userId(null)
-                    .recipient(orderRequest.address().recipient())
-                    .phone(orderRequest.address().phone())
-                    .address(orderRequest.address().address())
-                    .detailAddress(orderRequest.address().detailAddress())
-                    .zonecode(orderRequest.address().zonecode())
-                    .orderNumber(orderNumber)
-                    .build();
-        }
-
-        return order;
+        return   Order.builder()
+                .userId(user != null ? user.getId() : null)
+                .recipient(orderRequest.address().recipient())
+                .phone(orderRequest.address().phone())
+                .address(orderRequest.address().address())
+                .detailAddress(orderRequest.address().detailAddress())
+                .zonecode(orderRequest.address().zonecode())
+                .orderNumber(orderNumber)
+                .build();
     }
 
     private List<OrderDetail> processOrderDetails(Order order, List<OrderDetailRequest> orderDetailRequestList) {
@@ -237,20 +205,22 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         for(OrderDetailRequest orderDetailRequest : orderDetailRequestList) {
-            SaleProduct saleProduct = saleProductMap.get(orderDetailRequest.saleProductId());
-            if(saleProduct == null) {
-                throw new DomainException(ErrorType.PRODUCT_NOT_FOUND);
+            SaleProduct saleProduct = Optional.ofNullable(saleProductMap.get(orderDetailRequest.saleProductId()))
+                    .orElseThrow(()-> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
+            try{
+                //수량 줄이기
+                stockService.decreaseStock(saleProduct.getStock(), orderDetailRequest.quantity());
+            } catch (Exception e){
+                throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
             }
 
-            //수량 줄이기
-            stockService.decreaseStock(saleProduct.getStock(), orderDetailRequest.quantity());
-
-            // 가격 계산
-            int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+            //가격 계산
             int orderPrice = saleProduct.getProduct().getOriginPrice();
+            int paymentPrice = saleProduct.getProduct().getDiscountPrice();
             int discountPrice = orderPrice - paymentPrice;
 
-            if (saleProduct.getOption() != null) {
+            if(saleProduct.getOption() != null){
                 int optionExtra = saleProduct.getOption().getOptionExtra();
                 paymentPrice += optionExtra;
                 orderPrice += optionExtra;
@@ -354,16 +324,20 @@ public class OrderServiceImpl implements OrderService {
     private void processCancellation(Order order) {
         validateOrderCancellation(order);
 
-        // Restore stock
-        for (OrderDetail orderDetail : order.getOrderDetails()) {
-            SaleProduct saleProduct = orderDetail.getSaleProduct();
-            int quantity = orderDetail.getQuantity();
-            stockService.increaseStock(saleProduct.getStock(), quantity);
-        }
+        try {
+            // Restore stock
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                SaleProduct saleProduct = orderDetail.getSaleProduct();
+                int quantity = orderDetail.getQuantity();
+                stockService.increaseStock(saleProduct.getStock(), quantity);
+            }
 
-        // Update order status
-        order.updateStatus(OrderStatus.ORDER_CANCELED, LocalDateTime.now());
-        order.delete();
+            // Update order status
+            order.updateStatus(OrderStatus.ORDER_CANCELED, LocalDateTime.now());
+            order.delete();
+        } catch (DomainException e) {
+            throw new DomainException(ErrorType.ORDER_CANCEL_FAILED);
+        }
     }
 
     private void validateOrderCancellation(Order order) {
@@ -374,6 +348,10 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() == OrderStatus.PURCHASED_CONFIRMED) {
             throw new DomainException(ErrorType.ORDER_ALREADY_CONFIRMED);
         }
+
+        //배송 시작 후에는 취소 불가 로직 추가 가능
+        if(order.getStatus() == OrderStatus.SHIPMENT_STARTED || order.getStatus() == OrderStatus.SHIPMENT_PROCESSING)
+            throw new DomainException(ErrorType.ORDER_CANNOT_CANCEL_AFTER_SHIPPING);
     }
 
     private List<OrderProductResponse> convertToOrderDetailResponses(List<OrderDetail> details, User user) {

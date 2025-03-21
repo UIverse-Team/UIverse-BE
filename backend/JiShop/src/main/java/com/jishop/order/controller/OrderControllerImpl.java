@@ -26,14 +26,8 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
-                                    @Valid @RequestBody OrderRequest orderRequest) {
-
-        OrderResponse orderResponse;
-        if(user != null){
-            orderResponse = orderService.createOrder(user, orderRequest);
-        } else {
-            orderResponse = orderService.createGuestOrder(orderRequest);
-        }
+                                                     @Valid @RequestBody OrderRequest orderRequest) {
+        OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -41,8 +35,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailPageResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
-        OrderDetailPageResponse orderDetailResponse = orderService.getOrder(user, orderId);
-
+        OrderDetailPageResponse orderDetailResponse = orderService.getOrder(user, orderId, null, null);
         return ResponseEntity.ok(orderDetailResponse);
     }
 
@@ -63,8 +56,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PatchMapping("/{orderId}")
     public ResponseEntity<String> cancelOrder(@CurrentUser User user, @PathVariable Long orderId){
-        orderService.cancelOrder(user, orderId);
-
+        orderService.cancelOrder(user, orderId, null, null);
         return ResponseEntity.ok("주문이 취소되었습니다");
     }
 
@@ -72,15 +64,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid InstantOrderRequest orderRequest) {
-
-        OrderResponse orderResponse;
-
-        if(user != null){
-            orderResponse = orderService.createInstantOrder(user, orderRequest);
-        } else {
-            orderResponse = orderService.createGuestInstantOrder(orderRequest);
-        }
-
+        OrderResponse orderResponse = orderService.createInstantOrder(user, orderRequest);
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -88,9 +72,8 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @GetMapping("/guest/{orderNumber}")
     public ResponseEntity<OrderDetailPageResponse> getGuestOrderDetail(@PathVariable String orderNumber,
-                                                                    @RequestParam String phone) {
-        OrderDetailPageResponse orderDetailList = orderService.getGuestOrder(orderNumber, phone);
-
+                                                                       @RequestParam String phone) {
+        OrderDetailPageResponse orderDetailList = orderService.getOrder(null, null, orderNumber, phone);
         return ResponseEntity.ok(orderDetailList);
     }
 
@@ -98,9 +81,8 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PatchMapping("/guest/{orderNumber}")
     public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
-                                 @RequestParam String phone) {
-        orderService.cancelGuestOrder(orderNumber, phone);
-
+                                                   @RequestParam String phone) {
+        orderService.cancelOrder(null, null, orderNumber, phone);
         return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 
@@ -109,10 +91,8 @@ public class OrderControllerImpl implements OrderController {
     @GetMapping("/getCancel/{orderId}")
     public ResponseEntity<OrderCancelResponse> getOrderCancel(@CurrentUser User user, @PathVariable Long orderId) {
         OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId);
-
         return ResponseEntity.ok(orderCancelResponse);
     }
-
 
     // 기본 배송지 가져오기
     @GetMapping("/default-address")
