@@ -1,7 +1,7 @@
 package com.jishop.product.repository;
 
 import com.jishop.product.domain.Product;
-import com.jishop.product.dto.ProductRequest;
+import com.jishop.product.dto.request.ProductRequest;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 

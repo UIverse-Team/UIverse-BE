@@ -1,9 +1,9 @@
 package com.jishop.product.controller;
 
 import com.jishop.member.domain.User;
-import com.jishop.product.dto.ProductListResponse;
-import com.jishop.product.dto.ProductRequest;
-import com.jishop.product.dto.ProductResponse;
+import com.jishop.product.dto.response.ProductListResponse;
+import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.dto.response.ProductResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.web.PagedModel;
 

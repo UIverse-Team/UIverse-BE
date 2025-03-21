@@ -2,9 +2,9 @@ package com.jishop.product.controller;
 
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
-import com.jishop.product.dto.ProductListResponse;
-import com.jishop.product.dto.ProductRequest;
-import com.jishop.product.dto.ProductResponse;
+import com.jishop.product.dto.response.ProductListResponse;
+import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;

@@ -1,4 +1,4 @@
-package com.jishop.product.dto;
+package com.jishop.product.dto.response;
 
 import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;

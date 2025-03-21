@@ -1,7 +1,7 @@
 package com.jishop.product.implementation;
 
 import com.jishop.product.domain.QProduct;
-import com.jishop.product.dto.ProductRequest;
+import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
@@ -18,7 +18,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
     @Override
     public BooleanBuilder findProductsByCondition(
             ProductRequest productRequest, QProduct product, QReviewProduct reviewProduct) {
-        BooleanBuilder builder = new BooleanBuilder();
+        var builder = new BooleanBuilder();
 
         addPriceRangesFiltering(productRequest.priceRanges(), product, builder);
         addRatingsFilter(productRequest.ratings(), reviewProduct, product, builder);
@@ -28,17 +28,20 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         return builder;
     }
 
-    private static void addPriceRangesFiltering(List<String> priceRanges, QProduct product, BooleanBuilder builder) {
-        BooleanBuilder priceBuilder = new BooleanBuilder();
+    private static void addPriceRangesFiltering(List<Integer> priceRanges, QProduct product, BooleanBuilder builder) {
+        var priceBuilder = new BooleanBuilder();
 
-        for (String range : priceRanges) {
+        for (Integer range : priceRanges) {
             switch (range) {
-                case "0-25000" -> priceBuilder.or(product.discountPrice.between(0, 25000));
-                case "25000-50000" -> priceBuilder.or(product.discountPrice.between(25001, 50000));
-                case "50000-100000" -> priceBuilder.or(product.discountPrice.between(50001, 100000));
-                case "100000+" -> priceBuilder.or(product.discountPrice.gt(100000));
-                default -> {
-                }
+                case 0 ->
+                        priceBuilder.or(product.discountPrice.between(0, 25000));
+                case 25000 ->
+                        priceBuilder.or(product.discountPrice.between(25001, 50000));
+                case 50000 ->
+                        priceBuilder.or(product.discountPrice.between(50001, 100000));
+                case 100000 ->
+                        priceBuilder.or(product.discountPrice.gt(100000));
+                default -> { }
             }
         }
 
@@ -56,7 +59,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
                 !ratings.contains(4) ||
                 !ratings.contains(5)) {
 
-            BooleanBuilder ratingBuilder = new BooleanBuilder();
+            var ratingBuilder = new BooleanBuilder();
 
             // 나눗셈 오류 방지
             ratingBuilder.and(reviewProduct.reviewCount.gt(0));
