@@ -18,7 +18,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
     @Override
     public BooleanBuilder findProductsByCondition(
             ProductRequest productRequest, QProduct product, QReviewProduct reviewProduct) {
-        var builder = new BooleanBuilder();
+        BooleanBuilder builder = new BooleanBuilder();
 
         addPriceRangesFiltering(productRequest.priceRanges(), product, builder);
         addRatingsFilter(productRequest.ratings(), reviewProduct, product, builder);
@@ -29,7 +29,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
     }
 
     private static void addPriceRangesFiltering(List<Integer> priceRanges, QProduct product, BooleanBuilder builder) {
-        var priceBuilder = new BooleanBuilder();
+        BooleanBuilder priceBuilder = new BooleanBuilder();
 
         for (Integer range : priceRanges) {
             switch (range) {
@@ -59,7 +59,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
                 !ratings.contains(4) ||
                 !ratings.contains(5)) {
 
-            var ratingBuilder = new BooleanBuilder();
+            BooleanBuilder ratingBuilder = new BooleanBuilder();
 
             // 나눗셈 오류 방지
             ratingBuilder.and(reviewProduct.reviewCount.gt(0));

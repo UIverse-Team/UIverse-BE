@@ -72,13 +72,11 @@ public class ProductServiceImpl implements ProductService {
         ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
 
         int reviewCount = 0;
-        int reviewRate = 0;
+        double reviewRate = 0.0;
 
         if (reviewProduct != null) {
             reviewCount = reviewProduct.getReviewCount();
-            if (reviewCount > 0) {
-                reviewRate = reviewProduct.getReviewScore() / reviewCount;
-            }
+            reviewRate = reviewProduct.getAverageRating();
         }
 
         return ProductResponse.from(product, isWished, reviewCount, reviewRate);

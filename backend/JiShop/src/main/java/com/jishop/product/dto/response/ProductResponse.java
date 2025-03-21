@@ -13,13 +13,13 @@ public record ProductResponse(
         Boolean isDiscount,
         String brand,
         int reviewCount,
-        int reviewRate,
+        double reviewRate,
         String[] images,
         String detailImage,
         // true 또는 빈배열 반환
         Object isWished
 ) {
-    public static ProductResponse from(Product product, Boolean isWished, int reviewCount, int reviewRate) {
+    public static ProductResponse from(Product product, Boolean isWished, int reviewCount, double reviewRate) {
         Object wishStatus = isWished != null && isWished ? true : new String[0];
 
         return new ProductResponse(
