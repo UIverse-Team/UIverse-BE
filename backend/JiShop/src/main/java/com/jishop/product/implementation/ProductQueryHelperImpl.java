@@ -1,5 +1,6 @@
 package com.jishop.product.implementation;
 
+import com.jishop.category.repository.CategoryRepository;
 import com.jishop.product.domain.QProduct;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.reviewproduct.domain.QReviewProduct;
@@ -7,13 +8,17 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ProductQueryHelperImpl implements ProductQueryHelper {
+
+    private final CategoryRepository categoryRepository;
 
     @Override
     public BooleanBuilder findProductsByCondition(
@@ -113,9 +118,21 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         }
     }
 
-    private static void addCategory(Long category, QProduct product, BooleanBuilder builder) {
-//        builder.andAnyOf(
-//        );
+    private void addCategory(Long categoryId, QProduct product, BooleanBuilder builder) {
+        if (categoryId == null) return;
+
+        List<Long> categoryIds = categoryRepository.findByCategoryId(categoryId)
+                .map(category -> {
+                    List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
+                            categoryRepository.findAllSubCategoryIds(categoryId)
+                    );
+                    return subCategoryPKs.isEmpty()
+                            ? List.of(category.getId())
+                            : subCategoryPKs;
+                })
+                .orElse(List.of(-1L));
+
+        builder.and(product.category.id.in(categoryIds));
     }
 
     private static void addKeyword(String keyword, QProduct product, BooleanBuilder builder) {
