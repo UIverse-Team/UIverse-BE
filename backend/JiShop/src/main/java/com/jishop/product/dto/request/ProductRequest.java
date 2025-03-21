@@ -11,9 +11,6 @@ public record ProductRequest(
         @NotBlank
         String keyword,
 
-        int page,
-        int size,
-
         @Pattern(regexp = "^(wish|discount|latest|priceAsc|priceDesc)$",
                 message = "정렬 기준은 'wish', 'discount', 'latest', 'priceAsc', 'priceDesc' 중 하나여야 합니다")
         String sort,
@@ -24,8 +21,6 @@ public record ProductRequest(
         List<Integer> ratings
 ){
         public ProductRequest {
-                if (page < 0 || page > 100) {page = 0;}
-                if (size < 1 || size > 100) {size = 12;}
                 if (sort == null || sort.isEmpty()) {sort = "wish";}
                 if (priceRanges == null || priceRanges.isEmpty()) {
                         priceRanges = Arrays.asList(0, 25000, 50000, 100000);

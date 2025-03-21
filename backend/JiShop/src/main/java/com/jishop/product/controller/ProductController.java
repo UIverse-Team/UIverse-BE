@@ -12,7 +12,7 @@ import java.util.List;
 @Tag(name = "상품 API")
 public interface ProductController {
 
-    PagedModel<ProductListResponse> getProductList(ProductRequest request);
+    PagedModel<ProductListResponse> getProductList(ProductRequest request, int page, int size);
 
     ProductResponse getProduct(User user, Long id);
 

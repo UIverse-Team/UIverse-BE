@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductWishListRepository productWishListRepository;
 
     @Override
-    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest) {
+    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
         BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, QProduct.product, QReviewProduct.reviewProduct);
 
@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
 
         long totalCount = productRepositoryQueryDsl.countFilteredProducts(filterBuilder);
 
-        Pageable pageable = PageRequest.of(productRequest.page(), productRequest.size());
+        Pageable pageable = PageRequest.of(page, size);
         Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);

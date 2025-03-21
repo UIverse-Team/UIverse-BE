@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    PagedModel<ProductListResponse> getProductList(ProductRequest request);
+    PagedModel<ProductListResponse> getProductList(ProductRequest request, int page, int size);
 
     ProductResponse getProduct(User user,  Long id);
 
