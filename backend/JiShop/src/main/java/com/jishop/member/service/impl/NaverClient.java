@@ -53,7 +53,11 @@ public class NaverClient implements OAuthClient {
         return new NaverProfile(
                 userInfo.response().id(),
                 userInfo.response().email(),
-                userInfo.response().name()
+                userInfo.response().name(),
+                userInfo.response().gender(),
+                userInfo.response().mobile(),
+                userInfo.response().birthyear(),
+                userInfo.response().birthday()
         );
     }
 }

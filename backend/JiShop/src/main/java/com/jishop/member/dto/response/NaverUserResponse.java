@@ -11,10 +11,10 @@ public record NaverUserResponse(
         public record NaverResponseData(
                 String id,
                 String name,
-                String email/*,
+                String email,
                 String gender,
                 String mobile,
-                String birthdate
-*/        ) {
-        }
+                String birthyear,
+                String birthday
+        ) { }
 }
