@@ -1,10 +1,7 @@
 package com.jishop.order.service.impl;
 
-import com.jishop.common.exception.DomainException;
-import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
-import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
 import com.jishop.order.dto.OrderCancelResponse;
 import com.jishop.order.dto.OrderDetailPageResponse;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

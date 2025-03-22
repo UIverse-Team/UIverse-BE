@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class OrderCancelServiceImpl implements OrderCancelService {
-    private final OrderRepository orderRepository;
+
     private final StockService stockService;
     private final OrderUtilService orderUtilService;
 
