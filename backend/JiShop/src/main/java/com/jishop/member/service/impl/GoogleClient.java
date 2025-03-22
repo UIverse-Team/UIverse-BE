@@ -5,19 +5,16 @@ import com.jishop.member.dto.response.GoogleUserResponse;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.OAuthClient;
 import com.jishop.member.service.OAuthProfile;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
+@RequiredArgsConstructor
 public class GoogleClient implements OAuthClient {
 
     private final RestClient restClient;
     private final OAuthConfig.OAuthDetails config;
-
-    public GoogleClient(RestClient restClient, OAuthConfig.OAuthDetails config) {
-        this.restClient = restClient;
-        this.config = config;
-    }
 
     @Override
     public String getAuthorizationUrl(String state) {

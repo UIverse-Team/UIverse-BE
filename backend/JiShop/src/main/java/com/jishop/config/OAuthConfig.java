@@ -75,7 +75,6 @@ public class OAuthConfig {
                 googleRedirectUri);
     }
 
-    // Naver의 OAuthDetails 반환 메서드 추가
     public OAuthDetails getNaverDetails() {
         return new OAuthDetails(
                 naverAuthorizationUri,
@@ -86,7 +85,6 @@ public class OAuthConfig {
                 naverRedirectUri);
     }
 
-    // Kakao의 OAuthDetails 반환 메서드 추가
     public OAuthDetails getKakaoDetails() {
         return new OAuthDetails(
                 kakaoAuthorizationUri,
@@ -97,6 +95,7 @@ public class OAuthConfig {
                 kakaoRedirectUri);
     }
 
+    @Getter
     public static class OAuthDetails {
 
         private final String authorizationUri;

@@ -5,18 +5,15 @@ import com.jishop.member.dto.response.NaverUserResponse;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.OAuthClient;
 import com.jishop.member.service.OAuthProfile;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
+@RequiredArgsConstructor
 public class NaverClient implements OAuthClient {
 
     private final RestClient restClient;
     private final OAuthConfig.OAuthDetails config;
-
-    public NaverClient(RestClient restClient, OAuthConfig.OAuthDetails config) {
-        this.config = config;
-        this.restClient = restClient;
-    }
 
     @Override
     public String getAuthorizationUrl(String state) {
