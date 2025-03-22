@@ -4,7 +4,6 @@ import com.jishop.member.service.OAuthProfile;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
 public class GoogleProfile implements OAuthProfile {
 
