@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User oauthLogin(OAuthProfile profile) {
-        String loginId = profile.getProviderId();
+        String loginId = profile.getEmail();
         LoginType provider = LoginType.valueOf(profile.getProvider().toUpperCase());
 
         Optional<User> existingUser = userRepository.findByLoginIdAndProvider(loginId, provider);
@@ -35,19 +35,35 @@ public class UserServiceImpl implements UserService {
         if (existingUser.isPresent()) {
             return existingUser.get();
         } else {
+            // 네이버 특화 필드 추출
+            String birthyear = null;
+            String birthday = null;
+            String gender = null;
+            String phone = null;
+            String birthDate = "";
+            
+            if(profile instanceof NaverProfile naverProfile) {
+                birthyear = naverProfile.getBirthyear();
+                birthday = naverProfile.getBirthday();
+                birthDate = birthyear + "-" + birthday;
+                gender = naverProfile.getGender();
+                phone = naverProfile.getMobile();
+            }
+
             User newUser = User.builder()
                     .loginId(loginId)
                     .password(null)
                     .name(profile.getName())
                     .provider(provider)
-                    .birthDate(null)
-                    .gender(null)
-                    .phone(null)
+                    .birthDate(birthDate)
+                    .gender(gender)
+                    .phone(phone)
                     .ageAgreement(true)
                     .useAgreement(true)
                     .picAgreement(true)
                     .adAgreement(false)
                     .build();
+
             return userRepository.save(newUser);
         }
     }
