@@ -11,13 +11,10 @@ public record NaverUserResponse(
         public record NaverResponseData(
                 String id,
                 String name,
-                String email,
+                String email/*,
                 String gender,
                 String mobile,
                 String birthdate
-        ) {
-                public NaverSocialUserInfo toNaverSocialUserInfo() {
-                        return new NaverSocialUserInfo(id, name, email, gender, mobile, birthdate);
-                }
+*/        ) {
         }
 }
