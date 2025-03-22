@@ -2,13 +2,16 @@ package com.jishop.order.domain;
 
 import com.jishop.common.util.BaseEntity;
 import com.jishop.member.domain.User;
+import com.jishop.order.dto.OrderRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,7 +30,13 @@ public class Order extends BaseEntity {
     private Long userId;
 
     //총 주문 금액
-    private int totalPrice;
+    private int totalOrderPrice;
+
+    //총 할인 금액
+    private int totalDiscountPrice;
+
+    //총 결제 금액 (총 주문 금액 - 총 할인 금액)
+    private int totalPaymentPrice;
 
     //수령인
     @Column(nullable = false)
@@ -49,20 +58,25 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private String detailAddress;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     @Column(unique = true)
     private String orderNumber;
 
-    public void updateStatus(OrderStatus status) {
+    public void updateStatus(OrderStatus status, LocalDateTime time) {
         this.status = status;
+        this.setUpdatedAt(time);
     }
 
     // 주문 정보 업데이트 메서드
-    public void updateOrderInfo(int totalPrice, List<OrderDetail> orderDetails, String orderNumber) {
-        this.totalPrice = totalPrice;
-        this.orderDetails = orderDetails;
+    public void updateOrderInfo(int totalPrice, int totalDiscountPrice, int totalPaymentPrice, List<OrderDetail> orderDetails, String orderNumber) {
+        this.totalOrderPrice = totalPrice;
+        this.totalDiscountPrice = totalDiscountPrice;
+        this.totalPaymentPrice = totalPaymentPrice;
+        if(orderDetails != null) {
+            this.orderDetails = orderDetails;
+        }
         this.orderNumber = orderNumber;
     }
 
@@ -71,7 +85,7 @@ public class Order extends BaseEntity {
                  String zonecode, String address, String detailAddress, String orderNumber) {
         this.userId = userId;
         this.status = OrderStatus.ORDER_RECEIVED;
-        this.totalPrice = totalPrice;
+        this.totalOrderPrice = totalPrice;
         this.recipient = recipient;
         this.phone = phone;
         this.zonecode = zonecode;
@@ -80,8 +94,17 @@ public class Order extends BaseEntity {
         this.orderNumber = orderNumber;
     }
 
-    public Order withOrderNumber(String orderNumber) {
-        this.orderNumber = orderNumber;
-        return this;
+    public static Order from(OrderRequest request, User user, String orderNumber) {
+        return Order.builder()
+                .userId(user != null ? user.getId() : null)
+                .recipient(request.address().recipient())
+                .phone(request.address().phone())
+                .address(request.address().address())
+                .detailAddress(request.address().detailAddress())
+                .zonecode(request.address().zonecode())
+                .orderNumber(orderNumber)
+                .build();
     }
+
+
 }
