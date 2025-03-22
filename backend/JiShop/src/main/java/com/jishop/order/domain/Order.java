@@ -81,11 +81,13 @@ public class Order extends BaseEntity {
     }
 
     @Builder
-    public Order(Long userId, int totalPrice, String recipient, String phone,
+    public Order(Long userId, int totalOrderPrice, String recipient, String phone,
                  String zonecode, String address, String detailAddress, String orderNumber) {
         this.userId = userId;
         this.status = OrderStatus.ORDER_RECEIVED;
-        this.totalOrderPrice = totalPrice;
+        this.totalOrderPrice = totalOrderPrice;
+        this.totalDiscountPrice = 0;  // Initialize to 0
+        this.totalPaymentPrice = 0;   // Initialize to 0
         this.recipient = recipient;
         this.phone = phone;
         this.zonecode = zonecode;

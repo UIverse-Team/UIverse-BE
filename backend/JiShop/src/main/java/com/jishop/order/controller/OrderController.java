@@ -7,6 +7,8 @@ import com.jishop.order.dto.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "상품 주문 조회 API")
 public interface OrderController {
@@ -32,6 +34,9 @@ public interface OrderController {
     //비회원 주문 취소
     ResponseEntity<String> cancelGuestOrder(String orderNumber, String phone);
 
-    //취소 상세페이지
+    //회원 취소 상세페이지
     ResponseEntity<OrderCancelResponse> getOrderCancel(User user, Long orderId);
+
+    //비회원 취소 상세페이지
+    ResponseEntity<OrderCancelResponse> getGuestOrderCancel(String orderNumber, String phone);
 }

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class OrderControllerImpl implements OrderController {
 
     private final OrderService orderService;
-    private final AddressRepository addressRepository;
 
     //주문 생성
     @Override
@@ -28,6 +27,7 @@ public class OrderControllerImpl implements OrderController {
     public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
                                                      @Valid @RequestBody OrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
+
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -36,6 +36,7 @@ public class OrderControllerImpl implements OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailPageResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
         OrderDetailPageResponse orderDetailResponse = orderService.getOrder(user, orderId, null, null);
+
         return ResponseEntity.ok(orderDetailResponse);
     }
 
@@ -49,6 +50,7 @@ public class OrderControllerImpl implements OrderController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Page<OrderResponse> responseList = orderService.getPaginatedOrders(user, period, page, size);
+
         return ResponseEntity.ok(responseList);
     }
 
@@ -57,6 +59,7 @@ public class OrderControllerImpl implements OrderController {
     @PatchMapping("/{orderId}")
     public ResponseEntity<String> cancelOrder(@CurrentUser User user, @PathVariable Long orderId){
         orderService.cancelOrder(user, orderId, null, null);
+
         return ResponseEntity.ok("주문이 취소되었습니다");
     }
 
@@ -65,6 +68,7 @@ public class OrderControllerImpl implements OrderController {
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid InstantOrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createInstantOrder(user, orderRequest);
+
         return ResponseEntity.ok(orderResponse);
     }
 
@@ -74,6 +78,7 @@ public class OrderControllerImpl implements OrderController {
     public ResponseEntity<OrderDetailPageResponse> getGuestOrderDetail(@PathVariable String orderNumber,
                                                                        @RequestParam String phone) {
         OrderDetailPageResponse orderDetailList = orderService.getOrder(null, null, orderNumber, phone);
+
         return ResponseEntity.ok(orderDetailList);
     }
 
@@ -83,14 +88,25 @@ public class OrderControllerImpl implements OrderController {
     public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
                                                    @RequestParam String phone) {
         orderService.cancelOrder(null, null, orderNumber, phone);
+
         return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 
-    //주문 취소 페이지
+    //회원 주문 취소 상세  페이지
     @Override
     @GetMapping("/getCancel/{orderId}")
     public ResponseEntity<OrderCancelResponse> getOrderCancel(@CurrentUser User user, @PathVariable Long orderId) {
-        OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId);
+        OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId, null, null);
+
+        return ResponseEntity.ok(orderCancelResponse);
+    }
+
+    //비회원 주문 취소 상세 페이지
+    @Override
+    @GetMapping("/getGuestCancel/{orderNumber}")
+    public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
+        OrderCancelResponse orderCancelResponse = orderService.getCancelPage(null, null, orderNumber, phone);
+
         return ResponseEntity.ok(orderCancelResponse);
     }
 }
