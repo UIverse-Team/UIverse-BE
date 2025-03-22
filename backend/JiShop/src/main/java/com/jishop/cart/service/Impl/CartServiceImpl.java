@@ -111,9 +111,13 @@ public class CartServiceImpl implements CartService {
                 cart.getSaleProduct().getId(),
                 cart.getSaleProduct().getProduct().getName(),
                 cart.getSaleProduct().getOption() != null ? cart.getSaleProduct().getOption().getOptionValue() : "기본옵션",
-                cart.getQuantity(),
                 cart.getSaleProduct().getProduct().getDiscountPrice(),
-                cart.getSaleProduct().getProduct().getMainImage()
+                cart.getSaleProduct().getProduct().getOriginPrice(),
+                cart.getSaleProduct().getProduct().getOriginPrice()-cart.getSaleProduct().getProduct().getDiscountPrice(),
+                cart.getQuantity(),
+                cart.getSaleProduct().getProduct().getDiscountPrice() * cart.getQuantity(),
+                cart.getSaleProduct().getProduct().getMainImage(),
+                cart.getSaleProduct().getProduct().getBrand()
         );
     }
 }

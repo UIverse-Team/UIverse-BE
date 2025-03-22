@@ -54,6 +54,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     boolean existsByOrderNumber(String orderNumber);
 
+    //주문 취소를 위한 쿼리
+    @Query("SELECT o FROM Order o " +
+            "LEFT JOIN FETCH o.orderDetails od " +
+            "LEFT JOIN FETCH od.saleProduct sp " +
+            "LEFT JOIN FETCH sp.stock " +
+            "WHERE o.id = :orderId AND o.userId = :userId")
+    Optional<Order> findForCancellation(@Param("userId") Long userId, @Param("orderId") Long orderId);
+
     Optional<Order> findById(Long orderId);
 
     Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);

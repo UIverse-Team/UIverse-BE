@@ -46,23 +46,22 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //주문 entity 생성
-        Order order = createOrderEntity(user, orderRequest);
+        Order order = Order.from(orderRequest, user, generateOrderNumber());
 
-        //orderDetail 생성, 수량 업데이트, 금액 계산
+        //orderDetail 생성, 수량 업데이트 (개별 항목 가격 계산 포함)
         List<OrderDetail> orderDetails = processOrderDetails(order, orderRequest.orderDetailRequestList());
-
-        //주문(Order)에 detail, 총 금액 업데이트
-        int totalPrice = calculateTotalPrice(orderDetails);
-        int totalDiscount = calculateDiscountPrice(orderDetails);
-        int totalPayment = calculatePaymentPrice(orderDetails);
-
-        order.updateOrderInfo(totalPrice, totalDiscount, totalPayment, orderDetails, order.getOrderNumber());
-        orderRepository.save(order);
+        order.getOrderDetails().addAll(orderDetails);
 
         //Response 반환
         List<OrderProductResponse> orderProductResponses = convertToOrderDetailResponses(order.getOrderDetails(), user);
 
-        return OrderResponse.fromOrder(order, orderProductResponses);
+        // OrderResponse.fromOrder()에서 총합 계산 및 Order 업데이트
+        OrderResponse response = OrderResponse.fromOrder(order, orderProductResponses);
+
+        // Order 저장
+        orderRepository.save(order);
+
+        return response;
     }
 
     //바로 주문하기 (회원/비회원 통합)
@@ -139,6 +138,7 @@ public class OrderServiceImpl implements OrderService {
                     return OrderResponse.fromOrder(order, orderDetailResponses);
                 })
                 .toList();
+
         return new PageImpl<>(orderResponses, pageable, orderIdsPage.getTotalElements());
     }
 
@@ -150,7 +150,7 @@ public class OrderServiceImpl implements OrderService {
 
         if(user != null) {
             //회원 주문 취소
-            order = orderRepository.findByIdWithDetails(user.getId(), orderId)
+            order = orderRepository.findForCancellation(user.getId(), orderId)
                     .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
         } else {
             order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
@@ -179,20 +179,6 @@ public class OrderServiceImpl implements OrderService {
         return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
     }
 
-    private Order createOrderEntity(User user, OrderRequest orderRequest) {
-        String orderNumber = generateOrderNumber();
-
-        return   Order.builder()
-                .userId(user != null ? user.getId() : null)
-                .recipient(orderRequest.address().recipient())
-                .phone(orderRequest.address().phone())
-                .address(orderRequest.address().address())
-                .detailAddress(orderRequest.address().detailAddress())
-                .zonecode(orderRequest.address().zonecode())
-                .orderNumber(orderNumber)
-                .build();
-    }
-
     private List<OrderDetail> processOrderDetails(Order order, List<OrderDetailRequest> orderDetailRequestList) {
         List<Long> saleProductIds = orderDetailRequestList.stream()
                 .map(OrderDetailRequest::saleProductId)
@@ -214,53 +200,11 @@ public class OrderServiceImpl implements OrderService {
             } catch (Exception e){
                 throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
             }
-
-            //가격 계산
-            int orderPrice = saleProduct.getProduct().getOriginPrice();
-            int paymentPrice = saleProduct.getProduct().getDiscountPrice();
-            int discountPrice = orderPrice - paymentPrice;
-
-            if(saleProduct.getOption() != null){
-                int optionExtra = saleProduct.getOption().getOptionExtra();
-                paymentPrice += optionExtra;
-                orderPrice += optionExtra;
-            }
-
-            // Create order detail
-            OrderDetail orderDetail = OrderDetail.builder()
-                    .order(order)
-                    .orderNumber(order.getOrderNumber())
-                    .saleProduct(saleProduct)
-                    .quantity(orderDetailRequest.quantity())
-                    .paymentPrice(paymentPrice)
-                    .orderPrice(orderPrice)
-                    .discountPrice(discountPrice)
-                    .build();
-
+            OrderDetail orderDetail = OrderDetail.from(order, saleProduct, orderDetailRequest.quantity());
             orderDetails.add(orderDetail);
         }
 
         return orderDetails;
-    }
-
-
-    private int calculateTotalPrice(List<OrderDetail> orderDetails) {
-        return orderDetails.stream()
-                .mapToInt(detail -> detail.getOrderPrice()
-                        * detail.getQuantity())
-                .sum();
-    }
-
-    private int calculateDiscountPrice(List<OrderDetail> orderDetails){
-        return orderDetails.stream()
-                .mapToInt(detail -> detail.getDiscountPrice() * detail.getQuantity())
-                .sum();
-    }
-
-    private int calculatePaymentPrice(List<OrderDetail> orderDetails) {
-        return orderDetails.stream()
-                .mapToInt(detail -> detail.getPaymentPrice() * detail.getQuantity())
-                .sum();
     }
 
     private OrderRequest convertInstantToOrderRequest(InstantOrderRequest instantOrderRequest) {
@@ -278,61 +222,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {
+        boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;
+
         List<OrderProductResponse> products = order.getOrderDetails().stream()
                 .map(detail -> {
-                    boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;
-                    boolean canReview = false;
+                    boolean canReview = isPurchasedConfirmed && !reviewRepository.existsByOrderDetailId(detail.getId());
 
-                    if(isPurchasedConfirmed) {
-                        canReview = !reviewRepository.existsByOrderDetailId(detail.getId());
-                    }
-
-                    return new OrderProductResponse(
-                            detail.getId(),
-                            detail.getSaleProduct().getId(),
-                            detail.getSaleProduct().getName(),
-                            detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                            detail.getPaymentPrice(),
-                            detail.getOrderPrice(),
-                            detail.getDiscountPrice(),
-                            detail.getQuantity(),
-                            detail.getPaymentPrice() * detail.getQuantity(),
-                            canReview,
-                            detail.getSaleProduct().getProduct().getBrand()
-                    );
+                    return OrderProductResponse.from(detail, canReview);
                 })
                 .toList();
 
-        return new OrderDetailPageResponse(
-                order.getId(),
-                order.getOrderNumber(),
-                order.getStatus(),
-                order.getTotalPrice(),
-                order.getDiscountPrice(),
-                order.getPaymentPrice(),
-                order.getCreatedAt(),
-                order.getRecipient(),
-                order.getPhone(),
-                order.getZonecode(),
-                order.getAddress(),
-                order.getDetailAddress(),
-                user != null ? user.getLoginId() : null,
-                products
-        );
+        return OrderDetailPageResponse.from(order, user, products);
     }
 
     private void processCancellation(Order order) {
         validateOrderCancellation(order);
 
         try {
-            // Restore stock
+            // 재고 되돌리기
             for (OrderDetail orderDetail : order.getOrderDetails()) {
                 SaleProduct saleProduct = orderDetail.getSaleProduct();
                 int quantity = orderDetail.getQuantity();
                 stockService.increaseStock(saleProduct.getStock(), quantity);
             }
 
-            // Update order status
+            // 주문 상태 변경
             order.updateStatus(OrderStatus.ORDER_CANCELED, LocalDateTime.now());
             order.delete();
         } catch (DomainException e) {
@@ -354,6 +268,7 @@ public class OrderServiceImpl implements OrderService {
             throw new DomainException(ErrorType.ORDER_CANNOT_CANCEL_AFTER_SHIPPING);
     }
 
+
     private List<OrderProductResponse> convertToOrderDetailResponses(List<OrderDetail> details, User user) {
         // 주문 상태가 구매확정인 주문만 리뷰 작성 가능
         boolean isPurchaseConfirmed = !details.isEmpty() &&
@@ -364,22 +279,12 @@ public class OrderServiceImpl implements OrderService {
                 reviewRepository.findOrderDetailIdsWithReviews(orderDetailIds) : Collections.emptyList();
 
         return details.stream()
-                .map(detail -> new OrderProductResponse(
-                        detail.getId(),
-                        detail.getSaleProduct().getId(),
-                        detail.getSaleProduct().getName(),
-                        detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                        detail.getPaymentPrice(),
-                        detail.getOrderPrice(),
-                        detail.getDiscountPrice(),
-                        detail.getQuantity(),
-                        detail.getPaymentPrice() * detail.getQuantity(),
-                        isPurchaseConfirmed && !reviewedOrderDetailIds.contains(detail.getId()),
-                        detail.getSaleProduct().getProduct().getBrand()
-                ))
+                .map(detail -> {
+                    boolean canReview = isPurchaseConfirmed && !reviewedOrderDetailIds.contains(detail.getId());
+                    return OrderProductResponse.from(detail, canReview);
+                })
                 .toList();
     }
-
 
     private static final int LENGTH = 5;
     private static final String CHARACTERS = "01346789ABCDFGHJKMNPQRSTUVWXYZ";

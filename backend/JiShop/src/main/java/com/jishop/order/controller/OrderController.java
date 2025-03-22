@@ -34,6 +34,4 @@ public interface OrderController {
 
     //취소 상세페이지
     ResponseEntity<OrderCancelResponse> getOrderCancel(User user, Long orderId);
-
-    ResponseEntity<AddressResponse> getDefaultAddress( User user);
 }

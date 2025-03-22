@@ -1,5 +1,7 @@
 package com.jishop.order.dto;
 
+import com.jishop.member.domain.User;
+import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderStatus;
 
 import java.time.LocalDateTime;
@@ -23,4 +25,22 @@ public record OrderDetailPageResponse(
         //상품목록
         List<OrderProductResponse> products
 ) {
+    public static OrderDetailPageResponse from(Order order, User user, List<OrderProductResponse> products) {
+        return new OrderDetailPageResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getStatus(),
+                order.getTotalOrderPrice(),
+                order.getTotalDiscountPrice(),
+                order.getTotalPaymentPrice(),
+                order.getCreatedAt(),
+                order.getRecipient(),
+                order.getPhone(),
+                order.getZonecode(),
+                order.getAddress(),
+                order.getDetailAddress(),
+                user != null ? user.getLoginId() : null,
+                products
+        );
+    }
 }

@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface AddressRepository extends JpaRepository<Address, Long> {
 
     List<Address> findByUser(User user);
+
     // 쿼리 짜기 -> 주어진 유저 id이면서 default 컬럼이 True인거
     @Query("select a from Address a where a.user = :user and a.defaultYN = true")
     Optional<Address> findDefaultAddressByUser(@Param("user") User user);

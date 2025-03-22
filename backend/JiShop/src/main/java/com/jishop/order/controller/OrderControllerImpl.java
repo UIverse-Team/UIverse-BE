@@ -93,20 +93,4 @@ public class OrderControllerImpl implements OrderController {
         OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId);
         return ResponseEntity.ok(orderCancelResponse);
     }
-
-    // 기본 배송지 가져오기
-    @GetMapping("/default-address")
-    public ResponseEntity<AddressResponse> getDefaultAddress(@CurrentUser User user) {
-        return addressRepository.findDefaultAddressByUser(user)
-                .map(address -> new AddressResponse(
-                        address.getRecipient(),
-                        address.getPhone(),
-                        address.getZonecode(),
-                        address.getAddress(),
-                        address.getDetailAddress(),
-                        address.isDefaultYN()
-                ))
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND));
-    }
 }
