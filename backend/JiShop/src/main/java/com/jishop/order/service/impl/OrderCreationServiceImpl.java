@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class OrderCreationServiceImpl implements OrderCreationService {
 
@@ -29,7 +30,6 @@ public class OrderCreationServiceImpl implements OrderCreationService {
 
     // 주문 생성 - 통합
     @Override
-    @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
         // 주소 저장 (회원인 경우만)
         if (user != null) {
@@ -69,7 +69,6 @@ public class OrderCreationServiceImpl implements OrderCreationService {
 
     // 바로 주문하기 (회원/비회원 통합)
     @Override
-    @Transactional
     public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
         // InstantOrderRequest => OrderRequest
         OrderRequest orderRequest = convertInstantToOrderRequest(instantOrderRequest);

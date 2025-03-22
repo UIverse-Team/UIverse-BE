@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class OrderCancelServiceImpl implements OrderCancelService {
 
@@ -26,7 +27,6 @@ public class OrderCancelServiceImpl implements OrderCancelService {
 
     // 주문 취소 - (회원/비회원 통합)
     @Override
-    @Transactional
     public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
         Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
 
