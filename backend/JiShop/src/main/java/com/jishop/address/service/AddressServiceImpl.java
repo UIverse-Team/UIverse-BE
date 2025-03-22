@@ -65,14 +65,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponse getDefaultAddress(User user) {
         return addressRepository.findDefaultAddressByUser(user)
-                .map(address -> new AddressResponse(
-                        address.getRecipient(),
-                        address.getPhone(),
-                        address.getZonecode(),
-                        address.getAddress(),
-                        address.getDetailAddress(),
-                        address.isDefaultYN()
-                ))
+                .map(AddressResponse::fromEntity)
                 .orElseThrow(() -> new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND));
     }
 
