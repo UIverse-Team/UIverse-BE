@@ -1,7 +1,7 @@
 package com.jishop.category.dto;
 
 import com.jishop.product.domain.Product;
-import com.jishop.product.dto.ProductListResponse;
+import com.jishop.product.dto.response.ProductListResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;

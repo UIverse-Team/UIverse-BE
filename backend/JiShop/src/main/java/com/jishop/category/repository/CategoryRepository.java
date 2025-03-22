@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {
 
@@ -24,4 +27,19 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
                                  "c2.parent.currentId = :topLevelCategoryId")
     Page<Product> findProductsByTopLevelCategoryId(
             @Param("topLevelCategoryId") Long topLevelCategoryId, Pageable pageable);
+
+    @Query(value = "WITH RECURSIVE CategoryCTE AS (" +
+            "SELECT current_id FROM category WHERE current_id = :categoryId " +
+            "UNION ALL " +
+            "SELECT c.current_id FROM category c " +
+            "INNER JOIN CategoryCTE cte ON c.parent_id = cte.current_id" +
+            ") " +
+            "SELECT current_id FROM CategoryCTE", nativeQuery = true)
+    List<Long> findAllSubCategoryIds(@Param("categoryId") Long categoryId);
+
+    @Query("SELECT c FROM Category c WHERE c.currentId = :currentId")
+    Optional<Category> findByCategoryId(@Param("currentId") Long currentId);
+
+    @Query("SELECT c.id FROM Category c WHERE c.currentId IN :currentIds")
+    List<Long> findIdsByCurrentIds(@Param("currentIds") List<Long> currentIds);
 }

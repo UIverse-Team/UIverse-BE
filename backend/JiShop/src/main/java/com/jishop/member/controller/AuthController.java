@@ -1,6 +1,7 @@
 package com.jishop.member.controller;
 
 
+import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.SignInFormRequest;
 import com.jishop.member.dto.request.UserNameRequest;
 import com.jishop.member.dto.request.UserPhoneRequest;

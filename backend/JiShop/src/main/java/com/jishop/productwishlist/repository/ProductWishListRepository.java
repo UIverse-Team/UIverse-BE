@@ -6,6 +6,7 @@ import com.jishop.productwishlist.domain.ProductWishList;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +17,12 @@ public interface ProductWishListRepository extends JpaRepository<ProductWishList
     Optional<ProductWishList> findByUserAndProduct(User user, Product product);
     List<ProductWishList> findAllByUser(User user);
 
+    @Query("SELECT w.product FROM ProductWishList w " +
+            "WHERE w.productWishStatus = true " +
+            "AND w.product.saleStatus = 'SELLING' " +
+            "AND w.product.secret = false " +
+            "GROUP BY w.product " +
+            "ORDER BY COUNT(w) DESC " +
+            "LIMIT 10")
+    List<Product> getProductByWishTopTen();
 }
