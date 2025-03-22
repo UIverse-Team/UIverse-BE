@@ -12,7 +12,6 @@ import com.jishop.order.service.OrderUtilService;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

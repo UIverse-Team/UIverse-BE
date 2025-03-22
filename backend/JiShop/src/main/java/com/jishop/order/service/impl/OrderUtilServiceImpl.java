@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderUtilServiceImpl implements OrderUtilService {
+
     private final OrderRepository orderRepository;
     private final SaleProductRepository saleProductRepository;
     private final StockService stockService;
