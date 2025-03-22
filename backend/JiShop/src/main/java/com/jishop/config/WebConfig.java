@@ -2,7 +2,6 @@ package com.jishop.config;
 
 import com.jishop.member.annotation.CurrentUserResolver;
 import com.jishop.member.annotation.LoginInterceptor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

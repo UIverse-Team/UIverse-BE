@@ -33,7 +33,7 @@ public class UserControllerImpl implements UserController {
         return ResponseEntity.ok().body("비밀번호 뱐경완료!");
     }
 
-    @PutMapping("/password")
+    @PatchMapping("/password")
     public ResponseEntity<String> updatePW(@CurrentUser User user, @RequestBody @Validated UserNewPasswordRequest request) {
         authService.updatePW(user, request);
 
