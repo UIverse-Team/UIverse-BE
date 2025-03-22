@@ -17,6 +17,9 @@ public enum ErrorType {
     EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 존재하는 이메일 입니다."),
     PASSWORD_EXISTS(HttpStatus.BAD_REQUEST, "현재 비밀번호화 동일합니다."),
 
+    PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 입니다!"),
+    AUTHORIZATION_CODE_NOT_FOUND(HttpStatus.BAD_REQUEST,"코드의 유효기간이 만료됐거나 존재하지 않습니다."),
+
     // REVIEW
     REVIEW_DUPLICATE(HttpStatus.CONFLICT, "이미 리뷰를 작성했습니다."),
     RATING_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "별점은 1~5점을 해야한다."),
