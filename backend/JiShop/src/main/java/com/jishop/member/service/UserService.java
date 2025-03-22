@@ -1,13 +1,10 @@
 package com.jishop.member.service;
 
-import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
-import com.jishop.member.dto.request.*;
+import com.jishop.member.dto.request.FindUserRequest;
+import com.jishop.member.dto.request.SignUpFormRequest;
+import com.jishop.member.dto.request.Step1Request;
 import com.jishop.member.dto.response.FindUserResponse;
-import com.jishop.member.dto.response.SocialUserInfo;
-import com.jishop.member.dto.response.UserIdResponse;
-import com.jishop.member.dto.response.UserResponse;
-import jakarta.servlet.http.HttpSession;
 
 public interface UserService {
 
