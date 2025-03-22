@@ -4,7 +4,6 @@ import com.jishop.category.domain.Category;
 import com.jishop.common.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -81,7 +80,6 @@ public class Product extends BaseEntity {
     @Column(name = "s_cat_id")
     private String sCatId;
 
-    @Builder
     public Product(Category category, String lCatId, String mCatId, String sCatId,
             String mallSeq, String name, String description, int originPrice, int discountPrice,
             BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,

@@ -16,13 +16,14 @@ public class Option extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OptionCategory categoryType;
 
-    @Column(nullable = false)
+    @Column(name = "option_value", nullable = false)
     private String optionValue;
 
-    @Column(nullable = false, columnDefinition = "integer default 0")
+    @Column(name = "option_extra", nullable = false, columnDefinition = "integer default 0")
     private int optionExtra;
 
-    public Option(final OptionCategory categoryType, final String optionValue, final int optionExtra) {
+    public Option(OptionCategory categoryType, String optionValue, int optionExtra
+    ) {
         this.categoryType = categoryType;
         this.optionValue = optionValue;
         this.optionExtra = optionExtra;
