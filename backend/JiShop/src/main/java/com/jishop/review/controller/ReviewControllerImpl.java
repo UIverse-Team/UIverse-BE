@@ -24,15 +24,11 @@ public class ReviewControllerImpl implements ReviewController {
 
     @Override
     @PostMapping
-    public ResponseEntity<Long> craeteReview(@RequestBody @Valid ReviewRequest reviewRequest,
-                                             @RequestPart(required = false) List<MultipartFile> files) {
+    public ResponseEntity<Long> createReview(@RequestBody @Valid ReviewRequest reviewRequest,
+                                             @RequestPart(required = false) List<String> imageUrl) {
 
-        //todo:
-        // 1. imageService 만들어서 받기
-        // 2. userId 세션에서 받아오기.
         Long userId = 1L;
-        List<String> images = new ArrayList<>();
-        Long reviewId = reviewService.createReview(reviewRequest, images, userId);
+        Long reviewId = reviewService.createReview(reviewRequest, imageUrl, userId);
 
         return ResponseEntity.ok(reviewId);
     }
