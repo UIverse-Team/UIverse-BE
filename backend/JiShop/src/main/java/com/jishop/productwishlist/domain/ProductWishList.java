@@ -24,15 +24,17 @@ public class ProductWishList extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 
-    private boolean productWishStatus;
-
     @Version
     private Long version; // 낙관적 락을 위한 필드
 
+    @Column(name = "product_wish_status")
+    private boolean productWishStatus;
+
     @Builder
-    public ProductWishList(User user, Product product) {
+    public ProductWishList(User user, Product product, boolean productWishStatus) {
         this.user = user;
         this.product = product;
+        this.productWishStatus = productWishStatus;
         this.productWishStatus = false;
     }
 
