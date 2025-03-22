@@ -5,11 +5,16 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.QProduct;
-import com.jishop.product.dto.ProductListResponse;
-import com.jishop.product.dto.ProductRequest;
-import com.jishop.product.dto.ProductResponse;
+import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.dto.response.ProductListResponse;
+import com.jishop.product.dto.response.ProductResponse;
+import com.jishop.product.implementation.ProductQueryHelper;
 import com.jishop.product.repository.ProductRepository;
+import com.jishop.product.repository.ProductRepositoryQueryDsl;
+import com.jishop.productwishlist.repository.ProductWishListRepository;
 import com.jishop.reviewproduct.domain.QReviewProduct;
+import com.jishop.reviewproduct.domain.ReviewProduct;
+import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import lombok.RequiredArgsConstructor;
@@ -30,22 +35,27 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ReviewProductRepository reviewProductRepository;
+    private final ProductQueryHelper productQueryHelper;
+    private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
+    private final ProductWishListRepository productWishListRepository;
 
     @Override
-    public PagedModel<ProductListResponse> getProductList(ProductRequest request) {
-        BooleanBuilder filterBuilder = productRepository
-                .findProductsByCondition(request, QProduct.product, QReviewProduct.reviewProduct);
+    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
+        BooleanBuilder filterBuilder = productQueryHelper
+                .findProductsByCondition(productRequest, QProduct.product, QReviewProduct.reviewProduct);
 
-        OrderSpecifier<?> orderSpecifier = addSorting(request.sort(), QProduct.product);
+        OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), QProduct.product);
 
-        List<Product> results = productRepository.getFilteredAndSortedResults(filterBuilder, orderSpecifier, request);
+        List<Product> results = productRepositoryQueryDsl
+                .getFilteredAndSortedResults(filterBuilder, orderSpecifier, productRequest, page, size);
 
         List<ProductListResponse> productList = results.stream()
                 .map(ProductListResponse::from).collect(Collectors.toList());
 
-        long totalCount = productRepository.countFilteredProducts(filterBuilder);
+        long totalCount = productRepositoryQueryDsl.countFilteredProducts(filterBuilder);
 
-        Pageable pageable = PageRequest.of(request.page(), request.size());
+        Pageable pageable = PageRequest.of(page, size);
         Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);
@@ -61,7 +71,24 @@ public class ProductServiceImpl implements ProductService {
             isWished = productRepository.findProductWishStatusByUserAndProduct(user, product).orElse(false);
         }
 
-        return ProductResponse.from(product, isWished);
+        ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
+
+        int reviewCount = 0;
+        double reviewRate = 0.0;
+
+        if (reviewProduct != null) {
+            reviewCount = reviewProduct.getReviewCount();
+            reviewRate = reviewProduct.getAverageRating();
+        }
+
+        return ProductResponse.from(product, isWished, reviewCount, reviewRate);
+    }
+
+    @Override
+    public List<ProductListResponse> getProductByWishTopTen() {
+        List<Product> products = productWishListRepository.getProductByWishTopTen();
+
+        return products.stream().map(ProductListResponse::from).collect(Collectors.toList());
     }
 
     private OrderSpecifier<?> addSorting(String sort, QProduct product) {

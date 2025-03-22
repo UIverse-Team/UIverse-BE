@@ -41,4 +41,11 @@ public class ReviewProduct extends BaseEntity {
         reviewScore -= rating;
 
     }
+
+    public double getAverageRating() {
+        if (reviewCount == 0) {
+            return 0;
+        }
+        return (double) reviewScore / reviewCount;
+    }
 }

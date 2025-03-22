@@ -1,70 +1,52 @@
 package com.jishop.product.implementation;
 
-import com.jishop.product.domain.Product;
+import com.jishop.category.repository.CategoryRepository;
 import com.jishop.product.domain.QProduct;
-import com.jishop.product.dto.ProductRequest;
+import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ProductQueryHelperImpl implements ProductQueryHelper {
 
-    private final JPAQueryFactory queryFactory;
+    private final CategoryRepository categoryRepository;
 
     @Override
-    public BooleanBuilder findProductsByCondition(ProductRequest request, QProduct product, QReviewProduct reviewProduct) {
+    public BooleanBuilder findProductsByCondition(
+            ProductRequest productRequest, QProduct product, QReviewProduct reviewProduct) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        addPriceRangesFiltering(request.priceRanges(), product, builder);
-        addRatingsFilter(request.ratings(), reviewProduct, product, builder);
-//        addCategory(request.category(), product, builder);
-        addKeyword(request.keyword(), product, builder);
+        addPriceRangesFiltering(productRequest.priceRanges(), product, builder);
+        addRatingsFilter(productRequest.ratings(), reviewProduct, product, builder);
+        addCategory(productRequest.category(), product, builder);
+        addKeyword(productRequest.keyword(), product, builder);
 
         return builder;
     }
 
-    @Override
-    public List<Product> getFilteredAndSortedResults(
-            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest request) {
-        QProduct product = QProduct.product;
-
-        return queryFactory.selectFrom(product)
-                .where(filterBuilder)
-                .orderBy(orderSpecifier)
-                .offset((long) request.page() * request.size())
-                .limit(request.size())
-                .fetch();
-    }
-
-    @Override
-    public long countFilteredProducts(BooleanBuilder filterBuilder) {
-        QProduct product = QProduct.product;
-
-        return queryFactory.selectFrom(product)
-                .where(filterBuilder)
-                .fetchCount();
-    }
-
-    private static void addPriceRangesFiltering(List<String> priceRanges, QProduct product, BooleanBuilder builder) {
+    private static void addPriceRangesFiltering(List<Integer> priceRanges, QProduct product, BooleanBuilder builder) {
         BooleanBuilder priceBuilder = new BooleanBuilder();
 
-        for (String range : priceRanges) {
+        for (Integer range : priceRanges) {
             switch (range) {
-                case "0-25000" -> priceBuilder.or(product.discountPrice.between(0, 25000));
-                case "25000-50000" -> priceBuilder.or(product.discountPrice.between(25001, 50000));
-                case "50000-100000" -> priceBuilder.or(product.discountPrice.between(50001, 100000));
-                case "100000+" -> priceBuilder.or(product.discountPrice.gt(100000));
-                default -> {
-                }
+                case 0 ->
+                        priceBuilder.or(product.discountPrice.between(0, 25000));
+                case 25000 ->
+                        priceBuilder.or(product.discountPrice.between(25001, 50000));
+                case 50000 ->
+                        priceBuilder.or(product.discountPrice.between(50001, 100000));
+                case 100000 ->
+                        priceBuilder.or(product.discountPrice.gt(100000));
+                default -> { }
             }
         }
 
@@ -136,9 +118,21 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         }
     }
 
-    private static void addCategory(Long category, QProduct product, BooleanBuilder builder) {
-//        builder.andAnyOf(
-//        );
+    private void addCategory(Long categoryId, QProduct product, BooleanBuilder builder) {
+        if (categoryId == null) return;
+
+        List<Long> categoryIds = categoryRepository.findByCategoryId(categoryId)
+                .map(category -> {
+                    List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
+                            categoryRepository.findAllSubCategoryIds(categoryId)
+                    );
+                    return subCategoryPKs.isEmpty()
+                            ? List.of(category.getId())
+                            : subCategoryPKs;
+                })
+                .orElse(List.of(-1L));
+
+        builder.and(product.category.id.in(categoryIds));
     }
 
     private static void addKeyword(String keyword, QProduct product, BooleanBuilder builder) {

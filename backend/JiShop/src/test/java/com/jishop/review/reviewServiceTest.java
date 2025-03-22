@@ -88,6 +88,7 @@ public class reviewServiceTest {
     @Test
     @DisplayName("리뷰를 위한 관련 데이터 만들기")
     void data() throws Exception {
+
 //
 //        // 카테고리 만들기✅
 //
@@ -235,6 +236,8 @@ public class reviewServiceTest {
     void getproduct_notUser() throws Exception {
         // given
         Long productId = 3L;
+
+        System.out.println("dkfj");
 
         PageRequest pageable = PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
         PagedModel<?> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public record EmailRequest(
         @Email
-        @NotBlank
+        @NotBlank(message = "이메일을 입력해 주세요!")
         String email
 ) {
     public EmailCertification toEntity(String token, String cerfitication){
