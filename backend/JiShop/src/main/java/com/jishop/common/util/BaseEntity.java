@@ -29,4 +29,8 @@ public class BaseEntity {
     public void delete() {
         this.deleteStatus = true;
     }
+
+    protected void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

@@ -3,6 +3,7 @@ package com.jishop.member.controller.impl;
 import com.jishop.member.controller.EmailCertificationController;
 import com.jishop.member.dto.request.EmailRequest;
 import com.jishop.member.dto.request.CertifyCodeRequest;
+import com.jishop.member.dto.response.UserIdResponse;
 import com.jishop.member.service.EmailCertificationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,6 +50,7 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
 
         return ResponseEntity.ok("인증 성공");
     }
+
 
     private void addCertificationCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("certificationToken", token);

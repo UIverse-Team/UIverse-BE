@@ -17,6 +17,9 @@ public enum ErrorType {
     EMAIL_DUPLICATE(HttpStatus.CONFLICT, "이미 존재하는 이메일 입니다."),
     PASSWORD_EXISTS(HttpStatus.BAD_REQUEST, "현재 비밀번호화 동일합니다."),
 
+    PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 입니다!"),
+    AUTHORIZATION_CODE_NOT_FOUND(HttpStatus.BAD_REQUEST,"코드의 유효기간이 만료됐거나 존재하지 않습니다."),
+
     // REVIEW
     REVIEW_DUPLICATE(HttpStatus.CONFLICT, "이미 리뷰를 작성했습니다."),
     RATING_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "별점은 1~5점을 해야한다."),
@@ -43,6 +46,8 @@ public enum ErrorType {
     ORDER_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 번호를 찾을 수 없습니다"),
     ORDER_ALREADY_CONFIRMED(HttpStatus.BAD_REQUEST,"이미 구매 확정된 주문입니다."),
     ORDER_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "주문이 이미 취소되었습니다."),
+    ORDER_CANCEL_FAILED(HttpStatus.BAD_REQUEST,"주문 취소 중 오류가 발생했습니다"),
+    ORDER_CANNOT_CANCEL_AFTER_SHIPPING(HttpStatus.BAD_REQUEST, "배송이 시작한 이후에는 주문 취소를 할 수 없습니다"),
 
     //CART
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니 상품을 찾을 수 없습니다."),
@@ -52,13 +57,15 @@ public enum ErrorType {
 
     // STOCK
     INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
+    STOCK_OPERATION_FAILED(HttpStatus.CONFLICT, "재고 관리 중 오류가 발생했습니다"),
 
     // STORE
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스토어가 존재하지 않습니다"),
 
     // Address,
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
-    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다.");
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다."),
+    DEFAULT_ADDRESS_REQUIRED(HttpStatus.NOT_FOUND, "기본 배송지가 꼭 필요합니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

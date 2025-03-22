@@ -52,5 +52,26 @@ public class OrderDetail extends BaseEntity {
         this.discountPrice = discountPrice;
     }
 
+    public static OrderDetail from(Order order, SaleProduct saleProduct, int quantity){
+        int orderPrice = saleProduct.getProduct().getOriginPrice();
+        int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+        int discountPrice = orderPrice - paymentPrice;
+
+        if(saleProduct.getOption() != null){
+            int optionExtra = saleProduct.getOption().getOptionExtra();
+            paymentPrice += optionExtra;
+            orderPrice += optionExtra;
+        }
+
+        return OrderDetail.builder()
+                .order(order)
+                .orderNumber(order.getOrderNumber())
+                .saleProduct(saleProduct)
+                .quantity(quantity)
+                .paymentPrice(paymentPrice)
+                .orderPrice(orderPrice)
+                .discountPrice(discountPrice)
+                .build();
+    }
 
 }

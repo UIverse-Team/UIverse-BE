@@ -7,6 +7,7 @@ import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.*;
 import com.jishop.member.repository.UserRepository;
+import com.jishop.member.service.OAuthProfile;
 import com.jishop.member.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -24,42 +25,28 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public Long processOAuthUser(SocialUserInfo socialUserInfo, LoginType provider) {
-        if (provider == LoginType.NAVER && socialUserInfo instanceof NaverSocialUserInfo naverInfo) {
-            Optional<User> optionalUser = userRepository.findByLoginIdAndProvider(naverInfo.email(), provider);
+    public User oauthLogin(OAuthProfile profile) {
+        String loginId = profile.getProviderId();
+        LoginType provider = LoginType.valueOf(profile.getProvider().toUpperCase());
 
-            if (optionalUser.isEmpty()) {
-                User user = User.builder()
-                        .loginId(naverInfo.email())
-                        .name(naverInfo.name())
-                        .gender(naverInfo.gender())
-                        .phone(naverInfo.mobile())
-                        .birthDate(naverInfo.birthday())
-                        .provider(provider)
-                        .build();
-                userRepository.save(user);
-            }
-
-            User user = userRepository.findByLoginIdAndProvider(naverInfo.email(), provider)
-                    .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
-            return user.getId();
+        Optional<User> existingUser = userRepository.findByLoginIdAndProvider(loginId, provider);
+        if (existingUser.isPresent()) {
+            return existingUser.get();
         } else {
-            Optional<User> optionalUser = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider);
-
-            if (optionalUser.isEmpty()) {
-                User user = User.builder()
-                        .loginId(socialUserInfo.id())
-                        .name(socialUserInfo.name())
-                        .provider(provider)
-                        .build();
-                userRepository.save(user);
-            }
-
-            User user = userRepository.findByLoginIdAndProvider(socialUserInfo.id(), provider)
-                    .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
-
-            return user.getId();
+            User newUser = User.builder()
+                    .loginId(loginId)
+                    .password(null)
+                    .name(profile.getName())
+                    .provider(provider)
+                    .birthDate(null)
+                    .gender(null)
+                    .phone(null)
+                    .ageAgreement(true)
+                    .useAgreement(true)
+                    .picAgreement(true)
+                    .adAgreement(false)
+                    .build();
+            return userRepository.save(newUser);
         }
     }
 
@@ -77,6 +64,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPhone(request.phone())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
+        if(user.isDeleteStatus()) throw new DomainException(ErrorType.USER_NOT_FOUND);
+
         return FindUserResponse.of(user);
     }
 
@@ -87,5 +76,4 @@ public class UserServiceImpl implements UserService {
 
         return UserIdResponse.from(user.getId());
     }
-
 }
