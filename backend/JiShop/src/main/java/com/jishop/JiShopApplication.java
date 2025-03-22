@@ -19,5 +19,3 @@ public class JiShopApplication {
 		return new RestTemplate();
 	}
 }
-
-
