@@ -42,7 +42,7 @@ public class OrderControllerImpl implements OrderController {
 
     //주문 전체 조회 (페이징 처리)
     @Override
-    @GetMapping("/lists")
+    @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrderList(
             @CurrentUser User user,
             @RequestParam(value = "period", defaultValue = "all") String period,
