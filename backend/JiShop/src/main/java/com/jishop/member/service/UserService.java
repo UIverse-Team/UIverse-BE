@@ -14,5 +14,4 @@ public interface UserService {
     void signUp(SignUpFormRequest form);
     void emailcheck(Step1Request request);
     FindUserResponse findUser(FindUserRequest request);
-    UserIdResponse findUserId(EmailRequest request);
 }

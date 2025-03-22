@@ -54,7 +54,11 @@ public class AddressServiceImpl implements AddressService {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new DomainException(ErrorType.ADDRESS_NOT_FOUND));
 
-        if(request.defaultYN()) changeDefault(user);
+        if(address.isDefaultYN()) {
+            if(!request.defaultYN()) throw new DomainException(ErrorType.DEFAULT_ADDRESS_REQUIRED);
+        } else {
+            changeDefault(user);
+        }
         address.updateAddress(request);
     }
 
