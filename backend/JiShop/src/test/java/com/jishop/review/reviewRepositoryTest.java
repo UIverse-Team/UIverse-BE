@@ -1,6 +1,7 @@
 package com.jishop.review;
 
 import com.jishop.review.domain.Review;
+import com.jishop.review.dto.MyPageReviewResponse;
 import com.jishop.review.repository.ReviewRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,6 @@ public class reviewRepositoryTest {
         //then
 
     }
-
     private PageRequest getCreatedAt() {
         return PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
@@ -51,6 +51,34 @@ public class reviewRepositoryTest {
         reviewsProductByUserId.stream().forEach((review) -> {
             System.out.println(review.getProduct().getName());
         });
+
+        //then
+    }
+
+    @Test
+    @DisplayName("상품 리뷰 가져오기")
+    void getReviewProduct() throws Exception {
+        // given
+        Review review = reviewRepository.findByReviewIdAndUserId(1L, 5L).orElseThrow(
+                () -> new IllegalStateException("sdfkj")
+        );
+        //when
+        System.out.println(review.getProductSummary());
+        //then
+
+    }
+
+    @Test
+    @DisplayName("리뷰 아이디, 유저 아이디로 가져오는 레포 테스트")
+    void getuserIdandreviewIdReview() throws Exception {
+        // given
+        MyPageReviewResponse myPageReviewResponse = reviewRepository.findByIdAndUserId(7L, 3L).map(MyPageReviewResponse::from).orElseThrow(
+                () -> new IllegalStateException("sdfkj")
+        );
+
+        System.out.println(myPageReviewResponse);
+
+        //when
 
         //then
 

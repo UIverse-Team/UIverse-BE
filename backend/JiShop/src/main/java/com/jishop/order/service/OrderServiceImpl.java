@@ -1,7 +1,5 @@
 package com.jishop.order.service;
 
-import com.jishop.address.domain.Address;
-import com.jishop.address.dto.AddressRequest;
 import com.jishop.address.repository.AddressRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -38,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final ReviewRepository reviewRepository;
     private final AddressRepository addressRepository;
 
-    //주문 생성
+    //주문 생성 - 통합
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
@@ -47,88 +45,51 @@ public class OrderServiceImpl implements OrderService {
             addressRepository.save(orderRequest.address().toEntity(user, false));
         }
 
-        // 주문 번호 생성
-        String orderNumberStr = generateOrderNumber();
+        //주문 entity 생성
+        Order order = Order.from(orderRequest, user, generateOrderNumber());
 
-        // 주문 객체 생성
-        Order order;
-        if (user != null) {
-            order = orderRequest.toEntity(user).withOrderNumber(orderNumberStr);
-        } else {
-            order = Order.builder()
-                    .userId(null)
-                    .recipient(orderRequest.address().recipient())
-                    .phone(orderRequest.address().phone())
-                    .address(orderRequest.address().address())
-                    .detailAddress(orderRequest.address().detailAddress())
-                    .zonecode(orderRequest.address().zonecode())
-                    .orderNumber(orderNumberStr)
-                    .build();
-        }
+        //orderDetail 생성, 수량 업데이트 (개별 항목 가격 계산 포함)
+        List<OrderDetail> orderDetails = processOrderDetails(order, orderRequest.orderDetailRequestList());
+        order.getOrderDetails().addAll(orderDetails);
 
-        // SaleProduct 일괄 조회 및 맵 생성
-        List<Long> saleProductIds = orderRequest.orderDetailRequestList().stream()
-                .map(OrderDetailRequest::saleProductId)
-                .toList();
+        //Response 반환
+        List<OrderProductResponse> orderProductResponses = convertToOrderDetailResponses(order.getOrderDetails(), user);
 
-        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdsForOrder(saleProductIds);
-        Map<Long, SaleProduct> saleProductMap = saleProducts.stream()
-                .collect(Collectors.toMap(SaleProduct::getId, sp -> sp));
+        // OrderResponse.fromOrder()에서 총합 계산 및 Order 업데이트
+        OrderResponse response = OrderResponse.fromOrder(order, orderProductResponses);
 
-        // 주문 상세 처리
-        List<OrderDetail> orderDetails = new ArrayList<>();
-        for (OrderDetailRequest detailRequest : orderRequest.orderDetailRequestList()) {
-            Long saleProductId = detailRequest.saleProductId();
-            int quantity = detailRequest.quantity();
-
-            SaleProduct saleProduct = saleProductMap.get(saleProductId);
-            if (saleProduct == null) throw new DomainException(ErrorType.PRODUCT_NOT_FOUND);
-
-            stockService.decreaseStock(saleProduct.getStock(), quantity);
-
-            int paymentPrice = saleProduct.getProduct().getDiscountPrice();
-            int orderPrice = saleProduct.getProduct().getOriginPrice();
-            int discountPrice = orderPrice - paymentPrice;
-
-            if(saleProduct.getOption() != null){
-                paymentPrice += saleProduct.getOption().getOptionExtra();
-                orderPrice += saleProduct.getOption().getOptionExtra();
-            }
-
-            OrderDetail orderDetail = OrderDetail.builder()
-                    .order(order)
-                    .saleProduct(saleProduct)
-                    .quantity(quantity)
-                    .paymentPrice(paymentPrice)
-                    .orderPrice(orderPrice)
-                    .discountPrice(discountPrice)
-                    .build();
-
-            orderDetails.add(orderDetail);
-        }
-
-        // 주문 정보 업데이트
-        int totalPrice = orderDetails.stream()
-                .mapToInt(detail -> detail.getPaymentPrice() * detail.getQuantity())
-                .sum();
-
-        order.updateOrderInfo(totalPrice, orderDetails, orderNumberStr);
+        // Order 저장
         orderRepository.save(order);
 
-        // 응답 생성
-        List<OrderDetailResponse> orderDetailResponseList = convertToOrderDetailResponses(order.getOrderDetails());
-        return OrderResponse.fromOrder(order, orderDetailResponseList);
+        return response;
     }
 
+    //바로 주문하기 (회원/비회원 통합)
+    @Override
+    public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
+        //InstantOrderRequest => OrderRequest
+        OrderRequest orderRequest = convertInstantToOrderRequest(instantOrderRequest);
 
-    //주문 상세 페이지
+        return createOrder(user, orderRequest);
+    }
+
+    // 주문 상세 조회 (회원/비회원 통합)
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDetailResponse> getOrder(User user, Long orderId) {
-        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
+        Order order;
 
-        return convertToOrderDetailResponses(order.getOrderDetails());
+        if(user != null){
+            //회원 주문 조회
+            order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        } else {
+            //비회원 주문 조회
+            order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        }
+
+        return createOrderDetailPageResponse(order, user);
     }
 
     //주문 전체 조회 페이징 처리
@@ -136,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size) {
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime startDate = today;
+
         switch (period){
             case "1month":
                 startDate = today.minusMonths(1);
@@ -172,193 +134,156 @@ public class OrderServiceImpl implements OrderService {
                 .map(orderMap::get)
                 .filter(Objects::nonNull)
                 .map(order -> {
-                    List<OrderDetailResponse> orderDetailResponses = convertToOrderDetailResponses(order.getOrderDetails());
+                    List<OrderProductResponse> orderDetailResponses = convertToOrderDetailResponses(order.getOrderDetails(), user);
                     return OrderResponse.fromOrder(order, orderDetailResponses);
                 })
                 .toList();
+
         return new PageImpl<>(orderResponses, pageable, orderIdsPage.getTotalElements());
     }
 
-    //회원 주문 취소
+    //주문 취소 - (회원/비회원 통합)
     @Override
     @Transactional
-    public void cancelOrder(User user, Long orderId) {
-        Order order = orderRepository.findByIdWithDetails(user.getId(), orderId)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
+        Order order;
 
-        //주문 취소가 가능한 지
-        validateOrderCancellation(order);
-        //재고 증가 및 주문 상태 변경
-        processOrderCancellation(order);
-    }
-
-    //주문 취소가 가능한 지
-    private void validateOrderCancellation(Order order) {
-        if (order.getStatus() == OrderStatus.ORDER_CANCELED)
-            throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
-
-        if (order.getStatus() == OrderStatus.PURCHASED_CONFIRMED)
-            throw new DomainException(ErrorType.ORDER_ALREADY_CONFIRMED);
-    }
-
-    //재고 증가 및 주문 상태 변경
-    private void processOrderCancellation(Order order) {
-        // 재고 복구
-        for (OrderDetail orderDetail : order.getOrderDetails()) {
-            SaleProduct saleProduct = orderDetail.getSaleProduct();
-            int quantity = orderDetail.getQuantity();
-            stockService.increaseStock(saleProduct.getStock(), quantity);
+        if(user != null) {
+            //회원 주문 취소
+            order = orderRepository.findForCancellation(user.getId(), orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        } else {
+            order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                    .orElseThrow(()-> new DomainException(ErrorType.ORDER_NOT_FOUND));
         }
 
-        // 주문 상태 변경
-        order.updateStatus(OrderStatus.ORDER_CANCELED);
-        order.delete();
+        processCancellation(order);
     }
 
-    //회원 바로 주문하기
+    //회원,비회원 주문 취소 상세 페이지
     @Override
-    public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
-        // 상품 정보 조회
+    @Transactional(readOnly = true)
+    public OrderCancelResponse getCancelPage(User user, Long orderId) {
+        Order order;
+
+        if(user != null){
+            order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        } else {
+            order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+        }
+
+        OrderDetailPageResponse pageResponse = createOrderDetailPageResponse(order, user);
+
+        return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
+    }
+
+    private List<OrderDetail> processOrderDetails(Order order, List<OrderDetailRequest> orderDetailRequestList) {
+        List<Long> saleProductIds = orderDetailRequestList.stream()
+                .map(OrderDetailRequest::saleProductId)
+                .toList();
+
+        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdsForOrder(saleProductIds);
+        Map<Long, SaleProduct> saleProductMap = saleProducts.stream()
+                .collect(Collectors.toMap(SaleProduct::getId, sp -> sp));
+
+        List<OrderDetail> orderDetails = new ArrayList<>();
+
+        for(OrderDetailRequest orderDetailRequest : orderDetailRequestList) {
+            SaleProduct saleProduct = Optional.ofNullable(saleProductMap.get(orderDetailRequest.saleProductId()))
+                    .orElseThrow(()-> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
+            try{
+                //수량 줄이기
+                stockService.decreaseStock(saleProduct.getStock(), orderDetailRequest.quantity());
+            } catch (Exception e){
+                throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
+            }
+            OrderDetail orderDetail = OrderDetail.from(order, saleProduct, orderDetailRequest.quantity());
+            orderDetails.add(orderDetail);
+        }
+
+        return orderDetails;
+    }
+
+    private OrderRequest convertInstantToOrderRequest(InstantOrderRequest instantOrderRequest) {
         SaleProduct saleProduct = saleProductRepository.findById(instantOrderRequest.saleProductId())
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-        // 주문 상세 요청 생성
-        OrderDetailRequest orderDetailRequest = new OrderDetailRequest(
-                saleProduct.getId(), saleProduct.getName(), instantOrderRequest.quantity()
+        OrderDetailRequest detailRequest = new OrderDetailRequest(
+            saleProduct.getId(), instantOrderRequest.quantity()
         );
 
-        // 주소 저장 및 요청 생성
-        Address shippingAddress = instantOrderRequest.address().toEntity(user, false);
-        addressRepository.save(shippingAddress);
-
-        AddressRequest addressRequest = instantOrderRequest.address();
-
-        // 주문 요청 생성 및 주문 처리
-        OrderRequest orderRequest = new OrderRequest(
-                addressRequest,
-                List.of(orderDetailRequest)
+        return new OrderRequest(
+                instantOrderRequest.address(),
+                List.of(detailRequest)
         );
-
-        return createOrder(user, orderRequest);
     }
 
-    //비회원 주문 생성
-    @Override
-    public OrderResponse createGuestOrder(OrderRequest orderRequest) {
-        // 회원 주문 생성 메서드 재사용 (user = null)
-        OrderResponse response = createOrder(null, orderRequest);
+    private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {
+        boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;
 
-        return response;
+        List<OrderProductResponse> products = order.getOrderDetails().stream()
+                .map(detail -> {
+                    boolean canReview = isPurchasedConfirmed && !reviewRepository.existsByOrderDetailId(detail.getId());
+
+                    return OrderProductResponse.from(detail, canReview);
+                })
+                .toList();
+
+        return OrderDetailPageResponse.from(order, user, products);
     }
 
-    //회원 주문 조회
-    @Override
-    @Transactional
-    public List<OrderDetailResponse> getGuestOrder(String orderNumber, String phone) {
-        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
-
-        return convertToOrderDetailResponses(order.getOrderDetails());
-    }
-
-    // 비회원 바로 주문
-    @Override
-    @Transactional
-    public OrderResponse createGuestInstantOrder(InstantOrderRequest orderRequest) {
-        // 상품 정보 조회
-        SaleProduct saleProduct = saleProductRepository.findById(orderRequest.saleProductId())
-                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
-
-        // 주문 상세 요청 생성
-        OrderDetailRequest orderDetailRequest = new OrderDetailRequest(
-                saleProduct.getId(), saleProduct.getName(), orderRequest.quantity()
-        );
-
-        // 주소 요청 생성
-        AddressRequest addressRequest = new AddressRequest(
-                orderRequest.address().recipient(),
-                orderRequest.address().phone(),
-                orderRequest.address().zonecode(),
-                orderRequest.address().address(),
-                orderRequest.address().detailAddress(),
-                false
-        );
-
-        // 주문 요청 생성 및 주문 처리
-        OrderRequest request = new OrderRequest(
-                addressRequest,
-                List.of(orderDetailRequest)
-        );
-
-        // 회원 주문 생성 메서드 재사용 (user = null)
-        OrderResponse response = createOrder(null, request);
-        return response;
-    }
-
-    //비회원 주문 취소
-    @Override
-    @Transactional
-    public void cancelGuestOrder(String orderNumber, String phone) {
-        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
-                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
-
+    private void processCancellation(Order order) {
         validateOrderCancellation(order);
-        processOrderCancellation(order);
+
+        try {
+            // 재고 되돌리기
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                SaleProduct saleProduct = orderDetail.getSaleProduct();
+                int quantity = orderDetail.getQuantity();
+                stockService.increaseStock(saleProduct.getStock(), quantity);
+            }
+
+            // 주문 상태 변경
+            order.updateStatus(OrderStatus.ORDER_CANCELED, LocalDateTime.now());
+            order.delete();
+        } catch (DomainException e) {
+            throw new DomainException(ErrorType.ORDER_CANCEL_FAILED);
+        }
     }
 
-    private List<OrderDetailResponse> convertToOrderDetailResponses(List<OrderDetail> details) {
+    private void validateOrderCancellation(Order order) {
+        if (order.getStatus() == OrderStatus.ORDER_CANCELED) {
+            throw new DomainException(ErrorType.ORDER_ALREADY_CANCELED);
+        }
+
+        if (order.getStatus() == OrderStatus.PURCHASED_CONFIRMED) {
+            throw new DomainException(ErrorType.ORDER_ALREADY_CONFIRMED);
+        }
+
+        //배송 시작 후에는 취소 불가 로직 추가 가능
+        if(order.getStatus() == OrderStatus.SHIPMENT_STARTED || order.getStatus() == OrderStatus.SHIPMENT_PROCESSING)
+            throw new DomainException(ErrorType.ORDER_CANNOT_CANCEL_AFTER_SHIPPING);
+    }
+
+
+    private List<OrderProductResponse> convertToOrderDetailResponses(List<OrderDetail> details, User user) {
         // 주문 상태가 구매확정인 주문만 리뷰 작성 가능
         boolean isPurchaseConfirmed = !details.isEmpty() &&
                 details.get(0).getOrder().getStatus() == OrderStatus.PURCHASED_CONFIRMED;
 
-        if (!isPurchaseConfirmed) {
-            return details.stream()
-                    .map(detail -> new OrderDetailResponse(
-                            detail.getId(),
-                            detail.getSaleProduct().getId(),
-                            detail.getSaleProduct().getName(),
-                            detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                            detail.getPaymentPrice(),
-                            detail.getOrderPrice(),
-                            detail.getDiscountPrice(),
-                            detail.getQuantity(),
-                            detail.getPaymentPrice() * detail.getQuantity(),
-                            false // 구매확정 상태가 아니면 리뷰 작성 불가
-                    ))
-                    .toList();
-        }
-
-        // 모든 주문 상세 ID 목록 => 한번의 쿼리로 리뷰가 작성된 거 까지 가져오고, 리뷰 작성 여부는 여기서 확인(N+1 문제 해결)
         List<Long> orderDetailIds = details.stream().map(OrderDetail::getId).toList();
-
-        // 리뷰가 있는 주문 상세 ID 목록
-        List<Long> reviewedOrderDetailIds = reviewRepository.findOrderDetailIdsWithReviews(orderDetailIds);
+        List<Long> reviewedOrderDetailIds = isPurchaseConfirmed ?
+                reviewRepository.findOrderDetailIdsWithReviews(orderDetailIds) : Collections.emptyList();
 
         return details.stream()
-                .map(detail -> new OrderDetailResponse(
-                        detail.getId(),
-                        detail.getSaleProduct().getId(),
-                        detail.getSaleProduct().getName(),
-                        detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
-                        detail.getPaymentPrice(),
-                        detail.getOrderPrice(),
-                        detail.getDiscountPrice(),
-                        detail.getQuantity(),
-                        detail.getPaymentPrice() * detail.getQuantity(),
-                        !reviewedOrderDetailIds.contains(detail.getId()) // 리뷰가 없는 경우만 true
-                ))
+                .map(detail -> {
+                    boolean canReview = isPurchaseConfirmed && !reviewedOrderDetailIds.contains(detail.getId());
+                    return OrderProductResponse.from(detail, canReview);
+                })
                 .toList();
-    }
-
-    //
-    private int calculatePrice(SaleProduct saleProduct) {
-        int price = saleProduct.getProduct().getDiscountPrice();
-
-        if(saleProduct.getOption() != null) {
-            price += saleProduct.getOption().getOptionExtra();
-        }
-
-        return price;
     }
 
     private static final int LENGTH = 5;

@@ -21,7 +21,7 @@ public class Product extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     @Column(name = "mall_seq",  nullable = false)
     private String mallSeq;
@@ -83,8 +83,8 @@ public class Product extends BaseEntity {
 
     @Builder
     public Product(Category category, String lCatId, String mCatId, String sCatId,
-            String mallSeq, String name, String description, int originPrice,
-            int discountPrice, BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+            String mallSeq, String name, String description, int originPrice, int discountPrice,
+            BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
             DiscountStatus discountStatus, Boolean isDiscount, String brand, int wishListCount, Labels labels,
             String mainImage, String image1, String image2, String image3, String image4, String detailImage,
             int productViewCount
