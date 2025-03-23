@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 생성 테스트</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 500px; margin: auto; }
+        input, button { width: 100%; padding: 10px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+<h1>주문 생성 테스트</h1>
+<form id="orderForm">
+    <h3>배송지 정보</h3>
+    <input type="text" name="recipient" placeholder="수령인" required>
+    <input type="text" name="phone" placeholder="연락처" required>
+    <input type="text" name="zonecode" placeholder="우편번호" required>
+    <input type="text" name="address" placeholder="주소" required>
+    <input type="text" name="detailAddress" placeholder="상세주소" required>
+    <h3>주문 상세</h3>
+    <input type="number" name="saleProductId" placeholder="상품 ID" required>
+    <input type="number" name="quantity" placeholder="수량" required>
+    <button type="submit">구매하기</button>
+</form>
+
+<script>
+    const orderForm = document.getElementById('orderForm');
+    orderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(orderForm);
+
+        // 주문 요청 DTO 구성
+        const orderRequest = {
+            address: {
+                recipient: formData.get('recipient'),
+                phone: formData.get('phone'),
+                zonecode: formData.get('zonecode'),
+                address: formData.get('address'),
+                detailAddress: formData.get('detailAddress'),
+                defaultYN: false
+            },
+            orderDetailRequestList: [
+                {
+                    saleProductId: parseInt(formData.get('saleProductId'), 10),
+                    productName: "테스트 상품",
+                    quantity: parseInt(formData.get('quantity'), 10)
+                }
+            ]
+        };
+
+        try {
+            // 로컬 스프링 서버의 주문 생성 API 호출 (HTTP)
+            const response = await fetch('https://localhost/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderRequest)
+            });
+
+            if (response.ok) {
+                const orderResponse = await response.json();
+                if(orderResponse && orderResponse.orderNumber) {
+                    alert("주문 생성 완료. 주문번호: " + orderResponse.orderNumber);
+                } else {
+                    alert("주문 생성은 완료되었으나 주문번호 반환이 없습니다.");
+                }
+            } else {
+                alert("주문 생성 실패: " + response.statusText);
+            }
+        } catch (error) {
+            console.error("오류 발생:", error);
+            alert("오류가 발생했습니다.");
+        }
+    });
+</script>
+</body>
+</html>

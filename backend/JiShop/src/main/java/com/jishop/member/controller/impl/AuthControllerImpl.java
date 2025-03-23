@@ -38,7 +38,4 @@ public class AuthControllerImpl implements AuthController {
         }
         return ResponseEntity.ok().build();
     }
-
-
-
 }

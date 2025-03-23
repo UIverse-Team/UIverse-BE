@@ -1,6 +1,5 @@
 package com.jishop.cart.controller;
 
-import com.jishop.cart.domain.Cart;
 import com.jishop.cart.dto.AddCartRequest;
 import com.jishop.cart.dto.CartDetailResponse;
 import com.jishop.cart.dto.CartResponse;
@@ -15,4 +14,5 @@ public interface CartController {
     ResponseEntity<CartDetailResponse> addCartItem(User user, AddCartRequest request);
     ResponseEntity<CartDetailResponse> updateCartItem(User user, UpdateCartRequest request);
     ResponseEntity<String> removeCartItem(User user, Long cartId);
+    ResponseEntity<CartResponse> getGuestCartItems(Long saleProductId);
 }
