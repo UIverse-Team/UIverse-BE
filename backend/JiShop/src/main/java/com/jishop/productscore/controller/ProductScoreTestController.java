@@ -23,6 +23,7 @@ public class ProductScoreTestController {
     public ResponseEntity<String> calculateScores() {
         List<Product> products = productRepository.findAll();
         productScoreService.calculateAndUpdateScore(products);
+
         return ResponseEntity.ok("상품 점수 계산 완료");
     }
 }
