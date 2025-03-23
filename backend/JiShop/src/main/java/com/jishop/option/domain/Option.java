@@ -1,6 +1,5 @@
 package com.jishop.option.domain;
 
-
 import com.jishop.common.util.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
