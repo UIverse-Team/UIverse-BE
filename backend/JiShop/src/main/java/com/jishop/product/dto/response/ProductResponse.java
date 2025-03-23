@@ -4,7 +4,6 @@ import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 
 public record ProductResponse(
-
         String name,
         Labels labels,
         String description,

@@ -20,7 +20,8 @@ public class CategoryService {
         Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "wishListCount"));
         Page<Product> productPage = categoryRepository.findProductsByTopLevelCategoryId(categoryId, pageable);
 
-        Page<CategoryResponse> categoryResponsePage = productPage.map(product -> CategoryResponse.from(List.of(product)));
+        Page<CategoryResponse> categoryResponsePage = productPage
+                .map(product -> CategoryResponse.from(List.of(product)));
 
         return new PagedModel<>(categoryResponsePage);
     }
