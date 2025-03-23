@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
     //비회원 장바구니 조회
     @Override
     public CartResponse getGuestCart(List<Long> saleProductId) {
-        List<SaleProduct> saleProducts = saleProductRepository.findAllById(saleProductId);
+        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdWithProductAndOptionAndStock(saleProductId);
 
         List<CartDetailResponse> cartDetailResponses = saleProducts.stream()
                 .map(saleProduct -> new CartDetailResponse(
