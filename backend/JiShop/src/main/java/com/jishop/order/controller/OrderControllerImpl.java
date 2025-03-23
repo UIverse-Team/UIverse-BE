@@ -1,9 +1,5 @@
 package com.jishop.order.controller;
 
-import com.jishop.address.dto.AddressResponse;
-import com.jishop.address.repository.AddressRepository;
-import com.jishop.common.exception.DomainException;
-import com.jishop.common.exception.ErrorType;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
@@ -72,40 +68,11 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
-    //비회원 주문 조회하기
-    @Override
-    @GetMapping("/guest/{orderNumber}")
-    public ResponseEntity<OrderDetailPageResponse> getGuestOrderDetail(@PathVariable String orderNumber,
-                                                                       @RequestParam String phone) {
-        OrderDetailPageResponse orderDetailList = orderService.getOrder(null, null, orderNumber, phone);
-
-        return ResponseEntity.ok(orderDetailList);
-    }
-
-    //비회원 주문 취소하기
-    @Override
-    @PatchMapping("/guest/{orderNumber}")
-    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
-                                                   @RequestParam String phone) {
-        orderService.cancelOrder(null, null, orderNumber, phone);
-
-        return ResponseEntity.ok("주문이 취소되었습니다.");
-    }
-
     //회원 주문 취소 상세  페이지
     @Override
     @GetMapping("/getCancel/{orderId}")
     public ResponseEntity<OrderCancelResponse> getOrderCancel(@CurrentUser User user, @PathVariable Long orderId) {
         OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId, null, null);
-
-        return ResponseEntity.ok(orderCancelResponse);
-    }
-
-    //비회원 주문 취소 상세 페이지
-    @Override
-    @GetMapping("/getGuestCancel/{orderNumber}")
-    public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
-        OrderCancelResponse orderCancelResponse = orderService.getCancelPage(null, null, orderNumber, phone);
 
         return ResponseEntity.ok(orderCancelResponse);
     }
