@@ -1,15 +1,22 @@
 package com.jishop.review.domain.embed;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ImageUrls {
+
+    @Transient
+    private final String PREFIX = "https://d5hvuqrbdt6lu.cloudfront.net/";
 
     private String image1;
     private String image2;
@@ -29,15 +36,10 @@ public class ImageUrls {
     }
 
     public List<String> getImages() {
-        List<String> images = new ArrayList<>();
-        images.add(image1);
-        images.add(image2);
-        images.add(image3);
-        images.add(image4);
-        images.add(image5);
-        return images;
+        return Stream.of(image1, image2, image3, image4, image5)
+                .filter(Objects::nonNull)
+                .map(img -> PREFIX + img)
+                .collect(Collectors.toList());
     }
-
-
 }
 
