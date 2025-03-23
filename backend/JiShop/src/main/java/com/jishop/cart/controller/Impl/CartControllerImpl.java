@@ -47,7 +47,7 @@ public class CartControllerImpl implements CartController {
 
     //장바구니 상품 삭제
     @Override
-    @PatchMapping
+    @DeleteMapping
     public ResponseEntity<String> removeCartItem(@CurrentUser User user, @RequestBody DeleteCartRequest deleteCartRequest) {
         cartService.removeCartItem(user, deleteCartRequest);
 
