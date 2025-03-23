@@ -13,6 +13,7 @@ public record ProductResponse(
         Integer discountPrice,
         Boolean isDiscount,
         String brand,
+        Object option,
         int reviewCount,
         double reviewRate,
         String[] images,
@@ -20,7 +21,7 @@ public record ProductResponse(
         // true 또는 빈배열 반환
         Object isWished
 ) {
-    public static ProductResponse from(Product product, Boolean isWished, int reviewCount, double reviewRate) {
+    public static ProductResponse from(Product product, Boolean isWished, int reviewCount, double reviewRate, Object option) {
         Object wishStatus = isWished != null && isWished ? true : new String[0];
 
         return new ProductResponse(
@@ -32,6 +33,7 @@ public record ProductResponse(
                 product.getDiscountPrice(),
                 product.getIsDiscount(),
                 product.getBrand(),
+                option,
                 reviewCount,
                 reviewRate,
                 new String[] {
