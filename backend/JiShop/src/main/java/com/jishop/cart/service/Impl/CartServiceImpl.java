@@ -1,10 +1,7 @@
 package com.jishop.cart.service.Impl;
 
 import com.jishop.cart.domain.Cart;
-import com.jishop.cart.dto.AddCartRequest;
-import com.jishop.cart.dto.CartDetailResponse;
-import com.jishop.cart.dto.CartResponse;
-import com.jishop.cart.dto.UpdateCartRequest;
+import com.jishop.cart.dto.*;
 import com.jishop.cart.repository.CartRepository;
 import com.jishop.cart.service.CartService;
 import com.jishop.common.exception.DomainException;
@@ -13,10 +10,10 @@ import com.jishop.member.domain.User;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.stock.domain.Stock;
-import com.jishop.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -91,11 +88,13 @@ public class CartServiceImpl implements CartService {
 
     //장바구니 상품 삭제
     @Override
-    public void removeCartItem(User user, Long cartId) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(()-> new DomainException(ErrorType.CART_ITEM_NOT_FOUND));
+    public void removeCartItem(User user, DeleteCartRequest deleteCartRequest) {
+        List<Cart> cart = cartRepository.findAllById(deleteCartRequest.cartIdList());
 
-        cartRepository.delete(cart);
+        if(cart.isEmpty())
+            throw new DomainException(ErrorType.CART_ITEM_NOT_FOUND);
+
+        cartRepository.deleteAll(cart);
     }
 
     //비회원 장바구니 조회
