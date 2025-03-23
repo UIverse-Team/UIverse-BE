@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public record CategoryResponse(
-
         List<ProductListResponse> products
 ) {
     public static CategoryResponse from(List<Product> products) {
