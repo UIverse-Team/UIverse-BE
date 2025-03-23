@@ -1,4 +1,4 @@
-package com.jishop.trend.service;
+package com.jishop.popular.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,12 +26,11 @@ public class SearchServiceImpl implements SearchService {
     private final RedisTemplate<String, Object> redisTemplate;      // Redis에 검색어 저장(key-value)
     private final ObjectMapper objectMapper;                        // 로그 -> json 변환
 
-
     /**
      * 검색어 처리 메서드
      *
      * 사용자가 입력한 검색어에 대해
-     * 1. 검색어 유효성 검사 - 비속어, 유효하지 않은 값
+     * 1. 검색어 유효성 검사 - 유효하지 않은 값(null, 빈 값)
      * 2. 검색어와 상품 데이터와 관련있는지 확인
      * 3. 유효한 검색어인 경우 Redis에 저장 - 현재 시간대별 누적 검색 횟수 저장
      * 4. 로그 데이터 생성 후 Logback을 통해 Logstash로 전송 - Elasticsearch에 저장
@@ -42,11 +41,7 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean processSearch(String keyword, String clientIp) {
-        if(!isValidKeyword(keyword)){
-            return false;
-        }
-        
-        if(!isRelatedToSaleProduct(keyword)){
+        if(!isValidKeyword(keyword) || !isRelatedToSaleProduct(keyword)){
             return false;
         }
 
@@ -77,7 +72,6 @@ public class SearchServiceImpl implements SearchService {
     /**
      * 검색어 유효성 검사 메서드
      * - null 체크, 빈 값 체크
-     * - 추후 비속어/금칙어 필터링 로직이 필요
      *
      * @param keyword   입력받은 검색어
      * @return          유효하면 true, 아니면 false
@@ -87,7 +81,6 @@ public class SearchServiceImpl implements SearchService {
         if(keyword == null || keyword.trim().isEmpty()){
             return false;
         }
-
         return true;
     }
 
