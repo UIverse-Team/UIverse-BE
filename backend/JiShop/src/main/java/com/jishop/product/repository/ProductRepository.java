@@ -1,6 +1,5 @@
 package com.jishop.product.repository;
 
-import com.jishop.member.domain.User;
 import com.jishop.product.domain.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,8 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query("SELECT pw.productWishStatus FROM ProductWishList pw WHERE pw.user = :user AND pw.product = :product")
+    @Query("SELECT pw.productWishStatus FROM ProductWishList pw WHERE pw.user = :userId AND pw.product = :product")
     Optional<Boolean> findProductWishStatusByUserAndProduct(
-            @Param("user") User user,
+            @Param("userId") Long userId,
             @Param("product") Product product);
 }

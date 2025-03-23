@@ -2,7 +2,6 @@ package com.jishop.product.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
-import com.jishop.member.domain.User;
 import com.jishop.option.domain.OptionCategory;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.QProduct;
@@ -68,26 +67,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getProduct(User user, Long productId) {
+    public ProductResponse getProduct(Long userId, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
         Boolean isWished = false;
-        if (user != null) {
-            isWished = productRepository.findProductWishStatusByUserAndProduct(user, product).orElse(false);
+        if (userId != null) {
+            isWished = productRepository.findProductWishStatusByUserAndProduct(userId, product).orElse(false);
         }
 
-        List<Map<String, Object>> optionsData = saleProductRepository.findOptionDetailsForProduct(productId);
-
+        List<Map<String, Object>> productOptions = saleProductRepository.findOptionsForProduct(productId);
         Object processedOptions;
-
-        if (!optionsData.isEmpty()) {
-            OptionCategory categoryType = (OptionCategory) optionsData.get(0).get("categoryType");
+        if (!productOptions.isEmpty()) {
+            OptionCategory categoryType = (OptionCategory) productOptions.get(0).get("categoryType");
 
             if (OptionCategory.FASHION_CLOTHES.equals(categoryType)) {
                 Map<String, List<Map<String, Object>>> colorSizeMap = new HashMap<>();
 
-                for (Map<String, Object> option : optionsData) {
+                for (Map<String, Object> option : productOptions) {
                     String optionValue = (String) option.get("optionValue");
                     String[] splitValue = optionValue.split("/");
 
@@ -113,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
             else {
                 List<Map<String, Object>> optionsList = new ArrayList<>();
 
-                for (Map<String, Object> option : optionsData) {
+                for (Map<String, Object> option : productOptions) {
                     Map<String, Object> optionInfo = new HashMap<>();
                     optionInfo.put("saleProductId", option.get("saleProductId"));
                     optionInfo.put("value", option.get("optionValue"));
