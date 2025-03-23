@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,10 +57,10 @@ public class CartControllerImpl implements CartController {
         return ResponseEntity.ok("장바구니 상품이 잘 삭제되었습니다.");
     }
 
-    //todo: saleProductId를 List로 내려주는 지 기다리기
     //비회원 장바구니 조회
     @Override
-    public ResponseEntity<CartResponse> getGuestCartItems(Long saleProductId) {
+    @GetMapping("/guest")
+    public ResponseEntity<CartResponse> getGuestCartItems(@RequestParam List<Long> saleProductId) {
         CartResponse cartResponses = cartService.getGuestCart(saleProductId);
 
         return ResponseEntity.ok(cartResponses);

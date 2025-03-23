@@ -98,11 +98,28 @@ public class CartServiceImpl implements CartService {
         cartRepository.delete(cart);
     }
 
-    //todo: saleProductId를 List로 내려주는 지 기다리기
     //비회원 장바구니 조회
     @Override
-    public CartResponse getGuestCart(Long saleProductId) {
-        return null;
+    public CartResponse getGuestCart(List<Long> saleProductId) {
+        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdWithProductAndOptionAndStock(saleProductId);
+
+        List<CartDetailResponse> cartDetailResponses = saleProducts.stream()
+                .map(saleProduct -> new CartDetailResponse(
+                        null, //장바구니 ID는 null (비회원이니까)
+                        saleProduct.getId(),
+                        saleProduct.getProduct().getName(),
+                        saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
+                        saleProduct.getProduct().getDiscountPrice(),
+                        saleProduct.getProduct().getOriginPrice(),
+                        saleProduct.getProduct().getOriginPrice() - saleProduct.getProduct().getDiscountPrice(),
+                        1, //수량은 기본값 1로 설정
+                        saleProduct.getProduct().getDiscountPrice(), //수량 1일 때 판매가격
+                        saleProduct.getProduct().getMainImage(),
+                        saleProduct.getProduct().getBrand()
+                ))
+                .toList();
+
+        return CartResponse.of(cartDetailResponses);
     }
 
     private CartDetailResponse mapToCartDetailResponse(Cart cart) {

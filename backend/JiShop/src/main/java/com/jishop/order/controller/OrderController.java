@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "상품 주문 조회 API")
+@Tag(name = "주문 API")
 public interface OrderController {
 
     //회원, 비회원 주문

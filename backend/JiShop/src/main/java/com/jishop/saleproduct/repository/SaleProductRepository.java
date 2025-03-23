@@ -20,4 +20,11 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
             "LEFT JOIN FETCH sp.stock " +
             "WHERE sp.id IN :ids")
     List<SaleProduct> findAllByIdsForOrder(@Param("ids") List<Long> ids);
+
+    @Query("SELECT sp FROM SaleProduct sp " +
+            "JOIN FETCH sp.product p " +
+            "LEFT JOIN FETCH sp.option o " +
+            "LEFT JOIN FETCH sp.stock s " +
+            "WHERE sp.id IN :ids")
+    List<SaleProduct> findAllByIdWithProductAndOptionAndStock(@Param("ids") List<Long> ids);
 }
