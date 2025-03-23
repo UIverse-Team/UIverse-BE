@@ -33,7 +33,7 @@ public class ProductScoreServiceImpl implements ProductScoreService {
      * 모든 상품의 점수를 계산하고 업데이트
      * 상품 점수 계산에는 가중치를 적용
      * 
-     * @param products
+     * @param products      점수를 계산할 상풀 리스트
      */
     public void calculateAndUpdateScore(List<Product> products) {
         for(Product product : products) {
@@ -42,6 +42,12 @@ public class ProductScoreServiceImpl implements ProductScoreService {
         }
     }
 
+    /**
+     * 상품 점수 계산 메서드
+     *
+     * @param product       점수를 계산할 상품
+     * @return ProductScore 엔티티
+     */
     public ProductScore calculateScore(Product product) {
         Long productId = product.getId();
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
