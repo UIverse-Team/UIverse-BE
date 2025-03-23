@@ -22,7 +22,7 @@ public record FileUploadRequest(
 
     private void imageValidation(MultipartFile file) {
         String filename = file.getOriginalFilename();
-        if (filename == null || !filename.matches("(?i).+\\.(jpg|jpeg|png|gif)$")) {
+        if (filename == null || !filename.matches("(?i).+\\.(jpg|jpeg|png)$")) {
             throw new IllegalArgumentException("지원하지 않는 이미지 형식입니다.");
         }
 
