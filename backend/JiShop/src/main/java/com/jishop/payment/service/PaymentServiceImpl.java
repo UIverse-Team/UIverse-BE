@@ -48,6 +48,7 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
         order.setPayment(payment);
         order.updateStatus(OrderStatus.PAYMENT_COMPLETED, LocalDateTime.now());
+        orderRepository.save(order);
 
         return PaymentConfirmResponse.fromPayment(payment, "결제가 승인되었습니다.");
     }
