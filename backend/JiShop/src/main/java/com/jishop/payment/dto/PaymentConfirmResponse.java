@@ -3,8 +3,7 @@ package com.jishop.payment.dto;
 import com.jishop.payment.domain.Payment;
 
 public record PaymentConfirmResponse(
-//        String paymentKey,
-        String orderid,
+        String orderId,
         int amount,
         String status,
         String message      // 결제 승인 결과에 따른 메세지

@@ -34,6 +34,7 @@ public class Payment {
 //    private String orderName;
 
     // TODO : 토스테서 전달해주는 status 응답값 확인
+        // READY, IN_PROGRESS, WAITING_FOR_DEPOSIT, DONE, CANCELED, PARTIAL_CANCELED, ABORTED, EXPIRED
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
@@ -46,7 +47,8 @@ public class Payment {
     @Column(nullable = false)
     private LocalDateTime approvedAt;
 
-    // TODO : 토스에서 전달해주는 status 응답값 확인
+    // TODO : 토스에서 전달해주는 method 응답값 확인
+        // 카드, 가상계좌, 간편결제, 휴대폰, 게좌이체, 문화상품권, 도서문화상품권, 게임문화상품권
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentMethod method;

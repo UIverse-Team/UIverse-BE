@@ -4,10 +4,10 @@ package com.jishop.payment.controller;
 import com.jishop.payment.dto.PaymentConfirmRequest;
 import com.jishop.payment.dto.PaymentConfirmResponse;
 import com.jishop.payment.service.PaymentService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
