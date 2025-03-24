@@ -66,6 +66,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);
 
+    Optional<Order> findByOrderNumber(String orderNumber);
+
     //스케쥴러를 위한 쿼리
     @Modifying
     @Query("UPDATE Order o SET o.status = :newStatus " +

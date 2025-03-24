@@ -2,7 +2,7 @@ package com.jishop.order.domain;
 
 public enum OrderStatus {
 
-    ORDER_RECEIVED,             // 주문 접수
+//    ORDER_RECEIVED,             // 주문 접수
     PAYMENT_PENDING,            // 결제 대기
     PAYMENT_COMPLETED,          // 결제 완료
     PRODUCT_PREPARING,          // 상품 준비 중
