@@ -1,6 +1,6 @@
 package com.jishop.category.dto;
 
-public record SubCategoryInfo(
+public record SubCategory(
         Long id,
         String name,
         int productCount

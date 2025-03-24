@@ -75,14 +75,14 @@ public class Product extends BaseEntity {
 
     // 카테고리 분류
     @Column(name = "l_cat_id",  nullable = false)
-    private String lCatId;
+    private Long lCatId;
     @Column(name = "m_cat_id")
-    private String mCatId;
+    private Long mCatId;
     @Column(name = "s_cat_id")
-    private String sCatId;
+    private Long sCatId;
 
     @Builder
-    public Product(Category category, String lCatId, String mCatId, String sCatId,
+    public Product(Category category, Long lCatId, Long mCatId, Long sCatId,
             String mallSeq, String name, String description, int originPrice, int discountPrice,
             BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
             DiscountStatus discountStatus, Boolean isDiscount, String brand, int wishListCount, Labels labels,
