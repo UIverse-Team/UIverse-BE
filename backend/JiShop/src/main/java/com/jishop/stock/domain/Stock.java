@@ -21,26 +21,37 @@ public class Stock extends BaseEntity {
     @JoinColumn(name = "sale_product_id")
     SaleProduct saleProduct;
 
-    //재고 감소 처리
-    public void decreaseStock(int quantity) {
-        if(this.quantity < quantity) {
-            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-        }
+    public Stock(int quantity, SaleProduct saleProduct) {
+        validateQuantity(quantity);
+        this.quantity = quantity;
+        this.saleProduct = saleProduct;
+    }
 
-        if(this.quantity < 0){
-            throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
+    //재고 감소
+    public void decreaseStock(int quantity) {
+        validateQuantity(quantity);
+        if (this.quantity < quantity) {
+            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
         }
         this.quantity -= quantity;
     }
 
-    //재고 증가 처리
+    //재고 증가
     public void increaseStock(int quantity) {
+        validateQuantity(quantity);
         this.quantity += quantity;
     }
 
-    //재고 확인
-    public boolean hasStock(int quantity){
+    //재고가 있는지 확인
+    public boolean hasStock(int quantity) {
         return this.quantity >= quantity;
+    }
+
+    //재고 검증
+    private void validateQuantity(int quantity) {
+        if (quantity < 0) {
+            throw new DomainException(ErrorType.INVALID_QUANTITY);
+        }
     }
 }
 
