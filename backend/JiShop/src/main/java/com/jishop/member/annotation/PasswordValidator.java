@@ -13,7 +13,7 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
     private static final int MIN_SIZE = 8;
     private static final int MAX_SIZE = 20;
     private static final String regexPassword =
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z0-9$@$!%*#?&]{" + MIN_SIZE + ","
+            "^(?=.*[a-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[a-z0-9$@$!%*#?&]{" + MIN_SIZE + ","
             + MAX_SIZE + "}$";
 
     private static final Pattern PATTERN = Pattern.compile(regexPassword);
