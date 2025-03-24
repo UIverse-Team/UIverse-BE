@@ -8,6 +8,7 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,8 +54,19 @@ public class AddressServiceImpl implements AddressService {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new DomainException(ErrorType.ADDRESS_NOT_FOUND));
 
-        if(request.defaultYN()) changeDefault(user);
+        if(address.isDefaultYN()) {
+            if(!request.defaultYN()) throw new DomainException(ErrorType.DEFAULT_ADDRESS_REQUIRED);
+        } else {
+            changeDefault(user);
+        }
         address.updateAddress(request);
+    }
+
+    @Override
+    public AddressResponse getDefaultAddress(User user) {
+        return addressRepository.findDefaultAddressByUser(user)
+                .map(AddressResponse::fromEntity)
+                .orElseThrow(() -> new DomainException(ErrorType.DEFAULTADDRESS_NOT_FOUND));
     }
 
     // todo: 배송지 삭제

@@ -1,26 +1,15 @@
 package com.jishop.order.dto;
 
 import com.jishop.address.dto.AddressRequest;
-import com.jishop.member.domain.User;
-import com.jishop.order.domain.Order;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
-import java.util.*;
+import java.util.List;
 
 public record OrderRequest(
+        @NotNull(message = "주소 정보는 필수입니다.")
         @Valid AddressRequest address,
         @NotEmpty(message = "주문 상품 목록은 비어있을 수 없습니다.")
         List<OrderDetailRequest> orderDetailRequestList
-){
-    public Order toEntity(User user) {
-        return Order.builder()
-                .userId(user != null ? user.getId() : null)
-                .recipient(this.address.recipient())
-                .phone(this.address.phone())
-                .address(this.address.address())
-                .detailAddress(this.address.detailAddress())
-                .zonecode(this.address.zonecode())
-                .build();
-    }
-}
+){ }
