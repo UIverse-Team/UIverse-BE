@@ -1,8 +1,12 @@
 package com.jishop.cart.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.util.List;
 import java.util.Map;
 
 public record GuestCartRequest(
-    List<Map<Long, Integer>> saleProductId
-) { }
+   Long id,
+   int quantity
+){ }

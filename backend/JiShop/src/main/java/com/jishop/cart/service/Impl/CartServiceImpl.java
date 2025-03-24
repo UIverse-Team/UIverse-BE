@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -99,23 +101,35 @@ public class CartServiceImpl implements CartService {
 
     //비회원 장바구니 조회
     @Override
-    public CartResponse getGuestCart(List<Long> saleProductId) {
-        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdWithProductAndOptionAndStock(saleProductId);
+    public CartResponse getGuestCart(List<GuestCartRequest> guestCartRequests) {
+
+        //아이디만 추출
+        List<Long> saleProductIds = guestCartRequests.stream()
+                .map(GuestCartRequest::id)
+                .toList();
+
+        List<SaleProduct> saleProducts = saleProductRepository.findAllByIdWithProductAndOptionAndStock(saleProductIds);
+
+        Map<Long, Integer> quantityMap = guestCartRequests.stream()
+                .collect(Collectors.toMap(GuestCartRequest::id, GuestCartRequest::quantity));
 
         List<CartDetailResponse> cartDetailResponses = saleProducts.stream()
-                .map(saleProduct -> new CartDetailResponse(
-                        null, //장바구니 ID는 null (비회원이니까)
-                        saleProduct.getId(),
-                        saleProduct.getProduct().getName(),
-                        saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
-                        saleProduct.getProduct().getDiscountPrice(),
-                        saleProduct.getProduct().getOriginPrice(),
-                        saleProduct.getProduct().getOriginPrice() - saleProduct.getProduct().getDiscountPrice(),
-                        1, //수량은 기본값 1로 설정
-                        saleProduct.getProduct().getDiscountPrice(), //수량 1일 때 판매가격
-                        saleProduct.getProduct().getMainImage(),
-                        saleProduct.getProduct().getBrand()
-                ))
+                .map(saleProduct -> {
+                    int quantity = quantityMap.getOrDefault(saleProduct.getId(), 1);
+                    return new CartDetailResponse(
+                            null, //장바구니 ID는 null (비회원이니까)
+                            saleProduct.getId(),
+                            saleProduct.getProduct().getName(),
+                            saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
+                            saleProduct.getProduct().getDiscountPrice(),
+                            saleProduct.getProduct().getOriginPrice(),
+                            saleProduct.getProduct().getOriginPrice() - saleProduct.getProduct().getDiscountPrice(),
+                            quantity, //수량은 기본값 1로 설정
+                            saleProduct.getProduct().getDiscountPrice(), //수량 1일 때 판매가격
+                            saleProduct.getProduct().getMainImage(),
+                            saleProduct.getProduct().getBrand()
+                    );
+                })
                 .toList();
 
         return CartResponse.of(cartDetailResponses);

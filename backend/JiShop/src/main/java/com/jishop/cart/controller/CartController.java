@@ -13,5 +13,5 @@ public interface CartController {
     ResponseEntity<CartDetailResponse> addCartItem(User user, AddCartRequest request);
     ResponseEntity<CartDetailResponse> updateCartItem(User user, UpdateCartRequest request);
     ResponseEntity<String> removeCartItem(User user, DeleteCartRequest deleteCartRequest);
-    ResponseEntity<CartResponse> getGuestCartItems(List<Long> saleProductId);
+    ResponseEntity<CartResponse> getGuestCartItems(List<GuestCartRequest> guestCartRequests);
 }
