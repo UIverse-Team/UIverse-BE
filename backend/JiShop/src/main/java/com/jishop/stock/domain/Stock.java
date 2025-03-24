@@ -26,6 +26,10 @@ public class Stock extends BaseEntity {
         if(this.quantity < quantity) {
             throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
         }
+
+        if(this.quantity < 0){
+            throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
+        }
         this.quantity -= quantity;
     }
 
