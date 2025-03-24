@@ -8,6 +8,7 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.product.domain.Product;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -70,7 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
                     return new SubCategory(
                             subCategory.getCurrentId(),
                             subCategory.getName(),
-                            (int) productCount
+                            productCount
                     );
                 })
                 .collect(Collectors.toList());

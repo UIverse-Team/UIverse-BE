@@ -1,8 +1,6 @@
 package com.jishop.category.service;
 
 import com.jishop.category.dto.SubCategory;
-import com.jishop.common.exception.DomainException;
-import com.jishop.common.exception.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,6 +27,7 @@ public class CategoryCacheServiceImpl implements CategoryCacheService {
         try {
             return (List<SubCategory>) redisTemplate.opsForValue().get(cacheKey);
         } catch (Exception e) {
+            log.error("Redis 캐시 조회 실패 (카테고리 ID: {}): {}", categoryId, e.getMessage(), e);
             return null;
         }
     }
@@ -39,7 +38,7 @@ public class CategoryCacheServiceImpl implements CategoryCacheService {
         try {
             redisTemplate.opsForValue().set(cacheKey, subCategories, CACHE_TTL_HOURS, TimeUnit.HOURS);
         } catch (Exception e) {
-            throw new DomainException(ErrorType.REDIS_OPERATION_FAILED);
+            log.error("Redis 캐시 저장 실패 (카테고리 ID: {}): {}", categoryId, e.getMessage(), e);
         }
     }
 

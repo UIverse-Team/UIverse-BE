@@ -3,6 +3,6 @@ package com.jishop.category.dto;
 public record SubCategory(
         Long id,
         String name,
-        int productCount
+        long productCount
 ) {
 }

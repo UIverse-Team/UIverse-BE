@@ -12,6 +12,8 @@ public enum ErrorType {
     DATA_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 데이터 입니다."),
     MATCH_NOT_USER(HttpStatus.NOT_FOUND, "해당 권한이 없는 유저입니다."),
     TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 접근 타입이 잘 못 되었습니다."),
+
+    // Redis
     REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 작업 중 오류가 발생했습니다."),
 
     // USER
