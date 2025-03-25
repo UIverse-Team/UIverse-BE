@@ -47,10 +47,8 @@ public class EmailCertificationControllerImpl implements EmailCertificationContr
         if(!valid) {
             return ResponseEntity.badRequest().body("인증 실패");
         }
-
         return ResponseEntity.ok("인증 성공");
     }
-
 
     private void addCertificationCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("certificationToken", token);

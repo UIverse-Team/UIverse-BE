@@ -70,6 +70,9 @@ public class UserServiceImpl implements UserService {
 
     public void signUp(SignUpFormRequest request) {
         String password = passwordEncoder.encode(request.password());
+        if(userRepository.findByLoginId(request.loginId()).isPresent()) {
+            throw new DomainException(ErrorType.EMAIL_DUPLICATE);
+        };
         SignUpFormRequest upFormRequest = request.withPassword(password);
 
         userRepository.save(upFormRequest.toEntity());
