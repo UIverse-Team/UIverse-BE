@@ -47,6 +47,21 @@ public class WebConfig implements WebMvcConfigurer {
 
         // todo: 프론트주소 넘겨주고 있는데 백엔드 주소 넘겨줘야하나? (3/23)
         corsRegistration.allowedOrigins("https://uiverse.shop", "http://localhost:3000", "https://api-uiverse.shop");
+
+        // Swagger 관련 CORS 설정 추가
+        registry.addMapping("/swagger-ui/**")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600)
+                .allowedOrigins("https://uiverse.shop", "http://localhost:3000", "https://api-uiverse.shop");
+
+        registry.addMapping("/v3/api-docs/**")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600)
+                .allowedOrigins("https://uiverse.shop", "http://localhost:3000", "https://api-uiverse.shop");
     }
 
     // todo: 추후 반영 결정해야할 사항 (3/23)
