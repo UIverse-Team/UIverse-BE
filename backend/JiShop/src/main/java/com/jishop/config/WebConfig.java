@@ -3,6 +3,7 @@ package com.jishop.config;
 import com.jishop.member.annotation.CurrentUserResolver;
 import com.jishop.member.annotation.LoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
@@ -14,6 +15,9 @@ import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${swagger.url}")
+    private String swaggerUrl;
 
     private final LoginInterceptor loginInterceptor;
     private final CurrentUserResolver currentUserResolver;
@@ -45,12 +49,12 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);
 
         // todo: 프론트주소 넘겨주고 있는데 백엔드 주소 넘겨줘야하나? (3/23)
-        corsRegistration.allowedOrigins("https://uiverse.shop", "http://localhost:3000");
+        corsRegistration.allowedOrigins("https://uiverse.shop", "http://localhost:3000", swaggerUrl);
     }
 
     // todo: 추후 반영 결정해야할 사항 (3/23)
     /* @Bean
-    public FilterRegistrationBean<SecurityHeadersFilter> securityHeadersFilter() {`
+    public FilterRegistrationBean<SecurityHeadersFilter> securityHeadersFilter() {
         FilterRegistrationBean<SecurityHeadersFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new SecurityHeadersFilter());
         registrationBean.addUrlPatterns("/*");
