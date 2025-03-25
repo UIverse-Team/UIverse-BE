@@ -46,6 +46,13 @@ public class OrderServiceTest {
 
     @Test
     void 주문_10개_동시에_넣기() throws InterruptedException {
+        Long saleProductId = 21L;
+
+        // 재고를 29개로 설정
+        Stock stock = stockRepository.findBySaleProduct_Id(saleProductId).orElseThrow();
+        stock.increaseStock(29 - stock.getQuantity()); // 현재 재고를 29개로 맞춤
+        stockRepository.save(stock);
+
         // 스레드 안전한 컬렉션 사용
         List<OrderResponse> orderResponses = Collections.synchronizedList(new ArrayList<>());
         CountDownLatch startLatch = new CountDownLatch(1); // 모든 스레드가 동시에 시작하도록 설정
@@ -99,7 +106,7 @@ public class OrderServiceTest {
 
         // 주문 상품 목록 생성
         List<OrderDetailRequest> orderDetailRequestList = List.of(
-                new OrderDetailRequest(20L, 3)  // saleProductId: 1, quantity: 3
+                new OrderDetailRequest(21L, 3)  // saleProductId: 1, quantity: 3
         );
 
         // OrderRequest 객체 생성 및 반환

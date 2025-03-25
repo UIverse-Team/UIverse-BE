@@ -115,7 +115,11 @@ public class CartServiceImpl implements CartService {
 
         List<CartDetailResponse> cartDetailResponses = saleProducts.stream()
                 .map(saleProduct -> {
-                    int quantity = quantityMap.getOrDefault(saleProduct.getId(), 1);
+                    Integer quantity = quantityMap.get(saleProduct.getId());
+
+                    if(quantity == null)
+                        throw new DomainException(ErrorType.PRODUCT_NOT_FOUND);
+
                     return new CartDetailResponse(
                             null, //장바구니 ID는 null (비회원이니까)
                             saleProduct.getId(),
@@ -124,7 +128,7 @@ public class CartServiceImpl implements CartService {
                             saleProduct.getProduct().getDiscountPrice(),
                             saleProduct.getProduct().getOriginPrice(),
                             saleProduct.getProduct().getOriginPrice() - saleProduct.getProduct().getDiscountPrice(),
-                            quantity, //수량은 기본값 1로 설정
+                            quantity,
                             saleProduct.getProduct().getDiscountPrice(), //수량 1일 때 판매가격
                             saleProduct.getProduct().getMainImage(),
                             saleProduct.getProduct().getBrand()
