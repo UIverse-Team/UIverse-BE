@@ -45,7 +45,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);
 
         // todo: 프론트주소 넘겨주고 있는데 백엔드 주소 넘겨줘야하나? (3/23)
-        corsRegistration.allowedOrigins("https://uiverse.shop", "http:localhost:3000");
+        corsRegistration.allowedOrigins("https://uiverse.shop", "http://localhost:3000");
     }
 
     // todo: 추후 반영 결정해야할 사항 (3/23)
