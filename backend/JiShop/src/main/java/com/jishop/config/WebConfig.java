@@ -69,8 +69,6 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
 
-
-
     // todo: 추후 반영 결정해야할 사항 (3/23)
     /* @Bean
     public FilterRegistrationBean<SecurityHeadersFilter> securityHeadersFilter() {
