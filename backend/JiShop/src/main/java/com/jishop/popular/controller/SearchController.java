@@ -1,6 +1,6 @@
-package com.jishop.trend.controller;
+package com.jishop.popular.controller;
 
-import com.jishop.trend.dto.SearchRequest;
+import com.jishop.popular.dto.SearchRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;

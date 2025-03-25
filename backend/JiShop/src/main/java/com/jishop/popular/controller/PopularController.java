@@ -1,4 +1,4 @@
-package com.jishop.trend.controller;
+package com.jishop.popular.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 

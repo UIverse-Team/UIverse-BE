@@ -74,8 +74,6 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
         return certification.getExpiresAt().isAfter(LocalDateTime.now());
     }
 
-
-
     // 인증 시도 안한 경우의 인증 코드 -> 만료된 인증코드를 매 10분마다 자동으로 삭제(스케줄링 기능 사용)
     @Scheduled(fixedRate = 600000)
     public void cleanupExpiredCodes() {

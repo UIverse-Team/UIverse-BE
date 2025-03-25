@@ -1,4 +1,4 @@
-package com.jishop.trend.service;
+package com.jishop.popular.service;
 
 
 public interface SearchService {
