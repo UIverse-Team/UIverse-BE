@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface OAuthController {
 
     ResponseEntity<String> login(String provider);
-    ResponseEntity<OAuthProfile> callback(String provider, String code);
+    ResponseEntity<String> callback(String provider, String code);
 }

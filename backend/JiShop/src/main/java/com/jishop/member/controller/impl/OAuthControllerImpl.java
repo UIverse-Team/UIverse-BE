@@ -47,7 +47,7 @@ public class OAuthControllerImpl implements OAuthController {
     }
 
     @GetMapping("/callback/{provider}")
-    public ResponseEntity<OAuthProfile> callback(@PathVariable("provider") String provider,
+    public ResponseEntity<String> callback(@PathVariable("provider") String provider,
                                                  @RequestParam(value = "code", required = false) String code) {
         if (!clients.containsKey(provider)) {
             throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
@@ -62,6 +62,6 @@ public class OAuthControllerImpl implements OAuthController {
         OAuthProfile profile = client.getProfile(tokenResponse.accessToken());
         userService.oauthLogin(profile);
 
-        return ResponseEntity.ok(profile);
+        return ResponseEntity.ok("hi");
     }
 }
