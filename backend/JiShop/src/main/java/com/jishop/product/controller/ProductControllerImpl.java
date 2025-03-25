@@ -1,6 +1,7 @@
 package com.jishop.product.controller;
 
 import com.jishop.member.annotation.CurrentUser;
+import com.jishop.member.domain.User;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
@@ -31,10 +32,10 @@ public class ProductControllerImpl implements ProductController {
         return productService.getProductList(productRequest, page, size);
     }
 
-    @Override
+    // user가 null일 수 있음(비회원)    @Override
     @GetMapping("/{productId}")
-    public ProductResponse getProduct(@CurrentUser Long userId,  @PathVariable Long productId) {
-        return productService.getProduct(userId, productId);
+    public ProductResponse getProduct(@CurrentUser User user,  @PathVariable Long productId) {
+        return productService.getProduct(user, productId);
     }
 
     @Override

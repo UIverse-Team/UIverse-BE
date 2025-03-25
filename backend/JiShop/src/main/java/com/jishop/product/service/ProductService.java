@@ -1,5 +1,6 @@
 package com.jishop.product.service;
 
+import com.jishop.member.domain.User;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
@@ -11,7 +12,7 @@ public interface ProductService {
 
     PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size);
 
-    ProductResponse getProduct(Long userId,  Long productId);
+    ProductResponse getProduct(User user,  Long productId);
 
     List<ProductListResponse> getProductByWishTopTen();
 }

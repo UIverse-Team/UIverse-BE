@@ -2,13 +2,13 @@ package com.jishop.product.service;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
+import com.jishop.member.domain.User;
 import com.jishop.option.domain.OptionCategory;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.QProduct;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
-import com.jishop.product.implementation.ProductQueryHelper;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.product.repository.ProductRepositoryQueryDsl;
 import com.jishop.productwishlist.repository.ProductWishListRepository;
@@ -38,10 +38,10 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ReviewProductRepository reviewProductRepository;
-    private final ProductQueryHelper productQueryHelper;
-    private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
     private final ProductWishListRepository productWishListRepository;
     private final SaleProductRepository saleProductRepository;
+
+    private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
 
     @Override
     public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
@@ -57,13 +57,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getProduct(Long userId, Long productId) {
+    public ProductResponse getProduct(User user, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-        Boolean isWished = false;
-        if (userId != null) {
-            isWished = productRepository.findProductWishStatusByUserAndProduct(userId, product).orElse(false);
+        boolean isWished = false;
+        if (user != null) {
+            isWished = productWishListRepository.isProductWishedByUser(user.getId(), productId);
         }
 
         List<Map<String, Object>> productOptions = saleProductRepository.findOptionsForProduct(productId);
