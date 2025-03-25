@@ -29,7 +29,7 @@ public record ReviewRequest(
             throw new DomainException(ErrorType.RATING_OUT_OF_RANGE);
     }
 
-    public Review toEntity(List<String> images, Product product, OrderDetail orderDetail, User user, String productSummary) {
+    public Review toEntity(List<String> imageUrls, Product product, OrderDetail orderDetail, User user, String productSummary) {
         // todo: order 랑 orderDtail 추후 저장.
         return Review.builder()
                 .tag(tag)
@@ -37,7 +37,7 @@ public record ReviewRequest(
                 .content(content)
                 .user(user)
                 .product(product)
-                .imageUrls(images)
+                .imageUrls(imageUrls)
                 .orderDetail(orderDetail)
                 .productSummary(productSummary)
                 .build();

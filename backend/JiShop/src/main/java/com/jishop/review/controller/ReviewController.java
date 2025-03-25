@@ -7,6 +7,8 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "상품 리뷰 API")
 public interface ReviewController {
 
@@ -16,7 +18,7 @@ public interface ReviewController {
 
     ResponseEntity<String> unlikeReview(Long reviewId, LikerIdRequest likerIdRequest);
 
-    ResponseEntity<Long> craeteReview(ReviewRequest reviewRequest);
+    ResponseEntity<Long> createReview(ReviewRequest reviewRequest, List<String> imageUrl);
 
     ResponseEntity<PagedModel<MyPageReviewResponse>> getMyPageReview(Pageable pageable);
 
