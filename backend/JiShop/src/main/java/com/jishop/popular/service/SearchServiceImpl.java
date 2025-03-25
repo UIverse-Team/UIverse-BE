@@ -2,11 +2,13 @@ package com.jishop.popular.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jishop.product.repository.ProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
 
-    private final SaleProductRepository saleProductRepository;      // 상품DB 검증
+    private final ProductRepository productRepository;      // 상품DB 검증
     private final RedisTemplate<String, Object> redisTemplate;      // Redis에 검색어 저장(key-value)
     private final ObjectMapper objectMapper;                        // 로그 -> json 변환
 
@@ -41,7 +43,13 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean processSearch(String keyword, String clientIp) {
-        if(!isValidKeyword(keyword) || !isRelatedToSaleProduct(keyword)){
+        if(!isValidKeyword(keyword)){
+            log.info("유효하지 않은 검색어: {]", keyword);
+            return false;
+        }
+
+        if(!isRelatedToSaleProduct(keyword)){
+            log.info("상품과 연관성이 없는 검색어: {]", keyword);
             return false;
         }
 
@@ -92,6 +100,6 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean isRelatedToSaleProduct(String keyword) {
-        return saleProductRepository.existsByNameContaining(keyword);
+        return productRepository.existsByNameContaining(keyword);
     }
 }
