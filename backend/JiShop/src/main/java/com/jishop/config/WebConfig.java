@@ -50,7 +50,6 @@ public class WebConfig implements WebMvcConfigurer {
                 )
                 .allowedMethods("*")
                 .allowedHeaders("*")
-                .exposedHeaders("X-CSRF-TOKEN")  //✨ 커스텀 헤더 노출
                 .allowCredentials(true)
                 .maxAge(3600);
     }
