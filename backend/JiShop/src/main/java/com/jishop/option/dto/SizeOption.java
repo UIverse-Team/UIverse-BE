@@ -4,4 +4,5 @@ public record SizeOption(
         Long saleProductId,
         String size,
         Object extra
-) {}
+) {
+}

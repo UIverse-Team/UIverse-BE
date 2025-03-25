@@ -13,6 +13,7 @@ public record ProductResponse(
         Boolean isDiscount,
         String brand,
         Object option,
+        int discountRate,
         int reviewCount,
         double reviewRate,
         String[] images,
@@ -33,9 +34,10 @@ public record ProductResponse(
                 product.getIsDiscount(),
                 product.getBrand(),
                 option,
+                product.getDiscountRate(),
                 reviewCount,
                 reviewRate,
-                new String[] {
+                new String[]{
                         product.getMainImage(), product.getImage1(), product.getImage2(), product.getImage3(), product.getImage4()
                 },
                 product.getDetailImage(),

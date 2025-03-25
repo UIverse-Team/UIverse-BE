@@ -3,9 +3,9 @@ package com.jishop.product.service;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
-import com.jishop.option.domain.OptionCategory;
+import com.jishop.option.dto.FashionClothesOptionResponse;
+import com.jishop.option.dto.GeneralOptionResponse;
 import com.jishop.product.domain.Product;
-import com.jishop.product.domain.QProduct;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
@@ -15,7 +15,6 @@ import com.jishop.productwishlist.repository.ProductWishListRepository;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import com.querydsl.core.types.OrderSpecifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,11 +24,8 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,77 +40,46 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
 
     @Override
-    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
-        List<Product> results = productRepositoryQueryDsl.findProductsByCondition(productRequest, page, size);
-        List<ProductListResponse> productList = results.stream()
-                .map(ProductListResponse::from).collect(Collectors.toList());
+    public final PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest,
+                                                                final int page, final int size) {
+        final List<Product> results = productRepositoryQueryDsl.findProductsByCondition(productRequest, page, size);
+        final List<ProductListResponse> productList = results.stream()
+                .map(ProductListResponse::from).toList();
 
-        long totalCount = productRepositoryQueryDsl.countProductsByCondition(productRequest);
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
+        final long totalCount = productRepositoryQueryDsl.countProductsByCondition(productRequest);
+        final Pageable pageable = PageRequest.of(page, size);
+        final Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);
     }
 
     @Override
-    public ProductResponse getProduct(User user, Long productId) {
-        Product product = productRepository.findById(productId)
+    public final ProductResponse getProduct(final User user, final Long productId) {
+        // 상품 정보
+        final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
+        // 찜 상태
         boolean isWished = false;
         if (user != null) {
             isWished = productWishListRepository.isProductWishedByUser(user.getId(), productId);
         }
 
-        List<Map<String, Object>> productOptions = saleProductRepository.findOptionsForProduct(productId);
-        Object processedOptions;
-        if (!productOptions.isEmpty()) {
-            OptionCategory categoryType = (OptionCategory) productOptions.get(0).get("categoryType");
-
-            if (OptionCategory.FASHION_CLOTHES.equals(categoryType)) {
-                Map<String, List<Map<String, Object>>> colorSizeMap = new HashMap<>();
-
-                for (Map<String, Object> option : productOptions) {
-                    String optionValue = (String) option.get("optionValue");
-                    String[] splitValue = optionValue.split("/");
-
-                    if (splitValue.length == 2) {
-                        String color = splitValue[0];
-                        String size = splitValue[1];
-
-                        if (!colorSizeMap.containsKey(color)) {
-                            colorSizeMap.put(color, new ArrayList<>());
-                        }
-
-                        Map<String, Object> sizeInfo = new HashMap<>();
-                        sizeInfo.put("saleProductId", option.get("saleProductId"));
-                        sizeInfo.put("size", size);
-                        sizeInfo.put("extra", option.get("optionExtra"));
-
-                        colorSizeMap.get(color).add(sizeInfo);
-                    }
-                }
-
-                processedOptions = colorSizeMap;
-            }
-            else {
-                List<Map<String, Object>> optionsList = new ArrayList<>();
-
-                for (Map<String, Object> option : productOptions) {
-                    Map<String, Object> optionInfo = new HashMap<>();
-                    optionInfo.put("saleProductId", option.get("saleProductId"));
-                    optionInfo.put("value", option.get("optionValue"));
-                    optionInfo.put("extra", option.get("optionExtra"));
-                    optionsList.add(optionInfo);
-                }
-
-                processedOptions = optionsList;
-            }
+        // 상품 옵션
+        final Long categoryType = product.getLCatId();
+        final Object productsOptions;
+        if (categoryType == 50000000L) {
+            final List<Map<String, Object>> fashionClothesOptions = saleProductRepository
+                    .findFashionClothesOptionsByProductId(productId);
+            productsOptions = FashionClothesOptionResponse.from(fashionClothesOptions);
         } else {
-            processedOptions = new ArrayList<>();
+            final List<Map<String, Object>> generalOptions = saleProductRepository
+                    .findGeneralOptionsByProductId(productId);
+            productsOptions = GeneralOptionResponse.from(generalOptions);
         }
 
-        ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
+        // 상품 리뷰
+        final ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
         int reviewCount = 0;
         double reviewRate = 0.0;
         if (reviewProduct != null) {
@@ -122,24 +87,13 @@ public class ProductServiceImpl implements ProductService {
             reviewRate = reviewProduct.getAverageRating();
         }
 
-        return ProductResponse.from(product, isWished, reviewCount, reviewRate, processedOptions);
+        return ProductResponse.from(product, isWished, reviewCount, reviewRate, productsOptions);
     }
 
     @Override
-    public List<ProductListResponse> getProductByWishTopTen() {
-        List<Product> products = productWishListRepository.getProductByWishTopTen();
+    public final List<ProductListResponse> getProductByWishTopTen() {
+        final List<Product> products = productWishListRepository.getProductByWishTopTen();
 
-        return products.stream().map(ProductListResponse::from).collect(Collectors.toList());
-    }
-
-    private OrderSpecifier<?> addSorting(String sort, QProduct product) {
-        return switch (sort) {
-            case "wish" -> product.wishListCount.desc();
-            case "latest" -> product.createdAt.desc();
-            case "priceAsc" -> product.discountPrice.asc();
-            case "priceDesc" -> product.discountPrice.desc();
-            case "discount" -> product.discountRate.desc();
-            default -> product.wishListCount.desc();
-        };
+        return products.stream().map(ProductListResponse::from).toList();
     }
 }
