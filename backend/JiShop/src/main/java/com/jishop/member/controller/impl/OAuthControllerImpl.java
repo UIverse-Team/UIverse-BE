@@ -49,7 +49,7 @@ public class OAuthControllerImpl implements OAuthController {
     }
 
     @GetMapping("/callback/{provider}")
-    public ResponseEntity<String> callback(@PathVariable("provider") String provider,
+    public ResponseEntity<OAuthProfile> callback(@PathVariable("provider") String provider,
                                                  @RequestParam(value = "code", required = false) String code,
                                                  HttpSession session) {
         if (!clients.containsKey(provider)) {
@@ -67,6 +67,6 @@ public class OAuthControllerImpl implements OAuthController {
         session.setAttribute("userId", user.getId());
         session.setMaxInactiveInterval(60 * 30);
 
-        return ResponseEntity.ok("OAuth login success");
+        return ResponseEntity.ok(profile);
     }
 }
