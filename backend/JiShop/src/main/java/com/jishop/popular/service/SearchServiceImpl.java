@@ -49,7 +49,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         if(!isRelatedToSaleProduct(keyword)){
-            log.info("상품과 연관성이 없는 검색어: {]", keyword);
+            log.info("상품과 연관성이 없는 검색어: {}", keyword);
             return false;
         }
 
