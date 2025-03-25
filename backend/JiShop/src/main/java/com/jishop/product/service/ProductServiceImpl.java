@@ -12,11 +12,9 @@ import com.jishop.product.implementation.ProductQueryHelper;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.product.repository.ProductRepositoryQueryDsl;
 import com.jishop.productwishlist.repository.ProductWishListRepository;
-import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,19 +45,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
-        BooleanBuilder filterBuilder = productQueryHelper
-                .findProductsByCondition(productRequest, QProduct.product, QReviewProduct.reviewProduct);
-
-        OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), QProduct.product);
-
-        List<Product> results = productRepositoryQueryDsl
-                .getFilteredAndSortedResults(filterBuilder, orderSpecifier, productRequest, page, size);
-
+        List<Product> results = productRepositoryQueryDsl.findProductsByCondition(productRequest, page, size);
         List<ProductListResponse> productList = results.stream()
                 .map(ProductListResponse::from).collect(Collectors.toList());
 
-        long totalCount = productRepositoryQueryDsl.countFilteredProducts(filterBuilder);
-
+        long totalCount = productRepositoryQueryDsl.countProductsByCondition(productRequest);
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 

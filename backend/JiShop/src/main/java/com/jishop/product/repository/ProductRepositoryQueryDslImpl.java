@@ -3,6 +3,8 @@ package com.jishop.product.repository;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.QProduct;
 import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.implementation.ProductQueryHelper;
+import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,11 +18,16 @@ import java.util.List;
 public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
 
     private final JPAQueryFactory queryFactory;
+    private final ProductQueryHelper productQueryHelper;
     private final QProduct product = QProduct.product;
+    private final QReviewProduct reviewProduct = QReviewProduct.reviewProduct;
 
     @Override
-    public List<Product> getFilteredAndSortedResults(
-            BooleanBuilder filterBuilder, OrderSpecifier<?> orderSpecifier, ProductRequest productRequest, int page, int size) {
+    public List<Product> findProductsByCondition(ProductRequest productRequest, int page, int size) {
+        BooleanBuilder filterBuilder = productQueryHelper
+                .findProductsByCondition(productRequest, product, reviewProduct);
+
+        OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), product);
 
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
@@ -31,9 +38,23 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
     }
 
     @Override
-    public long countFilteredProducts(BooleanBuilder filterBuilder) {
+    public long countProductsByCondition(ProductRequest productRequest) {
+        BooleanBuilder filterBuilder = productQueryHelper
+                .findProductsByCondition(productRequest, product, reviewProduct);
+
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
                 .fetchCount();
+    }
+
+    private OrderSpecifier<?> addSorting(String sort, QProduct product) {
+        return switch (sort) {
+            case "wish" -> product.wishListCount.desc();
+            case "latest" -> product.createdAt.desc();
+            case "priceAsc" -> product.discountPrice.asc();
+            case "priceDesc" -> product.discountPrice.desc();
+            case "discount" -> product.discountRate.desc();
+            default -> product.wishListCount.desc();
+        };
     }
 }
