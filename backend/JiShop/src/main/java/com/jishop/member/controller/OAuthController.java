@@ -2,6 +2,7 @@ package com.jishop.member.controller;
 
 import com.jishop.member.service.OAuthProfile;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,5 +11,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface OAuthController {
 
     ResponseEntity<String> login(String provider);
-    OAuthProfile callback(String provider, String code);
+    ResponseEntity<String> callback(String provider, String code, HttpSession session);
 }
