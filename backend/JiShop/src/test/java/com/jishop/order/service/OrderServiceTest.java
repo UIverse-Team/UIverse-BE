@@ -50,7 +50,7 @@ public class OrderServiceTest {
 
         // 재고를 29개로 설정
         Stock stock = stockRepository.findBySaleProduct_Id(saleProductId).orElseThrow();
-        stock.increaseStock(29 - stock.getQuantity()); // 현재 재고를 29개로 맞춤
+        stock.increaseStock(30 - stock.getQuantity()); // 현재 재고를 29개로 맞춤
         stockRepository.save(stock);
 
         // 스레드 안전한 컬렉션 사용
