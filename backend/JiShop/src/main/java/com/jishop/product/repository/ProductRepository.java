@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,4 +17,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Boolean> findProductWishStatusByUserAndProduct(
             @Param("user") User user,
             @Param("product") Product product);
+
+    boolean existsByNameContaining(String keyword);
+
+    List<Product> findByNameContaining(String keyword);
 }
