@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,11 +36,16 @@ public class ProductScoreServiceImpl implements ProductScoreService {
      * 
      * @param products      점수를 계산할 상풀 리스트
      */
-    public void calculateAndUpdateScore(List<Product> products) {
+    public List<ProductScore> calculateAndUpdateScore(List<Product> products) {
+        List<ProductScore> productScores = new ArrayList<>();
+
         for(Product product : products) {
             ProductScore productScore = calculateScore(product);
             productScoreRepository.save(productScore);
+            productScores.add(productScore);
         }
+
+        return productScores;
     }
 
     /**
