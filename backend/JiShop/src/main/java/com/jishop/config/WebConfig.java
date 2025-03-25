@@ -63,10 +63,12 @@ public class WebConfig implements WebMvcConfigurer {
         serializer.setCookiePath("/");
         // serializer.setDomainName("uiverse.shop"); // 메인 도메인 지정
         serializer.setUseHttpOnlyCookie(true);
-        serializer.setSameSite("None");  // ✨ 크로스 사이트 요청 허용
-        serializer.setUseSecureCookie(true); // HTTPS 환경에서만 사용
+        serializer.setSameSite("Lax");  // ✨ 크로스 사이트 요청 허용
+        serializer.setUseSecureCookie(false);
         return serializer;
     }
+
+
 
 
     // todo: 추후 반영 결정해야할 사항 (3/23)
