@@ -36,14 +36,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
             if (session != null) {
                 Object userIdObj = session.getAttribute("userId");
                 if (userIdObj != null) {
-                    Long userId;
-                    if (userIdObj instanceof Integer) {
-                        userId = ((Integer) userIdObj).longValue();
-                    } else if (userIdObj instanceof Long) {
-                        userId = (Long) userIdObj;
-                    } else {
-                        throw new IllegalStateException("Unexpected userId type: " + userIdObj.getClass());
-                    }
+                    var userId = Long.parseLong(userIdObj.toString());
                     return userRepository.findById(userId).orElse(null);
                 }
             }
