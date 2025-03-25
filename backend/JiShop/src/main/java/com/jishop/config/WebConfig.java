@@ -49,7 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     // todo: 추후 반영 결정해야할 사항 (3/23)
-    /*@Bean
+    /* @Bean
     public FilterRegistrationBean<SecurityHeadersFilter> securityHeadersFilter() {
         FilterRegistrationBean<SecurityHeadersFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new SecurityHeadersFilter());
