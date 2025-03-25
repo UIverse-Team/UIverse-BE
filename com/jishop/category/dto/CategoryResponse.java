@@ -11,6 +11,22 @@ public record CategoryResponse(
         List<SubCategory> subCategories,
         List<ProductListResponse> products
 ) {
+    // 단일 제품을 처리하는 기존 메서드
+    public static CategoryResponse from(
+            Long categoryId,
+            String categoryName,
+            List<SubCategory> subCategories,
+            Product product
+    ) {
+        return new CategoryResponse(
+                categoryId,
+                categoryName,
+                subCategories,
+                List.of(ProductListResponse.from(product))
+        );
+    }
+    
+    // 제품 리스트를 처리하는 새로운 메서드 추가
     public static CategoryResponse from(
             Long categoryId,
             String categoryName,
