@@ -3,7 +3,7 @@ package com.jishop.popular.dto;
 public record PopularProductResponse(
         Long productId,             // 상품id
         String productImageUrl,     // 상품 이미지 url
-        String store,               // 스토어 상호
+        String brand,               // 스토어 상호
         String name,                // 상품명
         int originPrice,            // 상품 판매 가격
         int discountPrice,          // 상품 할인 판매 가격
