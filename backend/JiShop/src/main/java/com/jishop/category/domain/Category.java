@@ -36,7 +36,6 @@ public class Category extends BaseEntity {
     @Column(name = "level", nullable = false)
     private Integer level;
 
-    @Builder
     public Category(
             Category parent,
             Long currentId,

@@ -10,6 +10,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import retrofit2.http.Multipart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +24,11 @@ public class ReviewControllerImpl implements ReviewController {
 
     @Override
     @PostMapping
-    public ResponseEntity<Long> craeteReview(@RequestBody @Valid ReviewRequest reviewRequest) {
-        //todo:
-        // 1. imageService 만들어서 받기
-        // 2. userId 세션에서 받아오기.
+    public ResponseEntity<Long> createReview(@RequestBody @Valid ReviewRequest reviewRequest,
+                                             @RequestPart(required = false) List<String> imageUrl) {
+
         Long userId = 1L;
-        List<String> images = new ArrayList<>();
-        Long reviewId = reviewService.createReview(reviewRequest, images, userId);
+        Long reviewId = reviewService.createReview(reviewRequest, imageUrl, userId);
 
         return ResponseEntity.ok(reviewId);
     }

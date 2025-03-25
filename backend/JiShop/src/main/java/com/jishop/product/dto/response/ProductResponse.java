@@ -4,7 +4,7 @@ import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 
 public record ProductResponse(
-
+        Long id,
         String name,
         Labels labels,
         String description,
@@ -23,6 +23,7 @@ public record ProductResponse(
         Object wishStatus = isWished != null && isWished ? true : new String[0];
 
         return new ProductResponse(
+                product.getId(),
                 product.getName(),
                 product.getLabels(),
                 product.getDescription(),
