@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,7 +35,7 @@ public class Product extends BaseEntity {
     @Column(name = "discount_price", nullable = false)
     private int discountPrice;
     @Column(name = "discount_rate", nullable = false)
-    private BigDecimal discountRate;
+    private int discountRate;
 
     // 상품 상태
     @Column(name = "secret", nullable = false)
@@ -90,7 +89,7 @@ public class Product extends BaseEntity {
 
     public Product(Category category, Long lCatId, Long mCatId, Long sCatId,
             String mallSeq, String name, String description, int originPrice, int discountPrice,
-            BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+            int discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
             DiscountStatus discountStatus, Boolean isDiscount, String brand, int wishListCount, Labels labels,
             String mainImage, String image1, String image2, String image3, String image4, String detailImage,
             int productViewCount
