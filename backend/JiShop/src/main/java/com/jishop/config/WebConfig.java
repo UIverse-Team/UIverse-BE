@@ -3,7 +3,10 @@ package com.jishop.config;
 import com.jishop.member.annotation.CurrentUserResolver;
 import com.jishop.member.annotation.LoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -39,15 +42,32 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        CorsRegistration corsRegistration = registry.addMapping("/**")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "https://uiverse.shop",
+                        "http://localhost:3000",
+                        "https://api-uiverse.shop"
+                )
+                .allowedMethods("*")
                 .allowedHeaders("*")
+                .exposedHeaders("X-CSRF-TOKEN")  // ✨ 커스텀 헤더 노출
                 .allowCredentials(true)
                 .maxAge(3600);
-
-        // todo: 프론트주소 넘겨주고 있는데 백엔드 주소 넘겨줘야하나? (3/23)
-        corsRegistration.allowedOrigins("https://uiverse.shop", "http://localhost:3000", "https://api-uiverse.shop");
     }
+
+    // 추가
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setCookieName("JSESSIONID");
+        serializer.setCookiePath("/");
+        // serializer.setDomainName("uiverse.shop"); // 메인 도메인 지정
+        serializer.setUseHttpOnlyCookie(true);
+        serializer.setSameSite("None");  // ✨ 크로스 사이트 요청 허용
+        serializer.setUseSecureCookie(true); // HTTPS 환경에서만 사용
+        return serializer;
+    }
+
 
     // todo: 추후 반영 결정해야할 사항 (3/23)
     /* @Bean
