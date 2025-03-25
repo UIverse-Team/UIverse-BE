@@ -46,7 +46,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "https://uiverse.shop",
                         "http://localhost:3000",
-                        "https://api-uiverse.shop"
+                        "https://api.uiverse.shop"
                 )
                 .allowedMethods("*")
                 .allowedHeaders("*")
