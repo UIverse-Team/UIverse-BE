@@ -62,6 +62,7 @@ public enum ErrorType {
     // STOCK
     INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
     STOCK_OPERATION_FAILED(HttpStatus.CONFLICT, "재고 관리 중 오류가 발생했습니다"),
+    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "재고의 값은 1이상이어야 합니다."),
 
     // STORE
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스토어가 존재하지 않습니다"),
@@ -69,8 +70,11 @@ public enum ErrorType {
     // Address,
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다."),
-    DEFAULT_ADDRESS_REQUIRED(HttpStatus.NOT_FOUND, "기본 배송지가 꼭 필요합니다.");
+    DEFAULT_ADDRESS_REQUIRED(HttpStatus.NOT_FOUND, "기본 배송지가 꼭 필요합니다."),
 
+    //REDISSON
+    LOCK_ACQUISITION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "주문 저리 중 잠금 획득에 실패했습니다. 잠시 후 시도해주세요"),
+    CONCURRENT_ORDER_PROCESSING(HttpStatus.INTERNAL_SERVER_ERROR, "동시에 너무 많은 주문이 처리되고 있습니다. 잠시 후 다시 시도해주세요");
 
     private final HttpStatus httpStatus;
     private final String message;
