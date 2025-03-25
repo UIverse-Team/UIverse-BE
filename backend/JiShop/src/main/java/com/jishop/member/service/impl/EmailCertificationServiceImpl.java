@@ -68,6 +68,7 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
     public boolean certifyCode(String token, String certificationCode) {
         EmailCertification certification = repository.findByTokenAndCertificationCode(token, certificationCode)
                         .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
         // 인증 시도할 경우 코드 삭제
         repository.delete(certification);
 
