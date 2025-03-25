@@ -11,11 +11,13 @@ import com.jishop.member.service.UserService;
 import com.jishop.member.service.impl.GoogleClient;
 import com.jishop.member.service.impl.KakaoClient;
 import com.jishop.member.service.impl.NaverClient;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,8 +49,9 @@ public class OAuthControllerImpl implements OAuthController {
     }
 
     @GetMapping("/callback/{provider}")
-    public ResponseEntity<OAuthProfile> callback(@PathVariable("provider") String provider,
-                                                 @RequestParam(value = "code", required = false) String code) {
+    public void callback(@PathVariable("provider") String provider,
+                                                 @RequestParam(value = "code", required = false) String code,
+                                                 HttpServletResponse response) throws IOException {
         if (!clients.containsKey(provider)) {
             throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
         }
@@ -62,6 +65,6 @@ public class OAuthControllerImpl implements OAuthController {
         OAuthProfile profile = client.getProfile(tokenResponse.accessToken());
         userService.oauthLogin(profile);
 
-        return ResponseEntity.ok(profile);
+         response.sendRedirect("/");
     }
 }
