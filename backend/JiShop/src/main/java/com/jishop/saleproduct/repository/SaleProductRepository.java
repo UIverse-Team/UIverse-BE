@@ -32,4 +32,11 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
             "WHERE sp.product.id = :productId " +
             "AND sp.deleteStatus = false")
     List<Map<String, Object>> findOptionsForProduct(@Param("productId") Long productId);
+
+    @Query("SELECT sp FROM SaleProduct sp " +
+            "JOIN FETCH sp.product p " +
+            "LEFT JOIN FETCH sp.option o " +
+            "LEFT JOIN FETCH sp.stock s " +
+            "WHERE sp.id IN :ids")
+    List<SaleProduct> findAllByIdWithProductAndOptionAndStock(@Param("ids") List<Long> ids);
 }

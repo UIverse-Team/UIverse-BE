@@ -10,7 +10,11 @@ public enum ErrorType {
 
     // COMMON
     DATA_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 데이터 입니다."),
-    MATCH_NOT_USER(HttpStatus.NOT_FOUND,"해당 권한이 없는 유저입니다." ),
+    MATCH_NOT_USER(HttpStatus.NOT_FOUND, "해당 권한이 없는 유저입니다."),
+    TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 접근 타입이 잘 못 되었습니다."),
+
+    // Redis
+    REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 작업 중 오류가 발생했습니다."),
 
     // USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
@@ -41,10 +45,10 @@ public enum ErrorType {
     CATEGORY_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리에 대한 결과가 없습니다."),
 
     // ORDER
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND,"주문을 찾을 수 없습니다"),
-    ORDER_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND,"주문상세를 찾을 수 없습니다"),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다"),
+    ORDER_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "주문상세를 찾을 수 없습니다"),
     ORDER_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 번호를 찾을 수 없습니다"),
-    ORDER_ALREADY_CONFIRMED(HttpStatus.BAD_REQUEST,"이미 구매 확정된 주문입니다."),
+    ORDER_ALREADY_CONFIRMED(HttpStatus.BAD_REQUEST, "이미 구매 확정된 주문입니다."),
     ORDER_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "주문이 이미 취소되었습니다."),
     ORDER_CANCEL_FAILED(HttpStatus.BAD_REQUEST,"주문 취소 중 오류가 발생했습니다"),
     ORDER_CANNOT_CANCEL_AFTER_SHIPPING(HttpStatus.BAD_REQUEST, "배송이 시작한 이후에는 주문 취소를 할 수 없습니다"),
@@ -66,6 +70,7 @@ public enum ErrorType {
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다."),
     DEFAULT_ADDRESS_REQUIRED(HttpStatus.NOT_FOUND, "기본 배송지가 꼭 필요합니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;

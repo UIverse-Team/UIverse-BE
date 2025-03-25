@@ -4,16 +4,28 @@ import com.jishop.product.domain.Product;
 import com.jishop.product.dto.response.ProductListResponse;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public record CategoryResponse(
-
+        Long categoryId,
+        String categoryName,
+        List<SubCategory> subCategories,
         List<ProductListResponse> products
 ) {
-    public static CategoryResponse from(List<Product> products) {
+    public static CategoryResponse from(
+            Long categoryId,
+            String categoryName,
+            List<SubCategory> subCategories,
+            List<Product> products
+    ) {
         List<ProductListResponse> productResponses = products.stream()
-                .map(ProductListResponse::from).collect(Collectors.toList());
+                .map(ProductListResponse::from)
+                .toList();
 
-        return new CategoryResponse(productResponses);
+        return new CategoryResponse(
+                categoryId,
+                categoryName,
+                subCategories,
+                productResponses
+        );
     }
 }

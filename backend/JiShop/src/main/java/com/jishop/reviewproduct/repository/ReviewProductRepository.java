@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface ReviewProductRepository extends JpaRepository<ReviewProduct, Long> {
@@ -19,4 +20,28 @@ public interface ReviewProductRepository extends JpaRepository<ReviewProduct, Lo
     void decreaseRatingAtomic(@Param("product") Product product, @Param("rating") int rating);
 
     ReviewProduct findByProductId(Long productId);
+
+    /**
+     * 특정 상품의 리뷰 평점 조회
+     * 리뷰가 없는 경우 0 반환
+     * 
+     * @param productId     조회할 상품 id
+     * @return 해당 상품의 리뷰 평점
+     */
+    @Query("SELECT CASE WHEN rp.reviewCount > 0 " +
+            "THEN CAST(rp.reviewScore as double) / rp.reviewCount " +
+            "ELSE 0 END " +
+            "FROM ReviewProduct rp " +
+            "WHERE rp.product.id = :productId")
+    BigDecimal getReviewRatingByProductId(@Param("productId") Long productId);
+
+    /**
+     * 특정 상품의 리뷰 수 조회
+     * 
+     * @param productId     조회할 상품id
+     * @return 해당 상품의 리뷰수
+     */
+    @Query("SELECT COALESCE(rp.reviewCount, 0) FROM ReviewProduct rp " +
+            "WHERE rp.product.id = :productId")
+    int countReviewsByProductId(@Param("productId") Long productId);
 }

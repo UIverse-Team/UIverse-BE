@@ -1,40 +1,39 @@
 package com.jishop.member.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.jishop.member.annotation.Password;
 import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public record SignUpFormRequest(
+        @AssertTrue(message = "필수 사항입니다!!!")
         boolean ageAgreement,
+        @AssertTrue(message = "필수 사항입니다!!!")
         boolean useAgreement,
+        @AssertTrue(message = "필수 사항입니다!!!")
         boolean picAgreement,
         boolean adAgreement,
+        @Email
+        @NotBlank
         String loginId,
+        @NotBlank
+        @Password
         String password,
+        @NotBlank
         String name,
+        @NotBlank
         String birthDate,
+        @NotBlank
         String gender,
+        @NotBlank
         String phone,
         LoginType provider
 ){
-    // 초기 생성 팩토리 메서드
-    public static SignUpFormRequest of(boolean ageAgreement, boolean useAgreement, boolean picAgreement, boolean adAgreement){
-        return new SignUpFormRequest(ageAgreement, useAgreement, picAgreement, adAgreement, null, null, null, null, null, null, LoginType.LOCAL);
-    }
-
-    public SignUpFormRequest withEmail(String email) {
-        return new SignUpFormRequest(this.ageAgreement, this.useAgreement, this.picAgreement, this.adAgreement, email, null, null, null, null,null, this.provider);
-    }
-
     // 비밀번호 업데이트
     public SignUpFormRequest withPassword(String password){
-        return new SignUpFormRequest(this.ageAgreement, this.useAgreement, this.picAgreement, this.adAgreement, this.loginId, password, null,null,null,null, this.provider);
-    }
-
-    // 유저 정보 업데이트
-    public SignUpFormRequest withInformation(String name, String birthDate, String gender, String phone){
-        return new SignUpFormRequest(this.ageAgreement, this.useAgreement, this.picAgreement, this.adAgreement, this.loginId, password, name, birthDate, gender, phone, this.provider);
+        return new SignUpFormRequest(this.ageAgreement, this.useAgreement, this.picAgreement, this.adAgreement, this.loginId, password, this.name, this.birthDate, this.gender, this.phone, this.provider);
     }
 
     public User toEntity(){
@@ -49,7 +48,7 @@ public record SignUpFormRequest(
                 this.birthDate,
                 this.gender,
                 this.phone,
-                this.provider
+                LoginType.LOCAL
         );
     }
 }
