@@ -15,6 +15,5 @@ public interface AuthService {
     void updateUserName(User user, UserNameRequest request);
     void updatePhone(User user, UserPhoneRequest request);
     void deleteUser(User user);
-    Long checkLogin(HttpSession session);
-
+    Long checkLogin(User user);
 }
