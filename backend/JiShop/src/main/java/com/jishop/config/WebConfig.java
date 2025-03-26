@@ -62,7 +62,7 @@ public class WebConfig implements WebMvcConfigurer {
         serializer.setCookiePath("/");
         serializer.setDomainName("api.uiverse.shop"); // 메인 도메인 지정
         serializer.setUseHttpOnlyCookie(true);
-        serializer.setSameSite("None");  // ✨ 크로스 사이트 요청 허용
+        serializer.setSameSite("Lax");  // ✨ 크로스 사이트 요청 허용
         serializer.setUseSecureCookie(false);
         return serializer;
     }
