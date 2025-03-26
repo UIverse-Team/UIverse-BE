@@ -18,7 +18,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("user") User user,
             @Param("product") Product product);
 
+    boolean existsByBrand(String keyword);
+
     boolean existsByNameContaining(String keyword);
 
-    List<Product> findByNameContaining(String keyword);
+    boolean existsByBrandContaining(String keyword);
+
+    List<Product> findAllByBrand(String keyword);
+
+    List<Product> findAllByNameContaining(String keyword);
+
+    List<Product> findAllByBrandContaining(String keyword);
 }
