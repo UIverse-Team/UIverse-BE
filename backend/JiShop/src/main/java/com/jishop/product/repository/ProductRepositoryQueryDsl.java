@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ProductRepositoryQueryDsl {
 
-    List<Product> findProductsByCondition(ProductRequest request, int page, int size);
+    List<Product> findProductsByCondition(final ProductRequest request, final int page, final int size);
 
-    long countProductsByCondition(ProductRequest request);
+    long countProductsByCondition(final ProductRequest request);
 }

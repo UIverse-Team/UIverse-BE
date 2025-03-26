@@ -23,7 +23,7 @@ public class ProductControllerImpl implements ProductController {
     @Override
     @GetMapping
     public PagedModel<ProductListResponse> getProductList(
-            @Validated ProductRequest productRequest,
+            @Validated final ProductRequest productRequest,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size
     ) {
@@ -33,9 +33,10 @@ public class ProductControllerImpl implements ProductController {
         return productService.getProductList(productRequest, page, size);
     }
 
-    // user가 null일 수 있음(비회원)    @Override
+    // user가 null일 수 있음(비회원)
+    @Override
     @GetMapping("/{productId}")
-    public ProductResponse getProduct(@CurrentUser User user,  @PathVariable Long productId) {
+    public ProductResponse getProduct(@CurrentUser final User user,  @PathVariable final Long productId) {
         return productService.getProduct(user, productId);
     }
 

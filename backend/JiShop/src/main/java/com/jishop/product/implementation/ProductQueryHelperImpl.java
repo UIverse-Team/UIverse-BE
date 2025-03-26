@@ -22,8 +22,8 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
 
     @Override
     public BooleanBuilder findProductsByCondition(
-            ProductRequest productRequest, QProduct product, QReviewProduct reviewProduct) {
-        BooleanBuilder builder = new BooleanBuilder();
+            final ProductRequest productRequest, final QProduct product, final QReviewProduct reviewProduct) {
+        final BooleanBuilder builder = new BooleanBuilder();
 
         addPriceRangesFiltering(productRequest.priceRanges(), product, builder);
         addRatingsFilter(productRequest.ratings(), reviewProduct, product, builder);
@@ -32,10 +32,11 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         return builder;
     }
 
-    private static void addPriceRangesFiltering(List<Integer> priceRanges, QProduct product, BooleanBuilder builder) {
-        BooleanBuilder priceBuilder = new BooleanBuilder();
+    private static void addPriceRangesFiltering(final List<Integer> priceRanges,
+                                                final QProduct product, final BooleanBuilder builder) {
+        final BooleanBuilder priceBuilder = new BooleanBuilder();
 
-        for (Integer range : priceRanges) {
+        for (final Integer range : priceRanges) {
             switch (range) {
                 case 0 ->
                         priceBuilder.or(product.discountPrice.between(0, 25000));
@@ -54,8 +55,8 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         }
     }
 
-    private static void addRatingsFilter(
-            List<Integer> ratings, QReviewProduct reviewProduct, QProduct product, BooleanBuilder builder) {
+    private static void addRatingsFilter(final List<Integer> ratings, final QReviewProduct reviewProduct,
+                                         final QProduct product, final BooleanBuilder builder) {
         if (ratings.size() != 5 ||
                 !ratings.contains(1) ||
                 !ratings.contains(2) ||
@@ -63,13 +64,13 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
                 !ratings.contains(4) ||
                 !ratings.contains(5)) {
 
-            BooleanBuilder ratingBuilder = new BooleanBuilder();
+            final BooleanBuilder ratingBuilder = new BooleanBuilder();
 
             // 나눗셈 오류 방지
             ratingBuilder.and(reviewProduct.reviewCount.gt(0));
 
             // 평점 = 리뷰총점 / 리뷰개수
-            for (Integer rating : ratings) {
+            for (final Integer rating : ratings) {
                 switch (rating) {
                     case 1 -> ratingBuilder.or(
                             reviewProduct.reviewScore.divide(reviewProduct.reviewCount)
@@ -103,7 +104,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
             }
 
             if (ratingBuilder.hasValue()) {
-                JPQLQuery<Long> subQuery = JPAExpressions
+                final JPQLQuery<Long> subQuery = JPAExpressions
                         .select(reviewProduct.product.id)
                         .from(reviewProduct)
                         .where(ratingBuilder);
@@ -117,12 +118,12 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         }
     }
 
-    private void addCategory(Long categoryId, QProduct product, BooleanBuilder builder) {
+    private void addCategory(final Long categoryId, final QProduct product, final BooleanBuilder builder) {
         if (categoryId == null) return;
 
-        List<Long> categoryIds = categoryRepository.findByCategoryId(categoryId)
+        final List<Long> categoryIds = categoryRepository.findByCategoryId(categoryId)
                 .map(category -> {
-                    List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
+                    final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
                             categoryRepository.findAllSubCategoryIds(categoryId)
                     );
                     return subCategoryPKs.isEmpty()
@@ -134,7 +135,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         builder.and(product.category.id.in(categoryIds));
     }
 
-    private static void addKeyword(String keyword, QProduct product, BooleanBuilder builder) {
+    private static void addKeyword(final String keyword, final QProduct product, final BooleanBuilder builder) {
         builder.and(
                 product.name.containsIgnoreCase(keyword).or(product.description.containsIgnoreCase(keyword))
         );

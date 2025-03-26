@@ -21,8 +21,9 @@ public record ProductResponse(
         // true 또는 빈배열 반환
         Object isWished
 ) {
-    public static ProductResponse from(Product product, Boolean isWished, int reviewCount, double reviewRate, Object option) {
-        Object wishStatus = isWished != null && isWished ? true : new String[0];
+    public static ProductResponse from(final Product product, final Boolean isWished, final int reviewCount,
+                                       final double reviewRate, final Object option) {
+        final Object wishStatus = isWished != null && isWished ? true : new String[0];
 
         return new ProductResponse(
                 product.getId(),

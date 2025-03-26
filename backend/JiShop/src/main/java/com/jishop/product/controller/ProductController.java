@@ -12,10 +12,10 @@ import java.util.List;
 @Tag(name = "상품 API")
 public interface ProductController {
 
-    PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size);
+    PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest, final int page, final int size);
 
     // user가 null일 수 있음(비회원)
-    ProductResponse getProduct(User user, Long productId);
+    ProductResponse getProduct(final User user, final Long productId);
 
     List<ProductListResponse> getProductByWishTopTen();
 }

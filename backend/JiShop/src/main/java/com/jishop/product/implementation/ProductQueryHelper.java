@@ -7,5 +7,6 @@ import com.querydsl.core.BooleanBuilder;
 
 public interface ProductQueryHelper {
 
-    BooleanBuilder findProductsByCondition(ProductRequest request, QProduct product, QReviewProduct reviewProduct);
+    BooleanBuilder findProductsByCondition(final ProductRequest request,
+                                           final QProduct product, final QReviewProduct reviewProduct);
 }

@@ -23,11 +23,11 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     private final QReviewProduct reviewProduct = QReviewProduct.reviewProduct;
 
     @Override
-    public List<Product> findProductsByCondition(ProductRequest productRequest, int page, int size) {
-        BooleanBuilder filterBuilder = productQueryHelper
+    public List<Product> findProductsByCondition(final ProductRequest productRequest, final int page, final int size) {
+        final BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, product, reviewProduct);
 
-        OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), product);
+        final OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), product);
 
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
@@ -38,8 +38,8 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     }
 
     @Override
-    public long countProductsByCondition(ProductRequest productRequest) {
-        BooleanBuilder filterBuilder = productQueryHelper
+    public long countProductsByCondition(final ProductRequest productRequest) {
+        final BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, product, reviewProduct);
 
         return queryFactory.selectFrom(product)

@@ -37,25 +37,27 @@ public class ProductServiceImpl implements ProductService {
     private final SaleProductRepository saleProductRepository;
 
     @Override
-    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
-        List<Product> results = productRepository.findProductsByCondition(productRequest, page, size);
-        List<ProductListResponse> productList = results.stream()
+    public PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest,
+                                                          final int page, final int size) {
+        final List<Product> results = productRepository.findProductsByCondition(productRequest, page, size);
+        final List<ProductListResponse> productList = results.stream()
                 .map(ProductListResponse::from).toList();
 
-        long totalCount = productRepository.countProductsByCondition(productRequest);
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
+        final long totalCount = productRepository.countProductsByCondition(productRequest);
+        final Pageable pageable = PageRequest.of(page, size);
+        final Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);
     }
 
     @Override
-    public ProductResponse getProduct(User user, Long productId) {
-        Product product = productRepository.findById(productId)
+    public ProductResponse getProduct(final User user, final Long productId) {
+        final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
         // 찜 상태
-        boolean isWished = (user != null) && productWishListRepository.isProductWishedByUser(user.getId(), productId);
+        final boolean isWished = (user != null) && productWishListRepository
+                .isProductWishedByUser(user.getId(), productId);
 
         // 상품 옵션
         final Long categoryType = product.getLCatId();
@@ -72,15 +74,15 @@ public class ProductServiceImpl implements ProductService {
 
         // 상품 리뷰
         final ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
-        int reviewCount = reviewProduct != null ? reviewProduct.getReviewCount() : 0;
-        double reviewRate = reviewProduct != null ? reviewProduct.getAverageRating() : 0.0;
+        final int reviewCount = reviewProduct != null ? reviewProduct.getReviewCount() : 0;
+        final double reviewRate = reviewProduct != null ? reviewProduct.getAverageRating() : 0.0;
 
         return ProductResponse.from(product, isWished, reviewCount, reviewRate, productsOptions);
     }
 
     @Override
     public List<ProductListResponse> getProductByWishTopTen() {
-        List<Product> products = productWishListRepository.getProductByWishTopTen();
+        final List<Product> products = productWishListRepository.getProductByWishTopTen();
 
         return products.stream().map(ProductListResponse::from).toList();
     }
