@@ -86,8 +86,8 @@ public class AuthServiceImpl implements AuthService {
         user.delete();
     }
 
-    public Long checkLogin(HttpSession session) {
-        return (Long) session.getAttribute("userId");
+    public Long checkLogin(User user) {
+        return user.getId();
     }
 }
 

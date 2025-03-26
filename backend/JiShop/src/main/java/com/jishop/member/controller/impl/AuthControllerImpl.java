@@ -1,6 +1,8 @@
 package com.jishop.member.controller.impl;
 
+import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.controller.AuthController;
+import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.SignInFormRequest;
 import com.jishop.member.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,8 +55,8 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @GetMapping()
-    public ResponseEntity<String> checkLogin(HttpSession session) {
-        Long id = service.checkLogin(session);
+    public ResponseEntity<String> checkLogin(@CurrentUser User user) {
+        Long id = service.checkLogin(user);
         if(id == null) return ResponseEntity.badRequest().body("로그인 타임 종료!");
         return ResponseEntity.ok("로그인 중!");
     }
