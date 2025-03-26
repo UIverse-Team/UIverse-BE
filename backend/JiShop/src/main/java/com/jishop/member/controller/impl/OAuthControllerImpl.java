@@ -4,6 +4,7 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.config.OAuthConfig;
 import com.jishop.member.controller.OAuthController;
+import com.jishop.member.domain.User;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.OAuthClient;
 import com.jishop.member.service.OAuthProfile;
@@ -11,6 +12,7 @@ import com.jishop.member.service.UserService;
 import com.jishop.member.service.impl.GoogleClient;
 import com.jishop.member.service.impl.KakaoClient;
 import com.jishop.member.service.impl.NaverClient;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +50,8 @@ public class OAuthControllerImpl implements OAuthController {
 
     @GetMapping("/callback/{provider}")
     public ResponseEntity<OAuthProfile> callback(@PathVariable("provider") String provider,
-                                                 @RequestParam(value = "code", required = false) String code) {
+                                                 @RequestParam(value = "code", required = false) String code,
+                                                 HttpSession session) {
         if (!clients.containsKey(provider)) {
             throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
         }
@@ -60,7 +63,9 @@ public class OAuthControllerImpl implements OAuthController {
         OAuthClient client = clients.get(provider);
         TokenResponse tokenResponse = client.getAccessToken(code);
         OAuthProfile profile = client.getProfile(tokenResponse.accessToken());
-        userService.oauthLogin(profile);
+        User user = userService.oauthLogin(profile);
+        session.setAttribute("userId", user.getId());
+        session.setMaxInactiveInterval(60 * 30);
 
         return ResponseEntity.ok(profile);
     }
