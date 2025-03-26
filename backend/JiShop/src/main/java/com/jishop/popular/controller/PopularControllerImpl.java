@@ -1,7 +1,10 @@
 package com.jishop.popular.controller;
 
+import com.jishop.popular.dto.PopularKeywordResponse;
+import com.jishop.popular.service.PopularService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,17 +21,13 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/popular")
-public class PopularControllerImpl {
+public class PopularControllerImpl implements PopularController {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final PopularService popularService;
 
+    @Override
     @GetMapping
-    public ResponseEntity<?> getPopularKewords() {
-        String hourkey = "popular_keywords:" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-        
-        // 내림차순으로 상위 10개 키워드 조회
-        Set<Object> top10Keywords = redisTemplate.opsForZSet().reverseRange(hourkey, 0, 9);
-
-        return ResponseEntity.ok(top10Keywords);
+    public PopularKeywordResponse getPopularKeywordAndProduct() {
+        return popularService.getPopularKeywordAndProduct();
     }
 }

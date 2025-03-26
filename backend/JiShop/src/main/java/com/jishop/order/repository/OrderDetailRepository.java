@@ -29,7 +29,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
             "JOIN sp.product p " +
             "JOIN od.order o " +
             "WHERE p.id = :productId AND o.createdAt >= :startDate")
-    int countRecentOrdersByProductId(@Param("productId") Long productId,
+    Integer countRecentOrdersByProductId(@Param("productId") Long productId,
                                      @Param("startDate") LocalDateTime startDate);
 
     /**
@@ -42,5 +42,5 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
             "JOIN od.saleProduct sp " +
             "JOIN sp.product p " +
             "WHERE p.id = :productId")
-    int countTotalOrdersByProductId(@Param("productId") Long productId);
+    Integer countTotalOrdersByProductId(@Param("productId") Long productId);
 }
