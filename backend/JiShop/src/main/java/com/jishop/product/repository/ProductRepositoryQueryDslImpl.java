@@ -15,7 +15,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
+public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl {
 
     private final JPAQueryFactory queryFactory;
     private final ProductQueryHelper productQueryHelper;
@@ -23,12 +23,11 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
     private final QReviewProduct reviewProduct = QReviewProduct.reviewProduct;
 
     @Override
-    public final List<Product> findProductsByCondition(final ProductRequest productRequest,
-                                                       final int page, final int size) {
-        final BooleanBuilder filterBuilder = productQueryHelper
+    public List<Product> findProductsByCondition(ProductRequest productRequest, int page, int size) {
+        BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, product, reviewProduct);
 
-        final OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), product);
+        OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort(), product);
 
         return queryFactory.selectFrom(product)
                 .where(filterBuilder)
@@ -39,8 +38,8 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
     }
 
     @Override
-    public final long countProductsByCondition(final ProductRequest productRequest) {
-        final BooleanBuilder filterBuilder = productQueryHelper
+    public long countProductsByCondition(ProductRequest productRequest) {
+        BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, product, reviewProduct);
 
         return queryFactory.selectFrom(product)
@@ -50,7 +49,6 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl{
 
     private OrderSpecifier<?> addSorting(final String sort, final QProduct product) {
         return switch (sort) {
-            case "wish" -> product.wishListCount.desc();
             case "latest" -> product.createdAt.desc();
             case "priceAsc" -> product.discountPrice.asc();
             case "priceDesc" -> product.discountPrice.desc();

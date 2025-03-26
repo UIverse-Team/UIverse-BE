@@ -28,7 +28,8 @@ public class ProductControllerImpl implements ProductController {
             @RequestParam(defaultValue = "12") int size
     ) {
         if (page < 0 || page > 100) {page = 0;}
-        if (size < 1 || size > 100) {size = 12;}
+        if (size <= 0 || size > 100) {size = 12;}
+
         return productService.getProductList(productRequest, page, size);
     }
 

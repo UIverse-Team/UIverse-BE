@@ -9,12 +9,12 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
-@Repository
+@Component
 @RequiredArgsConstructor
 public class ProductQueryHelperImpl implements ProductQueryHelper {
 
@@ -29,7 +29,6 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         addRatingsFilter(productRequest.ratings(), reviewProduct, product, builder);
         addCategory(productRequest.category(), product, builder);
         addKeyword(productRequest.keyword(), product, builder);
-
         return builder;
     }
 

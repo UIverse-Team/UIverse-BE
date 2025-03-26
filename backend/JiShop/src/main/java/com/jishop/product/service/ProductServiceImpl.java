@@ -10,7 +10,6 @@ import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.repository.ProductRepository;
-import com.jishop.product.repository.ProductRepositoryQueryDsl;
 import com.jishop.productwishlist.repository.ProductWishListRepository;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
@@ -37,26 +36,22 @@ public class ProductServiceImpl implements ProductService {
     private final ProductWishListRepository productWishListRepository;
     private final SaleProductRepository saleProductRepository;
 
-    private final ProductRepositoryQueryDsl productRepositoryQueryDsl;
-
     @Override
-    public final PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest,
-                                                                final int page, final int size) {
-        final List<Product> results = productRepositoryQueryDsl.findProductsByCondition(productRequest, page, size);
-        final List<ProductListResponse> productList = results.stream()
+    public PagedModel<ProductListResponse> getProductList(ProductRequest productRequest, int page, int size) {
+        List<Product> results = productRepository.findProductsByCondition(productRequest, page, size);
+        List<ProductListResponse> productList = results.stream()
                 .map(ProductListResponse::from).toList();
 
-        final long totalCount = productRepositoryQueryDsl.countProductsByCondition(productRequest);
-        final Pageable pageable = PageRequest.of(page, size);
-        final Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
+        long totalCount = productRepository.countProductsByCondition(productRequest);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductListResponse> ProductListResponsePage = new PageImpl<>(productList, pageable, totalCount);
 
         return new PagedModel<>(ProductListResponsePage);
     }
 
     @Override
-    public final ProductResponse getProduct(final User user, final Long productId) {
-        // 상품 정보
-        final Product product = productRepository.findById(productId)
+    public ProductResponse getProduct(User user, Long productId) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
         // 찜 상태
@@ -91,8 +86,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public final List<ProductListResponse> getProductByWishTopTen() {
-        final List<Product> products = productWishListRepository.getProductByWishTopTen();
+    public List<ProductListResponse> getProductByWishTopTen() {
+        List<Product> products = productWishListRepository.getProductByWishTopTen();
 
         return products.stream().map(ProductListResponse::from).toList();
     }
