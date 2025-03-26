@@ -8,11 +8,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface ReviewProductRepository extends JpaRepository<ReviewProduct, Long> {
 
     Optional<ReviewProduct> findByProduct(Product product);
+
+    List<ReviewProduct> findAllByProduct(Product product);
 
     @Modifying
     @Query("UPDATE ReviewProduct rp SET rp.reviewScore = rp.reviewScore - :rating, rp.reviewCount = rp.reviewCount - 1 " +

@@ -39,8 +39,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest,
                                                           final int page, final int size) {
-        final List<Product> results = productRepository.findProductsByCondition(productRequest, page, size);
-        final List<ProductListResponse> productList = results.stream()
+        final List<Product> targetedProducts = productRepository.findProductsByCondition(productRequest, page, size);
+        final List<ProductListResponse> productList = targetedProducts.stream()
                 .map(ProductListResponse::from).toList();
 
         final long totalCount = productRepository.countProductsByCondition(productRequest);
@@ -73,9 +73,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // 상품 리뷰
-        final ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
-        final int reviewCount = reviewProduct != null ? reviewProduct.getReviewCount() : 0;
-        final double reviewRate = reviewProduct != null ? reviewProduct.getAverageRating() : 0.0;
+        final List<ReviewProduct> productsReviews = reviewProductRepository.findAllByProduct(product);
+        final int reviewCount = productsReviews.isEmpty() ? 0 : productsReviews.get(0).getReviewCount();
+        final double reviewRate = productsReviews.isEmpty() ? 0.0 : productsReviews.get(0).getAverageRating();
 
         return ProductResponse.from(product, isWished, reviewCount, reviewRate, productsOptions);
     }
