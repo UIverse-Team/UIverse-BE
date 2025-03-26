@@ -60,9 +60,9 @@ public class WebConfig implements WebMvcConfigurer {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setCookieName("JSESSIONID");
         serializer.setCookiePath("/");
-        serializer.setDomainName("api.uiverse.shop"); // 메인 도메인 지정
+        serializer.setDomainName("api.uiverse.shop");
         serializer.setUseHttpOnlyCookie(true);
-        serializer.setSameSite("Lax");  // ✨ 크로스 사이트 요청 허용
+        serializer.setSameSite("Lax");
         serializer.setUseSecureCookie(false);
         return serializer;
     }
