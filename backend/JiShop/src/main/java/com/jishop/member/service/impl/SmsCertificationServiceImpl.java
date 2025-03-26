@@ -6,6 +6,7 @@ import com.jishop.member.domain.SmsCertification;
 import com.jishop.member.dto.request.SmsRequest;
 import com.jishop.member.repository.SmsCertificationRepository;
 import com.jishop.member.service.SmsCertificationService;
+import lombok.extern.slf4j.Slf4j;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import jakarta.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SmsCertificationServiceImpl implements SmsCertificationService {
@@ -87,7 +89,7 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
         try {
             coolsms.send(params);
         } catch (CoolsmsException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             throw new DomainException(ErrorType.SMS_SEND_FAILURE);
         }
     }
