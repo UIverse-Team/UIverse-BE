@@ -22,12 +22,14 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
             "WHERE sp.id IN :ids")
     List<SaleProduct> findAllByIdsForOrder(@Param("ids") List<Long> ids);
 
-    @Query("SELECT sp.id as saleProductId, o.optionValue, o.optionExtra FROM SaleProduct sp " +
-            "JOIN sp.option o WHERE sp.product.id = :productId AND o.categoryType = 'FASHION_CLOTHES'")
+    @Query("SELECT sp.id as saleProductId, o.optionValue as optionValue, o.optionExtra as optionExtra FROM SaleProduct sp " +
+           "LEFT JOIN sp.option o ON o.categoryType = 'FASHION_CLOTHES' " +
+           "WHERE sp.product.id = :productId AND o.id IS NOT NULL")
     List<Map<String, Object>> findFashionClothesOptionsByProductId(@Param("productId") Long productId);
 
-    @Query("SELECT sp.id as saleProductId, o.optionValue, o.optionExtra FROM SaleProduct sp " +
-            "JOIN sp.option o WHERE sp.product.id = :productId AND o.categoryType <> 'FASHION_CLOTHES'")
+    @Query("SELECT sp.id as saleProductId, o.optionValue as optionValue, o.optionExtra as optionExtra FROM SaleProduct sp " +
+           "LEFT JOIN sp.option o ON o.categoryType <> 'FASHION_CLOTHES' " +
+           "WHERE sp.product.id = :productId AND o.id IS NOT NULL")
     List<Map<String, Object>> findGeneralOptionsByProductId(@Param("productId") Long productId);
 
 
