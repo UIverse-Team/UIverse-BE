@@ -1,29 +1,36 @@
 package com.jishop.option.dto;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 
-public record FashionClothesOptionResponse(Map<String, List<SizeOption>> colorAndSizes) {
-    public static FashionClothesOptionResponse from(final List<Map<String, Object>> productOptions) {
-        final Map<String, List<SizeOption>> fashionClothesOptions = new HashMap<>();
+import java.util.*;
 
-        for (final Map<String, Object> option : productOptions) {
-            final String optionValue = (String) option.get("optionValue");
-            final String[] colorAndSize = optionValue.split("/");
+public record FashionClothesOptionResponse(
+        @JsonValue Map<String, List<SizeOption>> option
+) {
+    public static FashionClothesOptionResponse from(List<Map<String, Object>> productOptions) {
+        if (productOptions == null || productOptions.isEmpty()) {
+            throw new DomainException(ErrorType.OPTION_NOT_FOUND);
+        }
+
+        Map<String, List<SizeOption>> fashionClothesOptions = new HashMap<>();
+
+        for (Map<String, Object> option : productOptions) {
+            String optionValue = (String) option.get("optionValue");
+            String[] colorAndSize = optionValue.split("/");
 
             if (colorAndSize.length == 2) {
-                final String color = colorAndSize[0];
-                final String size = colorAndSize[1];
+                String color = colorAndSize[0];
+                String size = colorAndSize[1];
 
                 if (!fashionClothesOptions.containsKey(color)) {
                     fashionClothesOptions.put(color, new ArrayList<>());
                 }
-                final SizeOption sizeOption = new SizeOption(
+                SizeOption sizeOption = new SizeOption(
                         (Long) option.get("saleProductId"),
                         size,
-                        option.get("optionExtra")
+                        (int) option.get("optionExtra")
                 );
                 fashionClothesOptions.get(color).add(sizeOption);
             }
