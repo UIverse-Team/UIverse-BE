@@ -107,7 +107,7 @@ public class PopularServiceImpl implements PopularService {
                 product.getName(),
                 product.getOriginPrice(),
                 product.getDiscountPrice(),
-                productScore.getProduct().getDiscountRate().intValue(),
+                productScore.getProduct().getDiscountRate(),
                 productScore.getTotalOrderCount(),
                 productScore.getReviewRating().intValue()
         );
