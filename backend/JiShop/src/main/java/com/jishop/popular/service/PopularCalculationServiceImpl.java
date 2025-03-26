@@ -34,9 +34,10 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
     private static final String RESULT_KEY_PREFIX = "popular_result:";
 
     /**
+     * Redis에 저장된 인기검색어를 기반으로 각 검색어별 인기 상품을 반환하고, 그 결과를 캐싱
      *
      * @param key   인기검색어가 저장된 key
-     * @return
+     * @return 인기검색어와 인기상품 리스트
      */
     @Override
     public PopularKeywordResponse calculateAndCacheResult(String key) {

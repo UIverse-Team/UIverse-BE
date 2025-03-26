@@ -22,6 +22,9 @@ public class PopularProductScoreScheduler {
     private static final String MAIN_KEY_PREFIX = "popular_keywords:";
     private static final String GAP_KEY_PREFIX = "popular_keywords_gap:";
 
+    /**
+     * 매 시간마다 Redis에 저장된 인기 검색어를 바탕으로 연관 상품 점수를 계산하는 스케줄러
+     */
     @Scheduled(cron = "0 0 * * * *")
     public void calculatePopularProductScore() {
         // 이전 시간대 key 생성

@@ -22,6 +22,10 @@ public class PopularServiceImpl implements PopularService {
 
     private static final String RESULT_KEY_PREFIX = "popular_result:";
 
+    /**
+     * 인기 검색어와 검색어별 인기 상품 리스트를 반환하는 메서드
+     * @return 결과
+     */
     public PopularKeywordResponse getPopularKeywordsAndProducts(){
         LocalDateTime now = LocalDateTime.now();
         String previousHourKey = now.minusHours(1).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
