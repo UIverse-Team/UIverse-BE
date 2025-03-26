@@ -2,6 +2,7 @@ package com.jishop.review;
 
 import com.jishop.review.domain.Review;
 import com.jishop.review.dto.MyPageReviewResponse;
+import com.jishop.review.dto.ReviewImageResponse;
 import com.jishop.review.repository.ReviewRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 
 @DataJpaTest
@@ -20,67 +22,15 @@ public class reviewRepositoryTest {
     private ReviewRepository reviewRepository;
 
     @Test
-    @DisplayName("패치조인 잘 가져오나. 확인")
-    void findByProductIdWithUser() throws Exception {
-
+    @DisplayName("리뷰 이미지 슬라이스")
+    void imagesSlice() throws Exception {
         // given
-        PageRequest pageable = getCreatedAt();
-        Page<Review> reviews = reviewRepository.findByProductIdWithUser(2L,pageable);
-
-        reviews.stream().forEach((review) -> {
-            System.out.println(review.getUser().getName());
-        });
-        //when
-
+        PageRequest pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Slice<ReviewImageResponse> reviewSlice= reviewRepository.findByAllWithImage(pageable).map(ReviewImageResponse::from);
         //then
-
-    }
-    private PageRequest getCreatedAt() {
-        return PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "createdAt"));
-    }
-
-    @Test
-    @DisplayName("레포 테스트")
-    void MyPageReview() throws Exception {
-
-        // given
-        PageRequest createdAt = getCreatedAt();
-        Page<Review> reviewsProductByUserId = reviewRepository.findReviewsProductByUserId(1L, createdAt);
-
-        //when
-        reviewsProductByUserId.stream().forEach((review) -> {
-            System.out.println(review.getProduct().getName());
-        });
-
-        //then
-    }
-
-    @Test
-    @DisplayName("상품 리뷰 가져오기")
-    void getReviewProduct() throws Exception {
-        // given
-        Review review = reviewRepository.findByReviewIdAndUserId(1L, 5L).orElseThrow(
-                () -> new IllegalStateException("sdfkj")
-        );
-        //when
-        System.out.println(review.getProductSummary());
-        //then
-
-    }
-
-    @Test
-    @DisplayName("리뷰 아이디, 유저 아이디로 가져오는 레포 테스트")
-    void getuserIdandreviewIdReview() throws Exception {
-        // given
-        MyPageReviewResponse myPageReviewResponse = reviewRepository.findByIdAndUserId(7L, 3L).map(MyPageReviewResponse::from).orElseThrow(
-                () -> new IllegalStateException("sdfkj")
-        );
-
-        System.out.println(myPageReviewResponse);
-
-        //when
-
-        //then
+        System.out.println(reviewSlice.getContent());
+        System.out.println(reviewSlice.getNumber());
+        System.out.println(reviewSlice.hasNext());
 
     }
 }
