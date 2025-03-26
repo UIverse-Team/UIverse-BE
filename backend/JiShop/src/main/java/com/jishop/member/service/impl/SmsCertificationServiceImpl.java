@@ -92,6 +92,7 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
 
             coolsms.send(params);
 
+
             log.info("SMS sent successfully");
         } catch (CoolsmsException e) {
             log.error("SMS Send Error - Error Code: {}, Message: {}",
