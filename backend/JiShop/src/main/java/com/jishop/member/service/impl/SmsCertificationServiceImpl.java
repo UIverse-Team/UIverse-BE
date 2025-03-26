@@ -83,13 +83,19 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
         params.put("from", fromPhoneNumber);
         params.put("type", "SMS");
         params.put("text", message);
-        params.put(
-                "app_version", "JiShop App 1.0");
+        params.put("app_version", "JiShop App 1.0");
 
         try {
+            // Add more detailed logging before sending
+            log.info("Sending SMS to: {}, from: {}", to, fromPhoneNumber);
+            log.debug("SMS Params: {}", params);
+
             coolsms.send(params);
+
+            log.info("SMS sent successfully");
         } catch (CoolsmsException e) {
-            log.error(e.getMessage(), e);
+            log.error("SMS Send Error - Error Code: {}, Message: {}",
+                    e.getCode(), e.getMessage(), e);
             throw new DomainException(ErrorType.SMS_SEND_FAILURE);
         }
     }
