@@ -40,7 +40,15 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보를 찾을 수 없습니다."),
 
-    // Category
+    // OPTION
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "옵션 정보를 찾을 수 없습니다."),
+    OPTION_VALUE_EMPTY(HttpStatus.BAD_REQUEST, "옵션 값이 비어있습니다."),
+    OPTION_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "옵션 형식이 올바르지 않습니다."),
+    COLOR_SIZE_EMPTY(HttpStatus.BAD_REQUEST, "색상 또는 사이즈 정보가 비어있습니다."),
+    SALE_PRODUCT_ID_NULL(HttpStatus.BAD_REQUEST, "판매 상품 ID가 존재하지 않습니다."),
+    VALID_OPTION_NOT_EXIST(HttpStatus.BAD_REQUEST, "유효한 옵션이 존재하지 않습니다."),
+
+    // CATEGORY
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
     CATEGORY_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리에 대한 결과가 없습니다."),
 

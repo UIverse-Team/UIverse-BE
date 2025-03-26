@@ -13,7 +13,7 @@ public record ProductListResponse(
         String brand,
         String mainImage
 ) {
-    public static ProductListResponse from(Product product) {
+    public static ProductListResponse from(final Product product) {
         return new ProductListResponse(
                 product.getId(),
                 product.getName(),
