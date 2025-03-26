@@ -14,7 +14,7 @@ public record GeneralOptionResponse(
             ProductOption productOption = new ProductOption(
                     (Long) option.get("saleProductId"),
                     (String) option.get("optionValue"),
-                    option.get("optionExtra")
+                    (int) option.get("optionExtra")
             );
             generalOptions.add(productOption);
         }
