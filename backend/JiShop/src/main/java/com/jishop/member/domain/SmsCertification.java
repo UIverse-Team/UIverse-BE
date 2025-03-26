@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SmsCertification {
-    
+
     @Id
     private String token;
     @Column(nullable = false)
