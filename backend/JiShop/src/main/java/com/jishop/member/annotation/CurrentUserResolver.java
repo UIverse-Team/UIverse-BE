@@ -13,6 +13,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.time.Duration;
+
 @Component
 @RequiredArgsConstructor
 public class CurrentUserResolver implements HandlerMethodArgumentResolver {
@@ -57,7 +59,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
         }
 
         return userRepository.findById(userId).map(user -> {
-            redisTemplate.opsForValue().set(cacheKey, user);
+            redisTemplate.opsForValue().set(cacheKey, user, Duration.ofMinutes(30));
             return user;
         }).orElse(null);
     }

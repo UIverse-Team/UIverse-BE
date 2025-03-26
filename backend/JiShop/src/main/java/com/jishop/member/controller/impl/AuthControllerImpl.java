@@ -51,4 +51,11 @@ public class AuthControllerImpl implements AuthController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping()
+    public ResponseEntity<String> checkLogin(HttpSession session) {
+        Long id = service.checkLogin(session);
+        if(id == null) return ResponseEntity.badRequest().body("로그인 타임 종료!");
+        return ResponseEntity.ok("로그인 중!");
+    }
 }
