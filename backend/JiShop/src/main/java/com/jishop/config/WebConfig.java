@@ -60,7 +60,7 @@
             DefaultCookieSerializer serializer = new DefaultCookieSerializer();
             serializer.setCookieName("JSESSIONID");
             serializer.setCookiePath("/");
-            serializer.setDomainName("api.uiverse.shop");
+            serializer.setDomainName("localhost");
             serializer.setUseHttpOnlyCookie(true);
             serializer.setSameSite("Lax");
             serializer.setUseSecureCookie(false);
