@@ -56,7 +56,6 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-
         // Key는 String으로 직렬화
         redisTemplate .setKeySerializer(new StringRedisSerializer());
         // Value는 JSON 형식으로 직렬화 (redisObjectMapper 사용)
