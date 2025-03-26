@@ -82,10 +82,12 @@ public class AuthServiceImpl implements AuthService {
         user.updatePhone(request.phone());
     }
 
-    @Override
     public void deleteUser(User user) {
         user.delete();
     }
 
+    public Long checkLogin(HttpSession session) {
+        return (Long) session.getAttribute("userId");
+    }
 }
 

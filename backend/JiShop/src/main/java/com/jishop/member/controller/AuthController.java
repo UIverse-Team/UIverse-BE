@@ -14,4 +14,5 @@ public interface AuthController {
     ResponseEntity<String> signIn(SignInFormRequest request, HttpServletRequest httpRequest,
                                   HttpServletResponse response);
     ResponseEntity<Void> logout(HttpServletRequest request);
+    ResponseEntity<String> checkLogin(HttpSession session);
 }
