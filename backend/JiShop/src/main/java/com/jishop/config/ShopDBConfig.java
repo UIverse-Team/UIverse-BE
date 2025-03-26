@@ -30,7 +30,8 @@ public class ShopDBConfig {
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+        properties.setProperty("hibernate.hbm2ddl.auto", "create"); // 추가
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
         em.setJpaProperties(properties);
 
         return em;
