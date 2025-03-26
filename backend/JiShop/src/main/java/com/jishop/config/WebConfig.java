@@ -43,7 +43,7 @@
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                    .allowedOriginPatterns(
+                    .allowedOrigins(
                             "https://uiverse.shop",
                             "http://localhost:3000",
                             "https://api.uiverse.shop"
