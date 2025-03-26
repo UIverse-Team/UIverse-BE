@@ -100,7 +100,7 @@ public class QuestionServiceImpl implements QuestionService {
         return ResponseEntity.ok(
                 questions.stream()
                         .map(QuestionResponse::fromQuestion)
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 }
