@@ -49,9 +49,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest
 public class reviewServiceTest {
 
-    private ReviewRequest getReviewRequest(Long orderDetailId, String content, Tag tag, int rating) {
-        return new ReviewRequest(orderDetailId, content, tag, rating);
-    }
 
     private Product createProduct(Category category, String lCatId, String mCatId, String sCatId,
                                   String mallSeq, String name, String description, int originPrice,
@@ -62,9 +59,6 @@ public class reviewServiceTest {
                                   String detailImage, int productViewCount) {
         return Product.builder()
                 .category(category)
-                .lCatId(lCatId)
-                .mCatId(mCatId)
-                .sCatId(sCatId)
                 .mallSeq(mallSeq)
                 .name(name)
                 .description(description)
@@ -92,18 +86,6 @@ public class reviewServiceTest {
         return new Option(optionCategory, optionValue, optionExtra);
     }
 
-    private static Category createCategory(Category category, Long currentId,
-                                           String name, String wholeCategoryId,
-                                           String wholeCategoryName, int level) {
-        return Category.builder()
-                .parent(category)  // 최상위 카테고리이므로 부모 없음
-                .currentId(currentId)
-                .name(name)
-                .wholeCategoryId(wholeCategoryId)
-                .wholeCategoryName(wholeCategoryName)
-                .level(level)
-                .build();
-    }
 
     private SaleProduct createSaleProduct(Product product, Option option) {
         return SaleProduct.builder().

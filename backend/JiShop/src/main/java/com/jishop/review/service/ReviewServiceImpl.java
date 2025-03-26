@@ -7,6 +7,7 @@ import com.jishop.member.repository.UserRepository;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.Product;
+import com.jishop.review.dto.ReviewWriteResponse;
 import com.jishop.review.domain.LikeReview;
 import com.jishop.review.domain.Review;
 import com.jishop.review.dto.*;
@@ -17,12 +18,14 @@ import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -37,68 +40,51 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewProductRepository reviewProductRepository;
 
     @Override
-    public Long createReview(ReviewRequest reviewRequest, List<String> images, Long userId) {
-
-        // 리뷰 중복 방지
-        boolean isDuplicate = reviewRepository.existsByOrderDetailId(reviewRequest.orderDetailId());
-        if (isDuplicate) {
-            throw new DomainException(ErrorType.REVIEW_DUPLICATE);
-        }
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new DomainException(ErrorType.USER_NOT_FOUND)
-        );
-
-        //todo:
-        // 2. 상품 테이블에서 리뷰개수와 리뷰평점 업데이트 하기. -> 트랜잭션 락 걸어야지.
-        // 3. 카테고리별 상품 리뷰 달기 고려?
+    public Long createReview(ReviewRequest reviewRequest, User user) {
 
         OrderDetail orderDetail = orderDetailRepository.findOrderDetailForReviewById(reviewRequest.orderDetailId())
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_DETAIL_NOT_FOUND));
 
         SaleProduct saleProduct = orderDetail.getSaleProduct();
 
-        String productSummary = null;
-
-        if (saleProduct.getOption() == null) {
-            productSummary = String.format("%s;%s",
-                    saleProduct.getName(),
-                    orderDetail.getQuantity());
-        } else {
-            productSummary = String.format("%s;%s;%s",
-                    saleProduct.getName(),
-                    saleProduct.getOption().getOptionValue(),
-                    orderDetail.getQuantity());
-        }
+        String productSummary = makeProductSummar(saleProduct, orderDetail);
 
         Product product = saleProduct.getProduct();
 
-        // 동시성 고려 x
-        ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product)
+        // 같은 상품을 동시에 리뷰를 작성한다면 상품 리뷰 카운트와 스코어를 올려주어야 한다. 비관적락 사용
+        ReviewProduct reviewProduct = reviewProductRepository.findByProductForUpdate(product)
                 .orElseGet(() -> {
                     var newReviewProduct = ReviewProduct.builder()
                             .reviewCount(0)
                             .reviewScore(0)
                             .product(product)
                             .build();
-                    return reviewProductRepository.save(newReviewProduct);
+                    return reviewProductRepository.saveAndFlush(newReviewProduct);
                 });
 
         reviewProduct.increaseRating(reviewRequest.rating());
 
         // 리뷰 저장
-        Review review = reviewRepository.save(reviewRequest.toEntity(images, product, orderDetail, user, productSummary));
+        Review review = reviewRepository.save(reviewRequest.toEntity(reviewRequest.images(), product, orderDetail, user, productSummary));
 
         return review.getId();
     }
 
+    private String makeProductSummar(SaleProduct saleProduct, OrderDetail orderDetail) {
+        if (saleProduct.getOption() == null) {
+            return String.format("%s;%s",
+                    saleProduct.getName(),
+                    orderDetail.getQuantity());
+        }
+
+        return String.format("%s;%s;%s",
+                saleProduct.getName(),
+                saleProduct.getOption().getOptionValue(),
+                orderDetail.getQuantity());
+    }
+
     @Override
-    public PagedModel<ReviewWithOutUserResponse> getProductReviewsWithoutUser(Long productId, Pageable pageable) {
-        //todo:
-        // 1. 가져올거 -> 별점, 리뷰한 날짜, 사진, 옵션, tag 값, 대표 상품 값, 회원 이름?
-        // 2. 주문 상세, 판매 상품 productId으로 review 확인 조인 List<order_detail> a 받아옴
-        // 3. 기본 내림차순
-        // 4. 좋아요 개수랑 해당 유저가 좋아요를 할 수 있는지 둬 줘야 한다.
-        // 5. 로그인 안했을때.
+    public PagedModel<ReviewWithOutUserResponse> getProductReviews(Long productId, Pageable pageable) {
 
         return new PagedModel<>(reviewRepository
                 .findByProductIdWithUser(productId, pageable)
@@ -106,9 +92,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PagedModel<ReviewWithUserResponse> getProductReviewsWithUser(Long productId, Long userId, Pageable pageable) {
-        //todo:
-        // 1. 로그인 했을때.
+    public PagedModel<ReviewWithUserResponse> getProductReviews(Long productId, Long userId, Pageable pageable) {
         return new PagedModel<>(reviewRepository
                 .findReviewsWithUserLike(productId, userId, pageable)
                 .map(result -> {
@@ -127,60 +111,73 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public MyPageDetailReviewResponse getMyPageDetailReview(Long reviewId, Long userId) {
-        return reviewRepository
-                .findByIdAndUserId(reviewId, userId)
-                .map(MyPageDetailReviewResponse::from)
+    public ReviewWithOutUserResponse getDetailReview(Long reviewId) {
+
+        return reviewRepository.findByReviewIdWithUser(reviewId)
+                .map(ReviewWithOutUserResponse::from)
                 .orElseThrow(() -> new DomainException(ErrorType.REVIEW_NOT_FOUND));
     }
 
     @Override
-    public void likeReview(LikerIdRequest likerIdRequest, Long reviewId) {
+    public ReviewWithUserResponse getDetailReview(Long reviewId, User user) {
 
-        //todo:
-        // 1. 쿼리 개선
-        // 2. 동시성 고려
-        // 3. db 에러 잡아서 커스텀하기. 500 에러를 반환하여서.?
+        return reviewRepository.findReviewsWithUserLike(reviewId, user.getId())
+                .map(object -> {
+                    Object[] result = (Object[]) object;
+                    Review r = (Review) result[0];
+                    Boolean isLike = (Boolean) result[1];
+                    return ReviewWithUserResponse.from(r, isLike);
+                }).orElseThrow(() -> new DomainException(ErrorType.REVIEW_NOT_FOUND));
+    }
+
+    @Override
+    public PagedModel<ReviewWriteResponse> getMyPageReviewWrite(User user, Pageable pageable) {
+
+        return new PagedModel<>(reviewRepository
+                .findByMyPageReviewWrite(user.getId(), pageable));
+    }
+
+    @Override
+    public Slice<ReviewImageResponse> getReviewImages(Pageable pageable) {
+        Slice<ReviewImageResponse> reviews = reviewRepository.findByAllWithImage(pageable)
+                .map(ReviewImageResponse::from);
+        return reviews;
+    }
+
+
+    @Override
+    public void likeReview(LikerIdRequest likerIdRequest, Long reviewId) {
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
         );
 
-        User user = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
+        User liker = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
                 () -> new DomainException(ErrorType.USER_NOT_FOUND)
         );
 
         LikeReview likeReview = LikeReview.builder()
-                .user(user)
+                .user(liker)
                 .review(review)
                 .build();
 
-        likeReviewRepository.save(likeReview);
+        likeReviewRepository.saveAndFlush(likeReview);
         review.increaseLikeCount();
     }
 
     @Override
     public void unlikeReview(LikerIdRequest likerIdRequest, Long reviewId) {
-        //todo:
-        // 1. 쿼리 개선
-        // 2. 동시성 락 걸기 개선 해야함..
-        // 3. 레디스 고려.
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
         );
 
-        User user = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
+        User unliker = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
                 () -> new DomainException(ErrorType.USER_NOT_FOUND)
         );
 
-        /**
-         * 이미 없는 값을 삭제하려고 한다면 에러를 터트려야할까??
-         */
-        int flag = likeReviewRepository.deleteByReviewAndUser(review, user);
-        if (flag == 1) {
-            review.decreaseLikeCount();
-        }
+        int flag = likeReviewRepository.deleteByReviewAndUser(review, unliker);
+        if (flag == 1) review.decreaseLikeCount();
     }
 
     @Override
@@ -195,29 +192,19 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(Long reviewId, Long userId) {
-        //todo:
-        // 1. 이미 삭제한 리뷰인지 확인.
-        // 2. 상품 리뷰가 상품이 삭제 되었는지 확인해야 되나?
-        // 3. 리뷰 삭제 동시성 처리 어떻게 해주냐?? -> 단순하게 update해준다.
-        // 4. 동시성 문제 - 같은 유저가 리뷰에 동시 2번 이상 눌렀을때 생각..
-        // 5. 비관락 적용
 
         Review review = reviewRepository.findByIdWithLock(reviewId).orElseThrow(
                 () -> new DomainException(ErrorType.REVIEW_NOT_FOUND)
         );
 
-        if (!review.getUser().getId().equals(userId)) {
-            throw new DomainException(ErrorType.MATCH_NOT_USER);
-        }
+        if (!review.getUser().getId().equals(userId)) throw new DomainException(ErrorType.MATCH_NOT_USER);
 
-        if (review.isDeleteStatus()) {
-            throw new DomainException(ErrorType.DATA_ALREADY_DELETED);
+        if (review.isDeleteStatus()) throw new DomainException(ErrorType.DATA_ALREADY_DELETED);
 
-        }
         Product product = review.getProduct();
 
         reviewProductRepository.decreaseRatingAtomic(product, review.getRating());
-        review.delete();
-        reviewRepository.save(review);
+        review.delete(); // 리뷰는 소프트 딜리트로
+        reviewRepository.save(review); // 빠른 커밋을 위해
     }
 }
