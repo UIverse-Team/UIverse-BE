@@ -43,5 +43,5 @@ public interface ReviewProductRepository extends JpaRepository<ReviewProduct, Lo
      */
     @Query("SELECT COALESCE(rp.reviewCount, 0) FROM ReviewProduct rp " +
             "WHERE rp.product.id = :productId")
-    int countReviewsByProductId(@Param("productId") Long productId);
+    Integer countReviewsByProductId(@Param("productId") Long productId);
 }
