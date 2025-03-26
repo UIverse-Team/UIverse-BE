@@ -2,7 +2,6 @@ package com.jishop.review.dto;
 
 import com.jishop.product.domain.Labels;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ReviewWriteResponse(
@@ -12,7 +11,7 @@ public record ReviewWriteResponse(
         Labels labels,
         int originPrice,
         boolean isDiscount,
-        BigDecimal discountRate,
+        int discountRate,
         int discountPrice,
         String brand,
         LocalDateTime purchaseDate,
