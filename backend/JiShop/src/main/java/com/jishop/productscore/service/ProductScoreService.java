@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductScoreService {
-    void calculateAndUpdateScore(List<Product> products);
+    List<ProductScore> calculateAndUpdateScore(List<Product> products);
     ProductScore calculateScore(Product product);
     BigDecimal normalizeScore(int value, int maxValue);
 }

@@ -12,11 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class reviewServiceTest {
 
-    private ReviewRequest getReviewRequest(Long orderDetailId, String content, Tag tag, int rating) {
-        return new ReviewRequest(orderDetailId, content, tag, rating);
-    }
-
-
     private Option createOption(OptionCategory optionCategory, String optionValue, int optionExtra) {
         return new Option(optionCategory, optionValue, optionExtra);
     }

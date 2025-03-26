@@ -23,7 +23,7 @@ public class GoogleClient implements OAuthClient {
                 "&redirect_uri=" + config.getRedirectUri() +
                 "&response_type=code" +
                 "&scope=email profile" +
-                "&state=" + state; // state 값 추가
+                "&state=" + state; // state 추가
     }
 
     @Override

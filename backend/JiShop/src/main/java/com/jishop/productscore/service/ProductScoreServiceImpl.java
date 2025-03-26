@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,11 +36,16 @@ public class ProductScoreServiceImpl implements ProductScoreService {
      * 
      * @param products      점수를 계산할 상풀 리스트
      */
-    public void calculateAndUpdateScore(List<Product> products) {
+    public List<ProductScore> calculateAndUpdateScore(List<Product> products) {
+        List<ProductScore> productScores = new ArrayList<>();
+
         for(Product product : products) {
             ProductScore productScore = calculateScore(product);
             productScoreRepository.save(productScore);
+            productScores.add(productScore);
         }
+
+        return productScores;
     }
 
     /**
@@ -53,10 +59,10 @@ public class ProductScoreServiceImpl implements ProductScoreService {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
         
         // 최근 1달간 주문량, 리뷰 평점, 리뷰 수, 전체 주문량
-        int recentOrderCount = orderDetailRepository.countRecentOrdersByProductId(productId, oneMonthAgo);
-        BigDecimal reviewRating = reviewProductRepository.getReviewRatingByProductId(productId);
-        int reviewCount = reviewProductRepository.countReviewsByProductId(productId);
-        int totalOrderCount = orderDetailRepository.countTotalOrdersByProductId(productId);
+        int recentOrderCount = safeInt(orderDetailRepository.countRecentOrdersByProductId(productId, oneMonthAgo));
+        BigDecimal reviewRating = safeDecimal(reviewProductRepository.getReviewRatingByProductId(productId));
+        int reviewCount = safeInt(reviewProductRepository.countReviewsByProductId(productId));
+        int totalOrderCount = safeInt(orderDetailRepository.countTotalOrdersByProductId(productId));
 
         // 각 값들을 정규화(0.0 ~ 10.0 사이)
         BigDecimal recentOrderScore = normalizeScore(recentOrderCount, 50);
@@ -94,5 +100,25 @@ public class ProductScoreServiceImpl implements ProductScoreService {
     public BigDecimal normalizeScore(int value, int maxValue) {
         return BigDecimal.valueOf(Math.min(value, maxValue) * 10.0 / maxValue)
                 .setScale(1, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * repository에서 null을 반환할 경우 int로 처리
+     * 
+     * @param value     Integer값(null일 수 있음)
+     * @return int값
+     */
+    private int safeInt(Integer value) {
+        return value == null ? 0 : value;
+    }
+
+    /**
+     * repository에서 null을 반환할 경우 BigDecimal로 처리
+     * 
+     * @param value     BigDecimal값(null일 수 있음)
+     * @return BigDecimal값
+     */
+    private BigDecimal safeDecimal(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
     }
 }

@@ -10,7 +10,6 @@ on:
     # 해당 파일 또는 폴더 하위 파일들이 변경되었을 때에만!!!
     paths:
       - backend/JiShop/src/**
-      - backend/log/src/**
       - build.gradle
       - .github/workflows/deploy-dev.yml
       - .ebextensions/**
