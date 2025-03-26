@@ -55,10 +55,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
         // 찜 상태
-        boolean isWished = false;
-        if (user != null) {
-            isWished = productWishListRepository.isProductWishedByUser(user.getId(), productId);
-        }
+        boolean isWished = (user != null) && productWishListRepository.isProductWishedByUser(user.getId(), productId);
 
         // 상품 옵션
         final Long categoryType = product.getLCatId();
@@ -75,12 +72,8 @@ public class ProductServiceImpl implements ProductService {
 
         // 상품 리뷰
         final ReviewProduct reviewProduct = reviewProductRepository.findByProduct(product).orElse(null);
-        int reviewCount = 0;
-        double reviewRate = 0.0;
-        if (reviewProduct != null) {
-            reviewCount = reviewProduct.getReviewCount();
-            reviewRate = reviewProduct.getAverageRating();
-        }
+        int reviewCount = reviewProduct != null ? reviewProduct.getReviewCount() : 0;
+        double reviewRate = reviewProduct != null ? reviewProduct.getAverageRating() : 0.0;
 
         return ProductResponse.from(product, isWished, reviewCount, reviewRate, productsOptions);
     }
