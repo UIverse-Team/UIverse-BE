@@ -1,83 +1,94 @@
 package com.jishop.review.controller;
 
+import com.jishop.common.response.SliceResponse;
+import com.jishop.member.annotation.CurrentUser;
+import com.jishop.member.domain.User;
 import com.jishop.review.dto.*;
 import com.jishop.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import retrofit2.http.Multipart;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
 public class ReviewControllerImpl implements ReviewController {
+
     private final ReviewService reviewService;
 
     @Override
     @PostMapping
-    public ResponseEntity<Long> createReview(@RequestBody @Valid ReviewRequest reviewRequest,
-                                             @RequestPart(required = false) List<String> imageUrl) {
+    public ResponseEntity<Long> createReview(@CurrentUser User user,
+                                             @RequestBody @Valid ReviewRequest reviewRequest) {
 
-        Long userId = 1L;
-        Long reviewId = reviewService.createReview(reviewRequest, imageUrl, userId);
-
-        return ResponseEntity.ok(reviewId);
+        return ResponseEntity.ok(reviewService.createReview(reviewRequest, user));
     }
 
     @Override
     @GetMapping("/products/{productId}")
-    public ResponseEntity<PagedModel<?>> getProductReview(@RequestParam(value = "userId", required = false) Long userId,
+    public ResponseEntity<PagedModel<?>> getProductReview(@CurrentUser User user,
                                                           @PathVariable("productId") Long productId,
                                                           @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        //todo: 추가사항
-        // 1. sort 값에 따른 필터링 기능 구현 및 검증..
+        //todo: sort 값에 따른 필터링 기능 구현 및 검증..
+        if (user == null) return ResponseEntity.ok(reviewService.getProductReviews(productId, pageable));
 
-        if (userId == null) {
-            PagedModel<ReviewWithOutUserResponse> productReviews = reviewService.getProductReviewsWithoutUser(productId, pageable);
-            return ResponseEntity.ok(productReviews);
-        }
-
-        PagedModel<ReviewWithUserResponse> productReviewsWithUser = reviewService.getProductReviewsWithUser(productId, userId, pageable);
-
-        return ResponseEntity.ok(productReviewsWithUser);
+        return ResponseEntity.ok(reviewService.getProductReviews(productId, user.getId(), pageable));
     }
 
     @Override
     @GetMapping("/mypage")
     public ResponseEntity<PagedModel<MyPageReviewResponse>> getMyPageReview(
+            @CurrentUser User user,
             @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        //todo: 추가사항
-        // 1. sort 값에 따른 필터링 기능 구현 및 검증..
-        // 2. userId 세션에서 받기
-        Long userId = 1L;
-        PagedModel<MyPageReviewResponse> productReviews = reviewService.getMyPageReviews(userId, pageable);
+        //todo: sort 값에 따른 필터링 기능 구현 및 검증..
+        return ResponseEntity.ok(reviewService.getMyPageReviews(user.getId(), pageable));
+    }
 
-        return ResponseEntity.ok(productReviews);
+    /**
+     * 마이페이지 쓰기 가능한 리뷰 보기
+     * @param user
+     * @param pageable
+     * @return
+     */
+    @Override
+    @GetMapping("/mypage/write")
+    public ResponseEntity<PagedModel<ReviewWriteResponse>> getMyPageReviewWrite(
+            @CurrentUser User user,
+            @PageableDefault(size = 15, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(reviewService.getMyPageReviewWrite(user, pageable));
+    }
+
+    @Override
+    @GetMapping("/images")
+    public ResponseEntity<SliceResponse<ReviewImageResponse>> getReviewImages(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Slice<ReviewImageResponse> reviewImages = reviewService.getReviewImages(pageable);
+
+        return ResponseEntity.ok(SliceResponse.from(reviewImages));
     }
 
     @Override
     @GetMapping("{reviewId}/detail")
-    public ResponseEntity<MyPageDetailReviewResponse> getMyPageDetailReview(@PathVariable("reviewId") Long reviewId,
-                                                                            @RequestParam("userId") Long userId) {
+    public ResponseEntity<?> getDetailReview(@PathVariable("reviewId") Long reviewId,
+                                             @CurrentUser User user) {
+        if (user == null) return ResponseEntity.ok(reviewService.getDetailReview(reviewId));
 
-        return ResponseEntity.ok(reviewService.getMyPageDetailReview(reviewId, userId));
+        return ResponseEntity.ok(reviewService.getDetailReview(reviewId, user));
     }
+
 
     @Override
     @PostMapping("{reviewId}/likes")
     public ResponseEntity<String> likeReview(@PathVariable(value = "reviewId") Long reviewId,
                                              @RequestBody @Valid LikerIdRequest likerIdRequest) {
-
         reviewService.likeReview(likerIdRequest, reviewId);
 
         return ResponseEntity.ok("리뷰 좋아요 - 성공");
@@ -87,7 +98,6 @@ public class ReviewControllerImpl implements ReviewController {
     @DeleteMapping("{reviewId}/unlikes")
     public ResponseEntity<String> unlikeReview(@PathVariable(value = "reviewId") Long reviewId,
                                                @RequestBody @Valid LikerIdRequest likerIdRequest) {
-
         reviewService.unlikeReview(likerIdRequest, reviewId);
 
         return ResponseEntity.ok("리뷰 좋아요 취소 - 성공");
@@ -98,7 +108,6 @@ public class ReviewControllerImpl implements ReviewController {
     public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
                                                //사용자 아이디
                                                @RequestParam("userId") Long userId) {
-
         reviewService.deleteReview(reviewId, userId);
 
         return ResponseEntity.ok("리뷰 삭제 - 성공");
@@ -110,7 +119,6 @@ public class ReviewControllerImpl implements ReviewController {
                                                // 사용자 아이디
                                                @RequestParam("userId") Long userId,
                                                @RequestBody @Valid UpdateReviewRequest updateReviewRequest) {
-
         reviewService.updateReview(reviewId, userId, updateReviewRequest);
 
         return ResponseEntity.ok("리뷰 수정 - 성공");

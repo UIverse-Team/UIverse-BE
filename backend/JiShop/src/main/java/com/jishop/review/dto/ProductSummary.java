@@ -1,20 +1,20 @@
-package com.jishop.product.dto.response;
+package com.jishop.review.dto;
 
 import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 
-public record ProductListResponse(
+public record ProductSummary(
         Long id,
         String name,
         Labels labels,
-        Integer originPrice,
-        Integer discountPrice,
-        Boolean isDiscount,
+        int originPrice,
+        int discountPrice,
+        boolean isDiscount,
         String brand,
         String mainImage
-) {
-    public static ProductListResponse from(final Product product) {
-        return new ProductListResponse(
+) { 
+    public static ProductSummary from(Product product) {
+        return new ProductSummary(
                 product.getId(),
                 product.getName(),
                 product.getLabels(),
