@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+</head>
+<body>
+
+<!-- 결제 UI -->
+<div id="payment-method"></div>
+
+<!-- 이용약관 UI -->
+<div id="agreement"></div>
+
+<!-- 결제하기 버튼 -->
+<button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', async function() {
+        const button = document.getElementById("payment-button");
+
+        // 결제위젯 초기화
+        const clientKey = /*[[${clientKey}]]*/ '';
+        const customerKey = /*[[${customerKey}]]*/ '';
+        const tossPayments = TossPayments(clientKey);
+
+        const widgets = tossPayments.widgets({ customerKey });
+
+        // 초기 결제 금액 설정
+        const originalAmount = /*[[${originalAmount}]]*/ 50000;
+        await widgets.setAmount({
+            currency: "KRW",
+            value: originalAmount
+        });
+
+        // 결제 UI 및 약관 UI 렌더링
+        await Promise.all([
+            widgets.renderPaymentMethods({
+                selector: "#payment-method",
+                variantKey: "DEFAULT"
+            }),
+            widgets.renderAgreement({
+                selector: "#agreement",
+                variantKey: "AGREEMENT"
+            })
+        ]);
+
+        // 결제하기 버튼 이벤트
+        button.addEventListener("click", async function () {
+            await widgets.requestPayment({
+                orderId: /*[[${orderId}]]*/ '',
+                orderName: /*[[${orderName}]]*/ '',
+                successUrl: window.location.origin + "/payments/success",
+                failUrl: window.location.origin + "/payments/fail",
+                customerEmail: /*[[${customerEmail}]]*/ '',
+                customerName: /*[[${customerName}]]*/ '',
+                customerMobilePhone: /*[[${customerPhone}]]*/ ''
+            });
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
