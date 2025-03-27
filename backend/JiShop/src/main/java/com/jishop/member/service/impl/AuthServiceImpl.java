@@ -32,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
         if(user.isDeleteStatus()) throw new DomainException(ErrorType.USER_NOT_FOUND);
 
         session.setAttribute("userId", user.getId());
+        session.setMaxInactiveInterval(60 * 30);
     };
 
 
@@ -81,10 +82,12 @@ public class AuthServiceImpl implements AuthService {
         user.updatePhone(request.phone());
     }
 
-    @Override
     public void deleteUser(User user) {
         user.delete();
     }
 
+    public Long checkLogin(User user) {
+        return user.getId();
+    }
 }
 

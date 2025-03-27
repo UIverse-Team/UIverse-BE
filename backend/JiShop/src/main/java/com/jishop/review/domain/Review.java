@@ -16,6 +16,7 @@ import org.hibernate.annotations.Check;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -29,7 +30,7 @@ public class Review extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_detail_id")
+    @JoinColumn(name = "order_detail_id", unique = true, nullable = false)
     private OrderDetail orderDetail;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,6 +50,7 @@ public class Review extends BaseEntity {
     private Tag tag;
 
     @Embedded
+    @Getter(AccessLevel.NONE)
     private ImageUrls imageUrls;
 
     @ColumnDefault("0")
@@ -81,5 +83,9 @@ public class Review extends BaseEntity {
         this.content = updateReviewRequest.content();
         this.rating = updateReviewRequest.rating();
         this.tag = updateReviewRequest.tag();
+    }
+
+    public ImageUrls getImageUrls() {
+        return Optional.ofNullable(imageUrls).orElse(new ImageUrls());
     }
 }

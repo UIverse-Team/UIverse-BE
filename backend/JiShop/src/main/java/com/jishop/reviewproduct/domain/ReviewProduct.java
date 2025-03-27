@@ -2,10 +2,7 @@ package com.jishop.reviewproduct.domain;
 
 import com.jishop.common.util.BaseEntity;
 import com.jishop.product.domain.Product;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class ReviewProduct extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(unique = true, nullable = false)
     private Product product;
 
     private int reviewCount;
@@ -34,12 +32,6 @@ public class ReviewProduct extends BaseEntity {
     public void increaseRating(int rating) {
         reviewCount++;
         reviewScore += rating;
-    }
-
-    public void decreaseRating(int rating) {
-        reviewCount--;
-        reviewScore -= rating;
-
     }
 
     public double getAverageRating() {

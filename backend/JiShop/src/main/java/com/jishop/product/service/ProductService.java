@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ProductService {
 
-    PagedModel<ProductListResponse> getProductList(ProductRequest request, int page, int size);
+    PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest, final int page, final int size);
 
-    ProductResponse getProduct(User user,  Long id);
+    ProductResponse getProduct(final User user, final Long productId);
 
     List<ProductListResponse> getProductByWishTopTen();
 }

@@ -4,7 +4,7 @@ import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 
 public record ProductListResponse(
-
+        Long id,
         String name,
         Labels labels,
         Integer originPrice,
@@ -13,8 +13,9 @@ public record ProductListResponse(
         String brand,
         String mainImage
 ) {
-    public static ProductListResponse from(Product product) {
+    public static ProductListResponse from(final Product product) {
         return new ProductListResponse(
+                product.getId(),
                 product.getName(),
                 product.getLabels(),
                 product.getOriginPrice(),

@@ -2,13 +2,12 @@ package com.jishop.product.domain;
 
 import com.jishop.category.domain.Category;
 import com.jishop.common.util.BaseEntity;
+import com.jishop.productscore.domain.ProductScore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,7 +35,7 @@ public class Product extends BaseEntity {
     @Column(name = "discount_price", nullable = false)
     private int discountPrice;
     @Column(name = "discount_rate", nullable = false)
-    private BigDecimal discountRate;
+    private int discountRate;
 
     // 상품 상태
     @Column(name = "secret", nullable = false)
@@ -75,16 +74,22 @@ public class Product extends BaseEntity {
 
     // 카테고리 분류
     @Column(name = "l_cat_id",  nullable = false)
-    private String lCatId;
+    private Long lCatId;
     @Column(name = "m_cat_id")
-    private String mCatId;
+    private Long mCatId;
     @Column(name = "s_cat_id")
-    private String sCatId;
+    private Long sCatId;
 
-    @Builder
-    public Product(Category category, String lCatId, String mCatId, String sCatId,
+    // 상품 점수(ProductScore)와 연관관게 추가
+    @OneToOne(mappedBy = "product",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    private ProductScore productScore;
+
+    public Product(Category category, Long lCatId, Long mCatId, Long sCatId,
             String mallSeq, String name, String description, int originPrice, int discountPrice,
-            BigDecimal discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
+            int discountRate, LocalDateTime manufactureDate, Boolean secret, SaleStatus saleStatus,
             DiscountStatus discountStatus, Boolean isDiscount, String brand, int wishListCount, Labels labels,
             String mainImage, String image1, String image2, String image3, String image4, String detailImage,
             int productViewCount
@@ -122,6 +127,14 @@ public class Product extends BaseEntity {
 
     public void decrementWishCount() {
         if (this.wishListCount > 0) { this.wishListCount--;}
+    }
+
+    // 상품 점수(ProductScore)와 연관관계 편의 메서드
+    public void setProductScore(ProductScore productScore) {
+        this.productScore = productScore;
+        if(productScore != null && productScore.getProduct() != this){
+            productScore.setProduct(this);
+        }
     }
 }
 

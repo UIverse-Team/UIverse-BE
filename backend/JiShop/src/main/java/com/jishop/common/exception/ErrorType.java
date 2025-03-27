@@ -12,6 +12,10 @@ public enum ErrorType {
     DATA_ALREADY_DELETED(HttpStatus.GONE, "이미 삭제된 데이터 입니다."),
     MATCH_NOT_USER(HttpStatus.NOT_FOUND, "해당 권한이 없는 유저입니다."),
     TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 접근 타입이 잘 못 되었습니다."),
+    LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
+
+    // REDIS
+    REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 작업 중 오류가 발생했습니다."),
 
     // USER
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
@@ -38,7 +42,15 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보를 찾을 수 없습니다."),
 
-    // Category
+    // OPTION
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "옵션 정보를 찾을 수 없습니다."),
+    OPTION_VALUE_EMPTY(HttpStatus.BAD_REQUEST, "옵션 값이 비어있습니다."),
+    OPTION_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "옵션 형식이 올바르지 않습니다."),
+    COLOR_SIZE_EMPTY(HttpStatus.BAD_REQUEST, "색상 또는 사이즈 정보가 비어있습니다."),
+    SALE_PRODUCT_ID_NULL(HttpStatus.BAD_REQUEST, "판매 상품 ID가 존재하지 않습니다."),
+    VALID_OPTION_NOT_EXIST(HttpStatus.BAD_REQUEST, "유효한 옵션이 존재하지 않습니다."),
+
+    // CATEGORY
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
     CATEGORY_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리에 대한 결과가 없습니다."),
 
@@ -51,7 +63,7 @@ public enum ErrorType {
     ORDER_CANCEL_FAILED(HttpStatus.BAD_REQUEST,"주문 취소 중 오류가 발생했습니다"),
     ORDER_CANNOT_CANCEL_AFTER_SHIPPING(HttpStatus.BAD_REQUEST, "배송이 시작한 이후에는 주문 취소를 할 수 없습니다"),
 
-    //CART
+    // CART
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니 상품을 찾을 수 없습니다."),
 
     // VALIDATION
@@ -60,14 +72,24 @@ public enum ErrorType {
     // STOCK
     INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 부족합니다"),
     STOCK_OPERATION_FAILED(HttpStatus.CONFLICT, "재고 관리 중 오류가 발생했습니다"),
+    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "재고의 값은 1이상이어야 합니다."),
 
     // STORE
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스토어가 존재하지 않습니다"),
 
-    // Address
+    // ADDRESS
     DEFAULTADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "기본 배송지가 없습니다."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "없는 배송지 입니다."),
     DEFAULT_ADDRESS_REQUIRED(HttpStatus.NOT_FOUND, "기본 배송지가 꼭 필요합니다."),
+
+    // REDISSON
+    LOCK_ACQUISITION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "주문 저리 중 잠금 획득에 실패했습니다. 잠시 후 시도해주세요"),
+    CONCURRENT_ORDER_PROCESSING(HttpStatus.INTERNAL_SERVER_ERROR, "동시에 너무 많은 주문이 처리되고 있습니다. 잠시 후 다시 시도해주세요"),
+
+    // QUESTION
+    QUESTION_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
+    QUESTION_ORDER_NUMBER_REQUIRED(HttpStatus.BAD_REQUEST, "주문번호가 필수인 문의유형입니다."),
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 문의사항입니다."),
 
     // Payment
     ORDER_NUMBER_MISMATCH(HttpStatus.BAD_REQUEST, "주문번호가 일치하지 않습니다."),

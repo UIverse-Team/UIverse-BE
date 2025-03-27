@@ -57,8 +57,8 @@ public class CartControllerImpl implements CartController {
     //비회원 장바구니 조회
     @Override
     @GetMapping("/guest")
-    public ResponseEntity<CartResponse> getGuestCartItems(@RequestParam List<Long> saleProductId) {
-        CartResponse cartResponses = cartService.getGuestCart(saleProductId);
+    public ResponseEntity<CartResponse> getGuestCartItems(@RequestBody List<GuestCartRequest> guestCartRequests) {
+        CartResponse cartResponses = cartService.getGuestCart(guestCartRequests);
 
         return ResponseEntity.ok(cartResponses);
     }

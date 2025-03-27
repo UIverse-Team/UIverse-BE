@@ -8,6 +8,7 @@ import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.dto.*;
 import com.jishop.order.repository.OrderRepository;
+import com.jishop.order.service.DistributedLockService;
 import com.jishop.order.service.OrderCreationService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.saleproduct.domain.SaleProduct;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class OrderCreationServiceImpl implements OrderCreationService {
 
@@ -27,10 +27,27 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final SaleProductRepository saleProductRepository;
     private final AddressRepository addressRepository;
     private final OrderUtilService orderUtilService;
+    private final DistributedLockService distributedLockService;
 
     // 주문 생성 - 통합
+
+
     @Override
+    @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
+        //상품 Id 목록 가져오기
+        List<Long> productIds = orderRequest.orderDetailRequestList().stream()
+                .map(OrderDetailRequest::saleProductId)
+                .toList();
+
+        //락 키 생성(상품 ID 목록을 기반으로)
+        String lockKey = "order:creation:" + String.join("-", productIds.stream().map(String::valueOf).toList());
+
+        //분산 락을 사용하여 주문 생성 처리
+        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, orderRequest));
+    }
+
+    public OrderResponse processOrderCreation(User user, OrderRequest orderRequest) {
         // 주소 저장 (회원인 경우만)
         if (user != null) {
             addressRepository.save(orderRequest.address().toEntity(user, false));
@@ -69,11 +86,16 @@ public class OrderCreationServiceImpl implements OrderCreationService {
 
     // 바로 주문하기 (회원/비회원 통합)
     @Override
+    @Transactional
     public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
-        // InstantOrderRequest => OrderRequest
-        OrderRequest orderRequest = convertInstantToOrderRequest(instantOrderRequest);
+        //락키 생성 (상품 ID를 기반으로)
+        String lockKey = "order:instant:" + instantOrderRequest.saleProductId();
 
-        return createOrder(user, orderRequest);
+        return distributedLockService.executeWithLock(lockKey, () -> {
+            // InstantOrderRequest => OrderRequest
+            OrderRequest orderRequest = convertInstantToOrderRequest(instantOrderRequest);
+            return processOrderCreation(user, orderRequest);
+        });
     }
 
     private OrderRequest convertInstantToOrderRequest(InstantOrderRequest instantOrderRequest) {

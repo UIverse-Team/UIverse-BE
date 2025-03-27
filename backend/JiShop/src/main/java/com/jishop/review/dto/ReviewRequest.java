@@ -10,6 +10,7 @@ import com.jishop.review.domain.tag.Tag;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record ReviewRequest(
@@ -20,6 +21,8 @@ public record ReviewRequest(
         @NotBlank(message = "리뷰 내용은 필요합니다.")
         String content,
 
+        List<String> images,
+
         Tag tag,
 
         int rating
@@ -27,6 +30,7 @@ public record ReviewRequest(
     public ReviewRequest {
         if (rating < 1 || rating > 5)
             throw new DomainException(ErrorType.RATING_OUT_OF_RANGE);
+        if(images == null) images = new ArrayList<>();
     }
 
     public Review toEntity(List<String> imageUrls, Product product, OrderDetail orderDetail, User user, String productSummary) {
