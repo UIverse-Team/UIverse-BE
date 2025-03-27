@@ -82,10 +82,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductListResponse> getProductsByWishList() {
-        final List<Product> products = productWishListRepository.getProductByWishTopTen();
+    public List<ProductListResponse> getProductsByWishList(final int page, final int size) {
+        final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        final Page<Product> productPage = productWishListRepository.getPopularProductsByWishList(pageable);
 
-        return products.stream().map(ProductListResponse::from).toList();
+        return productPage.stream().map(ProductListResponse::from).toList();
     }
 
     @Override
@@ -95,6 +96,7 @@ public class ProductServiceImpl implements ProductService {
 
         final Page<TodaySpecialListResponse> responsePage = productPage.map(product -> {
             final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());
+
             return TodaySpecialListResponse.from(product, totalSales);
         });
 

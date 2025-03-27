@@ -15,7 +15,7 @@ public interface ProductService {
 
     ProductResponse getProduct(final User user, final Long productId);
 
-    List<ProductListResponse> getProductsByWishList();
+    List<ProductListResponse> getProductsByWishList(final int page, final int size);
 
     PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size);
 }

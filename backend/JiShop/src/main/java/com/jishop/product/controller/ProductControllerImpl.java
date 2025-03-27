@@ -44,8 +44,14 @@ public class ProductControllerImpl implements ProductController {
     // 상위 찜순 데이터
     @Override
     @GetMapping("/popular")
-    public List<ProductListResponse> getProductByWishTopTen() {
-        return productService.getProductsByWishList();
+    public List<ProductListResponse> getProductByWishTopTen(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        if (page < 0 || page > 100) {page = 0;}
+        if (size <= 0 || size > 100) {size = 8;}
+
+        return productService.getProductsByWishList(page, size);
     }
 
     @Override
