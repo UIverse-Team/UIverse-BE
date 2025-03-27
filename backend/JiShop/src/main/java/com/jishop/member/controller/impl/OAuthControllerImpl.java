@@ -5,6 +5,7 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.config.OAuthConfig;
 import com.jishop.member.controller.OAuthController;
 import com.jishop.member.domain.User;
+import com.jishop.member.dto.request.OAuthCallbackRequest;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.OAuthClient;
 import com.jishop.member.service.OAuthProfile;
@@ -38,31 +39,21 @@ public class OAuthControllerImpl implements OAuthController {
         );
     }
 
-    @GetMapping("/login/{provider}")
-    public ResponseEntity<String> login(@PathVariable("provider") String provider) {
-        if (!clients.containsKey(provider)) {
-            throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
-        }
-        String state = UUID.randomUUID().toString();
-
-        return ResponseEntity.ok(clients.get(provider).getAuthorizationUrl(state));
-    }
-
     @GetMapping("/callback/{provider}")
-    public ResponseEntity<OAuthProfile> callback(@PathVariable("provider") String provider,
-                                                 @RequestParam(value = "code", required = false) String code,
-                                                 HttpSession session) {
-        if (!clients.containsKey(provider)) {
+    public ResponseEntity<OAuthProfile> login(@RequestBody OAuthCallbackRequest request,
+                                              HttpSession session) {
+        if (!clients.containsKey(request.provider())) {
             throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
         }
 
-        if (code == null || code.isEmpty()) {
+        if (request.code() == null || request.code().isEmpty()) {
             throw new DomainException(ErrorType.AUTHORIZATION_CODE_NOT_FOUND);
         }
 
-        OAuthClient client = clients.get(provider);
-        TokenResponse tokenResponse = client.getAccessToken(code);
+        OAuthClient client = clients.get(request.provider());
+        TokenResponse tokenResponse = client.getAccessToken(request.code());
         OAuthProfile profile = client.getProfile(tokenResponse.accessToken());
+
         User user = userService.oauthLogin(profile);
         session.setAttribute("userId", user.getId());
         session.setMaxInactiveInterval(60 * 30);
@@ -70,3 +61,17 @@ public class OAuthControllerImpl implements OAuthController {
         return ResponseEntity.ok(profile);
     }
 }
+
+/* @GetMapping("/login/{provider}")
+    public ResponseEntity<String> login(@PathVariable("provider") String provider,
+            @ModelAttribute Map<String, String> params
+    ) {
+        if (!clients.containsKey(provider)) {
+            throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
+        }
+        var redirectUri = params.get("redirect_uri");
+
+        String state = UUID.randomUUID().toString();
+
+        return ResponseEntity.ok(clients.get(provider).getAuthorizationUrl(state));
+    }*/

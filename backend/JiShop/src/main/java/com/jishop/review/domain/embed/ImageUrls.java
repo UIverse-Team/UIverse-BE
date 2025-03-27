@@ -2,17 +2,15 @@ package com.jishop.review.domain.embed;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Transient;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class ImageUrls {
 
     @Transient
@@ -25,6 +23,7 @@ public class ImageUrls {
     private String image5;
 
     public ImageUrls(List<String> images) {
+
         if (images.size() > 5)
             throw new IllegalArgumentException("이미지는 5개를 초과할 수 없습니다.");
 

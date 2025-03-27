@@ -27,7 +27,7 @@ public class ExceptionController {
     public ResponseEntity<ExceptionResponse> exceptionHandler(Exception e) {
         log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ExceptionResponse(UNKNOWN_ERROR));
+                .body(new ExceptionResponse(e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

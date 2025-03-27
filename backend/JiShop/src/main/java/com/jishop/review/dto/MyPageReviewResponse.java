@@ -1,10 +1,10 @@
 package com.jishop.review.dto;
 
-import com.jishop.member.domain.User;
 import com.jishop.review.domain.Review;
 import com.jishop.review.domain.tag.Tag;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record MyPageReviewResponse(
@@ -13,13 +13,13 @@ public record MyPageReviewResponse(
         String content,
         int likeCount,
         Long productId,
-        List<String> images,
-        LocalDate createAt,
-        String option,
-        String userName
+        String image,
+        LocalDateTime purchaseDate,
+        ProductSummary product,
+        String option
 ) {
     public static MyPageReviewResponse from(Review review) {
-        User user = review.getUser();
+
         String[] split = review.getProductSummary().split(";");
         String option = null;
         if (split.length == 3) {
@@ -32,10 +32,11 @@ public record MyPageReviewResponse(
                 review.getContent(),
                 review.getLikeCount(),
                 review.getProduct().getId(),
-                review.getImageUrls().getImages(),
-                review.getCreatedAt().toLocalDate(),
-                option,
-                user.getName()
+                review.getImageUrls().getImages()
+                        .stream().findFirst().orElse(null),
+                review.getOrderDetail().getCreatedAt(),
+                ProductSummary.from(review.getProduct()),
+                option
         );
     }
 }
