@@ -11,7 +11,7 @@ public record EasyPayInfoResponse(
 ) {
     public static EasyPayInfoResponse fromEasyPayInfo(EasyPayInfo easyPayInfo) {
         return new EasyPayInfoResponse(
-                easyPayInfo.getProvider(),
+                easyPayInfo.getProvider().name(),
                 easyPayInfo.getAmount(),
                 easyPayInfo.getDiscountAmount()
         );
