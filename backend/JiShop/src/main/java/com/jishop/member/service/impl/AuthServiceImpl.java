@@ -51,12 +51,15 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByLoginId(request.email())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
-        if(passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new DomainException(ErrorType.PASSWORD_EXISTS);
-        }
-
         String password = passwordEncoder.encode(request.password());
         user.updatePassword(password);
+    }
+
+    public boolean checkPW(RecoveryPWRequest request){
+        User user = userRepository.findByLoginId(request.email())
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+        return !passwordEncoder.matches(request.password(), user.getPassword());
     }
 
     public void updatePW(User user, UserNewPasswordRequest request){
