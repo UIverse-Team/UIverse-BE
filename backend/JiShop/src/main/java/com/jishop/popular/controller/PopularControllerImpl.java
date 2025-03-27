@@ -27,7 +27,7 @@ public class PopularControllerImpl implements PopularController {
 
     @Override
     @GetMapping
-    public PopularKeywordResponse getPopularKeywordAndProduct() {
-        return popularService.getPopularKeywordAndProduct();
+    public PopularKeywordResponse getPopularKeywordsAndProducts() {
+        return popularService.getPopularKeywordsAndProducts();
     }
 }
