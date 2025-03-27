@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
         if(user.isDeleteStatus()) throw new DomainException(ErrorType.USER_NOT_FOUND);
 
         session.setAttribute("userId", user.getId());
-        session.setMaxInactiveInterval(60 * 30);
+        session.setMaxInactiveInterval(60 * 60);
     };
 
 
