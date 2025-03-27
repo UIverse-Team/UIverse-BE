@@ -131,7 +131,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                 product.getName(),
                 product.getOriginPrice(),
                 product.getDiscountPrice(),
-                productScore.getProduct().getDiscountRate().intValue(),
+                productScore.getProduct().getDiscountRate(),
                 productScore.getTotalOrderCount(),
                 productScore.getReviewRating().doubleValue()
                 // FE 요청으로 리뷰 평점 조정
