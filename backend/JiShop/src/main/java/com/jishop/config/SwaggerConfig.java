@@ -1,6 +1,5 @@
 package com.jishop.config;
 
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -20,7 +19,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .components(new Components())
-                .addServersItem(new Server().url("/"))
+                .addServersItem(new Server().url("https://api.uiverse.shop"))
                 .info(info);
     }
 }
