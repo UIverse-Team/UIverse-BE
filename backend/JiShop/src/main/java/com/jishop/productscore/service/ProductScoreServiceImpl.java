@@ -14,6 +14,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,7 +32,8 @@ public class ProductScoreServiceImpl implements ProductScoreService {
     private static final BigDecimal TOTAL_ORDER = new BigDecimal("0.15");
 
     /**
-     * 모든 상품의 점수를 계산하고 업데이트
+     * 리스트로 전달받은 모든 상품의 점수를 계산하고 저장
+     * 상품 점수(ProductScore) 레포지토리에 이미 상품이 존재한다면, 업데이트
      * 상품 점수 계산에는 가중치를 적용
      * 
      * @param products      점수를 계산할 상풀 리스트
@@ -40,9 +42,18 @@ public class ProductScoreServiceImpl implements ProductScoreService {
         List<ProductScore> productScores = new ArrayList<>();
 
         for(Product product : products) {
-            ProductScore productScore = calculateScore(product);
-            productScoreRepository.save(productScore);
-            productScores.add(productScore);
+            Optional<ProductScore> productScore = productScoreRepository.findByProductId(product.getId());
+            ProductScore newScore = calculateScore(product);
+
+            if(productScore.isPresent()){
+                ProductScore existingScore = productScore.get();
+                existingScore.updateScores(newScore);
+                productScores.add(existingScore);
+            }
+            else{
+                productScores.add(newScore);
+                productScoreRepository.save(newScore);
+            }
         }
 
         return productScores;
