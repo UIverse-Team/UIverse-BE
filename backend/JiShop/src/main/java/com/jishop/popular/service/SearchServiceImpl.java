@@ -71,12 +71,12 @@ public class SearchServiceImpl implements SearchService {
             // TTL 설정 2시간으로 수정 - 다음 시간대에서 사용할 수 있도록 수정
         if(minute > 55){
             String gapKey = GAP_KEY_PREFIX + hourKey;
-            redisTemplate.opsForZSet().incrementScore(hourKey, keyword, 1.0);
+            redisTemplate.opsForZSet().incrementScore(gapKey, keyword, 1.0);
             redisTemplate.expire(hourKey, Duration.ofHours(2));
         }
         else {
             String mainKey = MAIN_KEY_PREFIX + hourKey;
-            redisTemplate.opsForZSet().incrementScore(hourKey, keyword, 1.0);
+            redisTemplate.opsForZSet().incrementScore(mainKey, keyword, 1.0);
             redisTemplate.expire(hourKey, Duration.ofHours(2));
         }
 
