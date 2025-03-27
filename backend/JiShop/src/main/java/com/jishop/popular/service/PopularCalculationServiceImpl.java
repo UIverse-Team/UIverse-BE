@@ -1,5 +1,7 @@
 package com.jishop.popular.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.popular.dto.PopularKeywordResponse;
 import com.jishop.popular.dto.PopularProductResponse;
 import com.jishop.popular.dto.PopularReponse;
@@ -29,6 +31,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ProductRepository productRepository;
     private final ProductScoreService productScoreService;
+    private final ObjectMapper objectMapper;
 
     private static final String MAIN_KEY_PREFIX = "popular_keywords:";
     private static final String RESULT_KEY_PREFIX = "popular_result:";
@@ -63,9 +66,17 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
 
         // 캐시에 결과 저장 및 TTL 설정
         String resultKey = RESULT_KEY_PREFIX + key;
-        redisTemplate.opsForValue().set(resultKey, response);
-        redisTemplate.expire(resultKey, Duration.ofHours(1));
+//        redisTemplate.opsForValue().set(resultKey, response);
+//        redisTemplate.expire(resultKey, Duration.ofHours(1));
 
+        // JSON 역직렬화 오류로 String으로 Redis에 저장
+        try{
+            String stringResponse = objectMapper.writeValueAsString(response);
+            redisTemplate.opsForValue().set(resultKey, stringResponse);
+            redisTemplate.expire(resultKey, Duration.ofHours(1));
+        } catch(JsonProcessingException e) {
+            log.error("인기 검색어 결과 JSON 직렬화 실패", e);
+        }
         return response;
     }
 

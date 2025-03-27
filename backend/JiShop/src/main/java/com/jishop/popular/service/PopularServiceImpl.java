@@ -1,6 +1,8 @@
 package com.jishop.popular.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.popular.dto.PopularKeywordResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 public class PopularServiceImpl implements PopularService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
     private final PopularCalculationService popularCalculationService;
 
     private static final String RESULT_KEY_PREFIX = "popular_result:";
@@ -31,14 +34,26 @@ public class PopularServiceImpl implements PopularService {
         String previousHourKey = now.minusHours(1).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
         String resultKey = RESULT_KEY_PREFIX + previousHourKey;
 
-        Object cachedResult = redisTemplate.opsForValue().get(resultKey);
+//        Object cachedResult = redisTemplate.opsForValue().get(resultKey);
+//
+//        if(cachedResult != null && cachedResult instanceof PopularKeywordResponse){
+//            return  (PopularKeywordResponse) cachedResult;
+//        }
+//        // 캐시된 결과가 없는 경우 상품 점수 계산을 통해 결과를 얻음
+//        else {
+//            return popularCalculationService.calculateAndCacheResult(previousHourKey);
+//        }
 
-        if(cachedResult != null && cachedResult instanceof PopularKeywordResponse){
-            return  (PopularKeywordResponse) cachedResult;
+        String cachedResult = (String) redisTemplate.opsForValue().get(resultKey);
+
+        if(cachedResult != null){
+            try{
+                return objectMapper.readValue(cachedResult, PopularKeywordResponse.class);
+            } catch (JsonProcessingException e) {
+                log.error("캐시된 인기 검색어 결과 역직렬화 실패", e);
+            }
         }
-        // 캐시된 결과가 없는 경우 상품 점수 계산을 통해 결과를 얻음
-        else {
-            return popularCalculationService.calculateAndCacheResult(previousHourKey);
-        }
+
+        return popularCalculationService.calculateAndCacheResult(previousHourKey);
     }
 }
