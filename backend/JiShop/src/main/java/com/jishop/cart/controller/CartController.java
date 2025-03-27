@@ -4,7 +4,7 @@ import com.jishop.cart.dto.*;
 import com.jishop.member.domain.User;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "장바구니 API")
 public interface CartController {
@@ -13,5 +13,5 @@ public interface CartController {
     ResponseEntity<CartDetailResponse> addCartItem(User user, AddCartRequest request);
     ResponseEntity<CartDetailResponse> updateCartItem(User user, UpdateCartRequest request);
     ResponseEntity<String> removeCartItem(User user, DeleteCartRequest deleteCartRequest);
-    ResponseEntity<CartResponse> getGuestCartItems(List<GuestCartRequest> guestCartRequests);
+    ResponseEntity<CartResponse> getGuestCartItems(@RequestParam String saleProductId);
 }
