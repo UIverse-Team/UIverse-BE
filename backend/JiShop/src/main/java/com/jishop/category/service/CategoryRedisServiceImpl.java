@@ -22,8 +22,8 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SubCategory> getSubCategoriesFromRedis(Long categoryId) {
-        String redisKey = generateRedisKey(categoryId);
+    public List<SubCategory> getSubCategoriesFromRedis(final Long categoryId) {
+        final String redisKey = generateRedisKey(categoryId);
         try {
             return (List<SubCategory>) redisTemplate.opsForValue().get(redisKey);
         } catch (Exception e) {
@@ -33,8 +33,8 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
     }
 
     @Override
-    public void saveSubCategoriesToRedis(Long categoryId, List<SubCategory> subCategories) {
-        String redisKey = generateRedisKey(categoryId);
+    public void saveSubCategoriesToRedis(final Long categoryId, final List<SubCategory> subCategories) {
+        final String redisKey = generateRedisKey(categoryId);
         try {
             redisTemplate.opsForValue().set(redisKey, subCategories, REDIS_TTL_HOURS, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
         }
     }
 
-    private String generateRedisKey(Long parentId) {
+    private String generateRedisKey(final Long parentId) {
         return SUBCATEGORY_REDIS_KEY_PREFIX + parentId + SUBCATEGORY_REDIS_KEY_SUFFIX;
     }
 }
