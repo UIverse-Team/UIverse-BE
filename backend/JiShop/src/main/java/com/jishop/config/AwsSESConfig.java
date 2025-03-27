@@ -20,7 +20,7 @@ public class AwsSESConfig {
 
     @Bean
     public AmazonSimpleEmailService amazonSimpleEmailService() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey); // 추후 yml 파일로 빼야할듯
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
 
         return AmazonSimpleEmailServiceClientBuilder.standard()
                 .withRegion(region) // 사용하려는 리전 설정
