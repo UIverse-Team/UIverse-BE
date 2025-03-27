@@ -15,7 +15,15 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     @Query("SELECT p FROM Product p WHERE p.discountStatus = :status AND p.isDiscount = true")
     Page<Product> findDailDealProducts(@Param("status") DiscountStatus status, Pageable pageable);
 
+    boolean existsByBrand(String keyword);
+
     boolean existsByNameContaining(String keyword);
 
-    List<Product> findByNameContaining(String keyword);
+    boolean existsByBrandContaining(String keyword);
+
+    List<Product> findAllByBrand(String keyword);
+
+    List<Product> findAllByNameContaining(String keyword);
+
+    List<Product> findAllByBrandContaining(String keyword);
 }

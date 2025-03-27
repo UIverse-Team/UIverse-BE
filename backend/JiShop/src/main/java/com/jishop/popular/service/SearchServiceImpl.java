@@ -24,9 +24,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
 
-    private final ProductRepository productRepository;      // 상품DB 검증
+    private final ProductRepository productRepository;              // 상품DB 검증
     private final RedisTemplate<String, Object> redisTemplate;      // Redis에 검색어 저장(key-value)
     private final ObjectMapper objectMapper;                        // 로그 -> json 변환
+
+    private static final String MAIN_KEY_PREFIX = "popular_keywords:";
+    private static final String GAP_KEY_PREFIX = "popular_keywords_gap:";
 
     /**
      * 검색어 처리 메서드
@@ -43,22 +46,39 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean processSearch(String keyword, String clientIp) {
+        keyword = keyword.trim();
+
         if(!isValidKeyword(keyword)){
             log.info("유효하지 않은 검색어: {]", keyword);
             return false;
         }
 
         if(!isRelatedToSaleProduct(keyword)){
-            log.info("상품과 연관성이 없는 검색어: {}", keyword);
+            log.info("상품 또는 쇼핑몰과 연관성이 없는 검색어: {}", keyword);
             return false;
         }
 
         // 검색어 검증이 완료되면, 검색어를 Redis에 저장
-        String hourKey = "popular_keywords:" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
-        redisTemplate.opsForZSet().incrementScore(hourKey, keyword, 1.0);
+            // 00분 ~ 55분 까지는 메인 키에 저장 - 상품 계산에 사용
+            // 55분 ~ 59분 까지는 여분 키에 저장 - 다음 시간대 상품 계산에 사용
+            // 상품 계산 작업 처리 시간을 확보해 매 시간(정각)마다 계산된 데이터를 제공
+
+        LocalDateTime now = LocalDateTime.now();
+        int minute = now.getMinute();
+        String hourKey = now.format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
 
         // 1시간 후 자동 삭제를 위해 TTL 설정- hourKey에 해당하는 전체 ZSet(key, keyword, score) 삭제
-        redisTemplate.expire(hourKey, Duration.ofHours(1));
+            // TTL 설정 2시간으로 수정 - 다음 시간대에서 사용할 수 있도록 수정
+        if(minute > 55){
+            String gapKey = GAP_KEY_PREFIX + hourKey;
+            redisTemplate.opsForZSet().incrementScore(gapKey, keyword, 1.0);
+            redisTemplate.expire(hourKey, Duration.ofHours(2));
+        }
+        else {
+            String mainKey = MAIN_KEY_PREFIX + hourKey;
+            redisTemplate.opsForZSet().incrementScore(mainKey, keyword, 1.0);
+            redisTemplate.expire(hourKey, Duration.ofHours(2));
+        }
 
         // 로그 데이터 생성 및 전송 - 검색어, 사용자IP, 타임스탬프
         Map<String, Object> logData = new HashMap<>();
@@ -96,10 +116,11 @@ public class SearchServiceImpl implements SearchService {
      * 검색어와 상품 데이터 관련성 확인 메서드
      *
      * @param keyword   입력받은 검색어
-     * @return          관련 상품이 존재하면 true, 아니면 false
+     * @return          관련 상품 또는 쇼핑몰이 존재하면 true, 아니면 false
      */
     @Override
     public boolean isRelatedToSaleProduct(String keyword) {
-        return productRepository.existsByNameContaining(keyword);
+        return productRepository.existsByNameContaining(keyword) ||
+                productRepository.existsByBrandContaining(keyword);
     }
 }

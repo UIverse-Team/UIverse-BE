@@ -23,7 +23,7 @@ public class SmsControllerImpl implements SmsController {
         String token = smsService.sendVerificationCode(request);
 
         //토큰을 쿠키에 저장
-        Cookie cookie = new Cookie("verificationToken", token);
+        Cookie cookie = new Cookie("certificationToken", token);
         cookie.setMaxAge(300); //최대 5분
         cookie.setHttpOnly(true);
         cookie.setPath("/");
@@ -34,7 +34,7 @@ public class SmsControllerImpl implements SmsController {
 
     @PostMapping("/verify")
     public ResponseEntity<String> verifyCode(@RequestBody CertifyCodeRequest request,
-                                             @CookieValue(name = "verificationToken", required = false) String token) {
+                                             @CookieValue(name = "certificationToken", required = false) String token) {
         if (token == null)
             return ResponseEntity.badRequest().body("인증 토큰이 존재하지 않습니다");
 
