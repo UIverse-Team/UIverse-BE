@@ -12,8 +12,10 @@ import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
@@ -99,5 +101,13 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
                     e.getCode(), e.getMessage(), e);
             throw new DomainException(ErrorType.SMS_SEND_FAILURE);
         }
+    }
+
+    @Scheduled(fixedRate = 600000)
+    public void cleanupExpiredCodes() {
+        LocalDateTime now = LocalDateTime.now();
+        log.info("start", now);
+        smsVerificationCodeRepository.deleteByExpiresAtBefore(now);
+        log.info("finish", LocalDateTime.now());
     }
 }
