@@ -65,4 +65,4 @@ jobs:
           environment_name: Ora-log-cicd-env # 엘리스틱 빈스톡 환경 이름!
           version_label: blog-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
-          deployment_package: Dockerrun.aws.json
+          deployment_package: ./Dockerrun.aws.json
