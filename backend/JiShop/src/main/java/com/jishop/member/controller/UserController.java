@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface UserController {
 
     FindUserResponse findUser(FindUserRequest request);
+    ResponseEntity<String> checkPW(RecoveryPWRequest request);
     ResponseEntity<String> recoveryPW(RecoveryPWRequest request);
     ResponseEntity<String> updatePW(User user, UserNewPasswordRequest request);
     UserResponse getUser(User user);
