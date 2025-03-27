@@ -1,7 +1,7 @@
 name: Deploy to AWS EB - docker
 
 on:
-  pull:
+  push:
     branches:
       - be/feat/222
 #    types:
