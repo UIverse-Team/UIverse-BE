@@ -23,9 +23,9 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
     @Override
     @SuppressWarnings("unchecked")
     public List<SubCategory> getSubCategoriesFromRedis(Long categoryId) {
-        String RedisKey = generateRedisKey(categoryId);
+        String redisKey = generateRedisKey(categoryId);
         try {
-            return (List<SubCategory>) redisTemplate.opsForValue().get(RedisKey);
+            return (List<SubCategory>) redisTemplate.opsForValue().get(redisKey);
         } catch (Exception e) {
             log.error("Redis 캐시 조회 실패 (카테고리 ID: {}): {}", categoryId, e.getMessage(), e);
             return null;
@@ -34,9 +34,9 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
 
     @Override
     public void saveSubCategoriesToRedis(Long categoryId, List<SubCategory> subCategories) {
-        String RedisKey = generateRedisKey(categoryId);
+        String redisKey = generateRedisKey(categoryId);
         try {
-            redisTemplate.opsForValue().set(RedisKey, subCategories, REDIS_TTL_HOURS, TimeUnit.HOURS);
+            redisTemplate.opsForValue().set(redisKey, subCategories, REDIS_TTL_HOURS, TimeUnit.HOURS);
         } catch (Exception e) {
             log.error("Redis 캐시 저장 실패 (카테고리 ID: {}): {}", categoryId, e.getMessage(), e);
         }
