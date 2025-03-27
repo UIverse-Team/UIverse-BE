@@ -68,9 +68,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByOrderNumber(String orderNumber);
 
-    // 문의사항 작성에 필요한 메서드 정의
-    Optional<Order> findByOrderNumber(String orderNumber);
-
     //스케쥴러를 위한 쿼리
     @Modifying
     @Query("UPDATE Order o SET o.status = :newStatus " +
