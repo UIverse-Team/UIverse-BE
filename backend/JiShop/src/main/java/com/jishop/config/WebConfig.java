@@ -3,6 +3,7 @@
     import com.jishop.member.annotation.CurrentUserResolver;
     import com.jishop.member.annotation.LoginInterceptor;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.beans.factory.annotation.Value;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
     import org.springframework.session.web.http.CookieSerializer;
@@ -17,7 +18,6 @@
 
     @Configuration
     public class WebConfig implements WebMvcConfigurer {
-
 
         private final LoginInterceptor loginInterceptor;
         private final CurrentUserResolver currentUserResolver;
@@ -60,7 +60,6 @@
             DefaultCookieSerializer serializer = new DefaultCookieSerializer();
             serializer.setCookieName("JSESSIONID");
             serializer.setCookiePath("/");
-            serializer.setDomainName("api.uiverse.shop");
             serializer.setUseHttpOnlyCookie(true);
             serializer.setSameSite("Lax");
             serializer.setUseSecureCookie(false);
