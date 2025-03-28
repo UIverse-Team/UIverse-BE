@@ -56,8 +56,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: ora-log-eb # 엘리스틱 빈스톡 애플리케이션 이름!
-          environment_name: Ora-log-eb-env # 엘리스틱 빈스톡 환경 이름!
+          application_name: ora-log-eb
+          environment_name: Ora-log-eb-env
           version_label: blog-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: Dockerrun.aws.json
