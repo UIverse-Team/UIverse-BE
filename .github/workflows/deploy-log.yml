@@ -39,6 +39,10 @@ jobs:
           utcOffset: "+09:00"
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
+      - name: Debug Deployment
+        run: |
+          echo "AWS Access Key length: ${#AWS_ACCESS_KEY}"
+          echo "AWS Secret Key length: ${#AWS_SECRET_KEY}"
 
       - name: Docker build
         working-directory: backend/log
@@ -52,7 +56,7 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: ora-log-eb# 엘리스틱 빈스톡 애플리케이션 이름!
+          application_name: ora-log-eb # 엘리스틱 빈스톡 애플리케이션 이름!
           environment_name: Ora-log-eb-env # 엘리스틱 빈스톡 환경 이름!
           version_label: blog-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
