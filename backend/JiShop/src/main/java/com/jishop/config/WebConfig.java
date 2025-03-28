@@ -3,13 +3,11 @@
     import com.jishop.member.annotation.CurrentUserResolver;
     import com.jishop.member.annotation.LoginInterceptor;
     import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.beans.factory.annotation.Value;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
     import org.springframework.session.web.http.CookieSerializer;
     import org.springframework.session.web.http.DefaultCookieSerializer;
     import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-    import org.springframework.web.servlet.config.annotation.CorsRegistration;
     import org.springframework.web.servlet.config.annotation.CorsRegistry;
     import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
     import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -65,7 +63,6 @@
             serializer.setUseSecureCookie(false);
             return serializer;
         }
-
 
         // todo: 추후 반영 결정해야할 사항 (3/23)
         /* @Bean
