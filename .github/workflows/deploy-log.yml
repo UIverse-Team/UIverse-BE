@@ -26,7 +26,7 @@ jobs:
       - name: Pemission
         working-directory: backend/log
         run: chmod +x ./gradlew
-        
+
       - name: Build with Gradle
         working-directory: backend/log
         run: ./gradlew clean build -x test
@@ -47,7 +47,6 @@ jobs:
           docker build -t log-cicd .
           docker tag log-cicd ${{ secrets.DOCKERHUB_USERNAME }}/log-cicd:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/log-cicd:latest
-
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
         with:
