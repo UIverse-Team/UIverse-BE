@@ -23,7 +23,7 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final CategoryCacheService categoryCacheService;
+    private final CategoryRedisService categoryRedisService;
 
     @Override
     public PagedModel<CategoryResponse> getProductsByCategory(Long categoryId, int page) {
@@ -50,13 +50,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private List<SubCategory> getSubCategories(Long categoryId) {
-        List<SubCategory> cachedData = categoryCacheService.getSubCategoriesFromCache(categoryId);
+        List<SubCategory> cachedData = categoryRedisService.getSubCategoriesFromRedis(categoryId);
         if (cachedData != null) {
             return cachedData;
         }
 
         List<SubCategory> noneCachedData = getSubCategoriesByCategoryId(categoryId);
-        categoryCacheService.saveSubCategoriesToCache(categoryId, noneCachedData);
+        categoryRedisService.saveSubCategoriesToRedis(categoryId, noneCachedData);
 
         return noneCachedData;
     }
