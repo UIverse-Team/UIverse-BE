@@ -4,14 +4,16 @@ import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
 import com.jishop.member.dto.response.UserResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Tag(name = "유저 서비스 API")
 public interface UserController {
 
     FindUserResponse findUser(FindUserRequest request);
-    ResponseEntity<String> checkPW(RecoveryPWRequest request);
+    ResponseEntity<Boolean> checkPW(RecoveryPWRequest request);
     ResponseEntity<String> recoveryPW(RecoveryPWRequest request);
     ResponseEntity<String> updatePW(User user, UserNewPasswordRequest request);
     UserResponse getUser(User user);
