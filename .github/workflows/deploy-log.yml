@@ -26,6 +26,7 @@ jobs:
       - name: Pemission
         working-directory: backend/log
         run: chmod +x ./gradlew
+        
       - name: Build with Gradle
         working-directory: backend/log
         run: ./gradlew clean build -x test
