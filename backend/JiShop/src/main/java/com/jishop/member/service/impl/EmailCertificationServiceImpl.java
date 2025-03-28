@@ -51,7 +51,7 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
 
         repository.save(certification);
 
-        String subject = "Ora에서 이메일 인증번호를 보내드립니다";
+        String subject = "Ora 이메일 인증번호를 보내드립니다";
 
         String body = """
 <html>
@@ -62,8 +62,8 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
           <table width="600" cellpadding="0" cellspacing="0" style="border: 1px solid #FF4D00; border-radius: 10px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <tr>
               <td align="left">
-                <h1 style="color: #FF4D00; font-size: 24px;">Ora</h1>
-                <p style="font-size: 14px; color: #FF4D00; font-weight: bold;">Ora의 보낸 인증 번입니다.</p>
+                <img src="https://api.uiverse.shop/Ora.png" alt="Ora 로고" width="74" height="31" style="display:block;" />
+                <p style="font-size: 14px; color: #FF4D00; font-weight: bold;">Ora의 보낸 인증 번호입니다.</p>
                 
                 <h2 style="color: #333333; margin-top: 30px;">이메일 주소를 인증해주세요</h2>
                 <p style="font-size: 16px; color: #555555;">아래 인증번호를 입력하시면 인증이 완료됩니다.</p>
@@ -76,7 +76,7 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
                 <p style="font-size: 14px; color: #999999;">고객센터 문의는 Ora 홈페이지를 참고해주세요.</p>
 
                 <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-                <p style="font-size: 12px; color: #bbb;">© Ora | 서울특별시 강남구 미왕빌딩 10층</p>
+                <p style="font-size: 12px; color: #bbb;">© Ora | 무적 UIverse </p>
               </td>
             </tr>
           </table>
