@@ -1,12 +1,12 @@
 package com.jishop.category.service;
 
-import com.jishop.category.dto.SubCategory;
+import com.jishop.category.dto.SubCategoryResponse;
 
 import java.util.List;
 
 public interface CategoryRedisService {
 
-    List<SubCategory> getSubCategoriesFromRedis(Long parentId);
+    List<SubCategoryResponse> getSubCategoriesFromRedis(Long parentId);
 
-    void saveSubCategoriesToRedis(Long parentId, List<SubCategory> subCategories);
+    void saveSubCategoriesToRedis(Long parentId, List<SubCategoryResponse> subCategories);
 }

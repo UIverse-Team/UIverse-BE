@@ -2,7 +2,8 @@ package com.jishop.category.service;
 
 import com.jishop.category.domain.Category;
 import com.jishop.category.dto.CategoryResponse;
-import com.jishop.category.dto.SubCategory;
+import com.jishop.category.dto.HeaderProductListResponse;
+import com.jishop.category.dto.SubCategoryResponse;
 import com.jishop.category.repository.CategoryRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -26,49 +27,48 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRedisService categoryRedisService;
 
     @Override
-    public PagedModel<CategoryResponse> getProductsByCategory(Long categoryId, int page) {
+    public PagedModel<HeaderProductListResponse> getProductsByCategory(Long categoryId, int page) {
         Category category = categoryRepository.findByCategoryId(categoryId)
                 .orElseThrow(() -> new DomainException(ErrorType.CATEGORY_NOT_FOUND));
 
-        List<SubCategory> subCategories = getSubCategories(categoryId);
+        List<SubCategoryResponse> subCategories = getSubCategories(categoryId);
 
         Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "wishListCount"));
         Page<Product> productPage = categoryRepository.findProductsByCategoryWithAllDescendants(categoryId, pageable);
 
-        CategoryResponse categoryResponse = CategoryResponse.from(
-                categoryId,
-                category.getName(),
+        HeaderProductListResponse headerProductListResponse = HeaderProductListResponse.from(
+                CategoryResponse.from(category),
                 subCategories,
                 productPage.getContent()
         );
 
         return new PagedModel<>(new PageImpl<>(
-                List.of(categoryResponse),
+                List.of(headerProductListResponse),
                 pageable,
                 productPage.getTotalElements()
         ));
     }
 
-    private List<SubCategory> getSubCategories(Long categoryId) {
-        List<SubCategory> cachedData = categoryRedisService.getSubCategoriesFromRedis(categoryId);
+    private List<SubCategoryResponse> getSubCategories(Long categoryId) {
+        List<SubCategoryResponse> cachedData = categoryRedisService.getSubCategoriesFromRedis(categoryId);
         if (cachedData != null) {
             return cachedData;
         }
 
-        List<SubCategory> noneCachedData = getSubCategoriesByCategoryId(categoryId);
+        List<SubCategoryResponse> noneCachedData = getSubCategoriesByCategoryId(categoryId);
         categoryRedisService.saveSubCategoriesToRedis(categoryId, noneCachedData);
 
         return noneCachedData;
     }
 
-    private List<SubCategory> getSubCategoriesByCategoryId(Long categoryId) {
+    private List<SubCategoryResponse> getSubCategoriesByCategoryId(Long categoryId) {
         List<Category> subCategories = categoryRepository.findSubcategoriesByCategoryId(categoryId);
 
         return subCategories.stream()
                 .map(subCategory -> {
                     long productCount = categoryRepository.countProductsByCategoryId(subCategory.getCurrentId());
 
-                    return new SubCategory(
+                    return new SubCategoryResponse(
                             subCategory.getCurrentId(),
                             subCategory.getName(),
                             productCount

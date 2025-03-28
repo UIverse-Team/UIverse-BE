@@ -1,6 +1,6 @@
 package com.jishop.category.service;
 
-import com.jishop.category.dto.SubCategory;
+import com.jishop.category.dto.SubCategoryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,10 +22,10 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SubCategory> getSubCategoriesFromRedis(final Long categoryId) {
+    public List<SubCategoryResponse> getSubCategoriesFromRedis(final Long categoryId) {
         final String redisKey = generateRedisKey(categoryId);
         try {
-            return (List<SubCategory>) redisTemplate.opsForValue().get(redisKey);
+            return (List<SubCategoryResponse>) redisTemplate.opsForValue().get(redisKey);
         } catch (Exception e) {
             log.error("Redis 캐시 조회 실패 (카테고리 ID: {}): {}", categoryId, e.getMessage(), e);
             return null;
@@ -33,7 +33,7 @@ public class CategoryRedisServiceImpl implements CategoryRedisService {
     }
 
     @Override
-    public void saveSubCategoriesToRedis(final Long categoryId, final List<SubCategory> subCategories) {
+    public void saveSubCategoriesToRedis(final Long categoryId, final List<SubCategoryResponse> subCategories) {
         final String redisKey = generateRedisKey(categoryId);
         try {
             redisTemplate.opsForValue().set(redisKey, subCategories, REDIS_TTL_HOURS, TimeUnit.HOURS);
