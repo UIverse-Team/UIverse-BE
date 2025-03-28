@@ -1,22 +1,16 @@
 package com.jishop.popular.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.product.repository.ProductRepository;
-import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -62,10 +56,12 @@ public class SearchServiceImpl implements SearchService {
             // 00분 ~ 55분 까지는 메인 키에 저장 - 상품 계산에 사용
             // 55분 ~ 59분 까지는 여분 키에 저장 - 다음 시간대 상품 계산에 사용
             // 상품 계산 작업 처리 시간을 확보해 매 시간(정각)마다 계산된 데이터를 제공
-
         LocalDateTime now = LocalDateTime.now();
         int minute = now.getMinute();
         String hourKey = now.format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+
+        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 생성
+//        String minuteKey = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")).substring(0,11) + "0";
 
         // 1시간 후 자동 삭제를 위해 TTL 설정- hourKey에 해당하는 전체 ZSet(key, keyword, score) 삭제
             // TTL 설정 2시간으로 수정 - 다음 시간대에서 사용할 수 있도록 수정
@@ -80,19 +76,33 @@ public class SearchServiceImpl implements SearchService {
             redisTemplate.expire(hourKey, Duration.ofHours(2));
         }
 
-        // 로그 데이터 생성 및 전송 - 검색어, 사용자IP, 타임스탬프
-        Map<String, Object> logData = new HashMap<>();
-        logData.put("keyword", keyword);
-        logData.put("clientIp", clientIp);
-        logData.put("timestamp", System.currentTimeMillis());
+        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 사용 및 20분 뒤 만료
+//        if(minute % 5 == 4){
+//            String gapKey = GAP_KEY_PREFIX + minuteKey;
+//            redisTemplate.opsForZSet().incrementScore(gapKey, keyword, 1.0);
+//            redisTemplate.expire(hourKey, Duration.ofMinutes(20));
+//        }
+//        else {
+//            String mainKey = MAIN_KEY_PREFIX + minuteKey;
+//            redisTemplate.opsForZSet().incrementScore(mainKey, keyword, 1.0);
+//            redisTemplate.expire(hourKey, Duration.ofMinutes(20));
+//        }
 
-        // 로그 데이터(Map)를 JSON으로 구워서 Logstash로 전송
-        try{
-            String logJson = objectMapper.writeValueAsString(logData);
-            LoggerFactory.getLogger(SearchServiceImpl.class).info(logJson);
-        } catch (JsonProcessingException e){
-            e.printStackTrace();
-        }
+
+        // ♻️ 배포를 위해 Logstash(ELK) 제거
+        // 로그 데이터 생성 및 전송 - 검색어, 사용자IP, 타임스탬프
+//        Map<String, Object> logData = new HashMap<>();
+//        logData.put("keyword", keyword);
+//        logData.put("clientIp", clientIp);
+//        logData.put("timestamp", System.currentTimeMillis());
+//
+//        // 로그 데이터(Map)를 JSON으로 구워서 Logstash로 전송
+//        try{
+//            String logJson = objectMapper.writeValueAsString(logData);
+//            LoggerFactory.getLogger(SearchServiceImpl.class).info(logJson);
+//        } catch (JsonProcessingException e){
+//            e.printStackTrace();
+//        }
 
         return true;
     }
