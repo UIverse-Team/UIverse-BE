@@ -22,7 +22,6 @@ jobs:
         with:
           token: ${{ secrets.ACCESS_KEY }}
           submodules: true  # 서브모듈도 함께 가져옴
-
       - name: Pemission
         working-directory: backend/log
         run: chmod +x ./gradlew
