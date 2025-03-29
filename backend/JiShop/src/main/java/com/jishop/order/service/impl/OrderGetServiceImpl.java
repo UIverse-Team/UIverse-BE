@@ -117,7 +117,7 @@ public class OrderGetServiceImpl implements OrderGetService {
                             product.getProduct().getBrand()
                     );
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // CartResponse 생성 및 반환
         return CartResponse.of(cartDetails);
