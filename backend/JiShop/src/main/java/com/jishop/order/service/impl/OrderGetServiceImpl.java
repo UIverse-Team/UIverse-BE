@@ -97,7 +97,7 @@ public class OrderGetServiceImpl implements OrderGetService {
                             .filter(request -> request.saleProductId().equals(product.getId()))
                             .findFirst()
                             .map(OrderDetailRequest::quantity)
-                            .orElse(1); // 기본값은 1로 설정
+                            .orElseThrow(() -> new DomainException(ErrorType.INVALID_QUANTITY)); // 기본값은 1로 설정
 
                     int paymentPrice = product.getProduct().getDiscountPrice();
                     int orderPrice = product.getProduct().getOriginPrice();
