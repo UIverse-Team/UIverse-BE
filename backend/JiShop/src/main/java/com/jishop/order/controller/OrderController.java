@@ -1,5 +1,6 @@
 package com.jishop.order.controller;
 
+import com.jishop.cart.dto.CartResponse;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +8,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 @Tag(name = "주문 API", description = "주문 관련 API")
 public interface OrderController {
@@ -48,4 +51,12 @@ public interface OrderController {
             User user,
             @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
     );
+
+    // 장바구니에서 주문서로 넘어가는 API
+    @Operation(summary = "장바구니에서 주문서로 넘어갈 때 사용하는 API")
+    ResponseEntity<CartResponse> getCheckout(User user, List<OrderDetailRequest> orderDetailRequest);
+
+    //바로 주문하기에서 주문서로 넘어가는 API
+    @Operation(summary = "바로 주문하기에서 주문서로 넘어갈 때 사용하는 API")
+    ResponseEntity<CartResponse> getCheckoutInstant(User user, Long saleProductId, int quantity);
 }

@@ -1,5 +1,7 @@
 package com.jishop.cart.dto;
 
+import com.jishop.saleproduct.domain.SaleProduct;
+
 public record CartDetailResponse(
         Long cartId,
         Long saleProductId,
@@ -13,4 +15,26 @@ public record CartDetailResponse(
         String image,
         String brandName
 ) {
+    public static CartDetailResponse from(
+            Long cartId,
+            SaleProduct product,
+            int quantity,
+            int paymentPrice,
+            int orderPrice,
+            int discountPrice
+    ) {
+        return new CartDetailResponse(
+                cartId,
+                product.getId(),
+                product.getProduct().getName(),
+                product.getOption() != null ? product.getOption().getOptionValue() : "기본옵션",
+                paymentPrice,
+                orderPrice,
+                discountPrice,
+                quantity,
+                paymentPrice * quantity,
+                product.getProduct().getMainImage(),
+                product.getProduct().getBrand()
+        );
+    }
 }

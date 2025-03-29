@@ -1,5 +1,6 @@
 package com.jishop.order.controller;
 
+import com.jishop.cart.dto.CartResponse;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -75,5 +78,24 @@ public class OrderControllerImpl implements OrderController {
         OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId, null, null);
 
         return ResponseEntity.ok(orderCancelResponse);
+    }
+
+    //장바구니에서 주문서로 넘어갈 때 사용하는 API
+    @PostMapping("/checkout")
+    public ResponseEntity<CartResponse> getCheckout(@CurrentUser User user, @RequestBody List<OrderDetailRequest> orderDetailRequest) {
+        CartResponse products = orderService.getCheckout(user, orderDetailRequest);
+
+        return ResponseEntity.ok(products);
+    }
+
+    //바로주문하기에서 주문서로 넘어갈 때 사용하는 API
+    @Override
+    @GetMapping("/checkoutInstant")
+    public ResponseEntity<CartResponse> getCheckoutInstant(@CurrentUser User user,
+                                                           @RequestParam("saleProductId") Long saleProductId,
+                                                           @RequestParam("quantity") int quantity) {
+        CartResponse products = orderService.getCheckoutInstant(user, saleProductId, quantity);
+
+        return ResponseEntity.ok(products);
     }
 }
