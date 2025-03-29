@@ -103,18 +103,13 @@ public class OrderGetServiceImpl implements OrderGetService {
                     int orderPrice = product.getProduct().getOriginPrice();
                     int discountPrice = orderPrice - paymentPrice;
 
-                    return new CartDetailResponse(
+                    return CartDetailResponse.from(
                             null, // 장바구니에서 넘어온 것이므로 cartId는 null
-                            product.getId(),
-                            product.getProduct().getName(),
-                            product.getOption() != null ? product.getOption().getOptionValue() : "기본옵션",
+                            product,
+                            quantity,
                             paymentPrice,
                             orderPrice,
-                            discountPrice,
-                            quantity,
-                            paymentPrice * quantity, // totalPrice 추가
-                            product.getProduct().getMainImage(),
-                            product.getProduct().getBrand()
+                            discountPrice
                     );
                 })
                 .toList();
@@ -133,18 +128,13 @@ public class OrderGetServiceImpl implements OrderGetService {
         int orderPrice = saleProduct.getProduct().getOriginPrice();
         int discountPrice = orderPrice - paymentPrice;
 
-        CartDetailResponse cartDetailResponse = new CartDetailResponse(
-                null, // 장바구니에서 넘어온 것이므로 cartId는 null
-                saleProduct.getId(),
-                saleProduct.getProduct().getName(),
-                saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
+        CartDetailResponse cartDetailResponse = CartDetailResponse.from(
+                null,
+                saleProduct,
+                quantity,
                 paymentPrice,
                 orderPrice,
-                discountPrice,
-                quantity,
-                paymentPrice * quantity, // totalPrice 추가
-                saleProduct.getProduct().getMainImage(),
-                saleProduct.getProduct().getBrand()
+                discountPrice
         );
 
         return CartResponse.of(List.of(cartDetailResponse));
