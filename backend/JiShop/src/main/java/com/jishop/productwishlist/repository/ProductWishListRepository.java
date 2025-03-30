@@ -7,6 +7,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +26,8 @@ public interface ProductWishListRepository extends JpaRepository<ProductWishList
             "ORDER BY COUNT(w) DESC " +
             "LIMIT 10")
     List<Product> getProductByWishTopTen();
+
+    @Query("SELECT CASE WHEN COUNT(pw) > 0 THEN true ELSE false END FROM ProductWishList pw " +
+            "WHERE pw.user.id = :userId AND pw.product.id = :productId AND pw.productWishStatus = true")
+    boolean isProductWishedByUser(@Param("userId") Long userId, @Param("productId") Long productId);
 }

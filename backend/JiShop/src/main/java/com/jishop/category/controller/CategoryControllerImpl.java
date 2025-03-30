@@ -14,9 +14,9 @@ public class CategoryControllerImpl implements CategoryController {
     private final CategoryService categoryService;
 
     @Override
-    @GetMapping("/{categoryId}")
+    @GetMapping
     public PagedModel<CategoryResponse> getProductListByCategory(
-            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "50000000L") Long categoryId,
             @RequestParam(defaultValue = "0") int page) {
         if (page < 0 || page > 100) {page = 0;}
 

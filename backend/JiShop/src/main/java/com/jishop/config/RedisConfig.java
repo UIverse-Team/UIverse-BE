@@ -56,14 +56,12 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-
         // Key는 String으로 직렬화
         redisTemplate .setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+
         // Value는 JSON 형식으로 직렬화 (redisObjectMapper 사용)
         redisTemplate .setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
-
-        // Hash key/value도 동일하게 설정 (필요한 경우)
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
 
         redisTemplate .afterPropertiesSet();

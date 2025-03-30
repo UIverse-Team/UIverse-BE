@@ -1,9 +1,10 @@
 package com.jishop.product.controller;
 
 import com.jishop.member.domain.User;
-import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.request.ProductRequest;
+import com.jishop.product.dto.response.ProductListResponse;
 import com.jishop.product.dto.response.ProductResponse;
+import com.jishop.product.dto.response.TodaySpecialListResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.web.PagedModel;
 
@@ -12,9 +13,14 @@ import java.util.List;
 @Tag(name = "상품 API")
 public interface ProductController {
 
-    PagedModel<ProductListResponse> getProductList(ProductRequest request, int page, int size);
+    PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest, final int page, final int size);
 
-    ProductResponse getProduct(User user, Long id);
+    // user가 null일 수 있음(비회원)
+    ProductResponse getProduct(final User user, final Long productId);
 
+    //TODO
+    // 리펙토링 예정
     List<ProductListResponse> getProductByWishTopTen();
+
+    PagedModel<TodaySpecialListResponse> getProductByTodaySpecial(final int page, final int size);
 }

@@ -1,16 +1,19 @@
 package com.jishop.order.service.impl;
 
+import com.jishop.cart.dto.CartDetailResponse;
+import com.jishop.cart.dto.CartResponse;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderStatus;
-import com.jishop.order.dto.OrderCancelResponse;
-import com.jishop.order.dto.OrderDetailPageResponse;
-import com.jishop.order.dto.OrderProductResponse;
-import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.dto.*;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.OrderGetService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.review.repository.ReviewRepository;
+import com.jishop.saleproduct.domain.SaleProduct;
+import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class OrderGetServiceImpl implements OrderGetService {
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
     private final OrderUtilService orderUtilService;
+    private final SaleProductRepository saleProductRepository;
 
     // 주문 상세 조회 (회원/비회원 통합)
     @Override
@@ -76,6 +80,66 @@ public class OrderGetServiceImpl implements OrderGetService {
 
         return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
     }
+
+    //회원, 비회원 장바구니에서 주문서로 넘어가는 API
+    @Override
+    public CartResponse getCheckOut(User user, List<OrderDetailRequest> orderDetailRequest) {
+        List<Long> saleProductIds = orderDetailRequest.stream()
+                .map(OrderDetailRequest::saleProductId)
+                .toList();
+
+        List<SaleProduct> saleProducts = saleProductRepository.findAllById(saleProductIds);
+
+        List<CartDetailResponse> cartDetails = saleProducts.stream()
+                .map(product -> {
+                    // 해당 상품의 수량을 찾음
+                    int quantity = orderDetailRequest.stream()
+                            .filter(request -> request.saleProductId().equals(product.getId()))
+                            .findFirst()
+                            .map(OrderDetailRequest::quantity)
+                            .orElseThrow(() -> new DomainException(ErrorType.INVALID_QUANTITY)); // 기본값은 1로 설정
+
+                    int paymentPrice = product.getProduct().getDiscountPrice();
+                    int orderPrice = product.getProduct().getOriginPrice();
+                    int discountPrice = orderPrice - paymentPrice;
+
+                    return CartDetailResponse.from(
+                            null, // 장바구니에서 넘어온 것이므로 cartId는 null
+                            product,
+                            quantity,
+                            paymentPrice,
+                            orderPrice,
+                            discountPrice
+                    );
+                })
+                .toList();
+
+        // CartResponse 생성 및 반환
+        return CartResponse.of(cartDetails);
+    }
+
+    //바로 주문하기에서 주문서로 넘어갈 때 사용하는 API
+    @Override
+    public CartResponse getCheckoutInstant(User user,  Long saleProductId, int quantity) {
+        SaleProduct saleProduct = saleProductRepository.findById(saleProductId)
+                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
+        int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+        int orderPrice = saleProduct.getProduct().getOriginPrice();
+        int discountPrice = orderPrice - paymentPrice;
+
+        CartDetailResponse cartDetailResponse = CartDetailResponse.from(
+                null,
+                saleProduct,
+                quantity,
+                paymentPrice,
+                orderPrice,
+                discountPrice
+        );
+
+        return CartResponse.of(List.of(cartDetailResponse));
+    }
+
 
     private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {
         boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;

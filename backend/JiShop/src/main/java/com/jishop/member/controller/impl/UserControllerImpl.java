@@ -26,6 +26,12 @@ public class UserControllerImpl implements UserController {
         return userService.findUser(request);
     }
 
+    @PostMapping("/checkpw")
+    public ResponseEntity<Boolean> checkPW(@RequestBody @Validated RecoveryPWRequest request) {
+        if(!authService.checkPW(request)) return ResponseEntity.ok(false);
+        return ResponseEntity.ok(true);
+    }
+
     @PatchMapping("/recoverypw")
     public ResponseEntity<String> recoveryPW(@RequestBody @Validated RecoveryPWRequest request) {
         authService.recoveryPW(request);

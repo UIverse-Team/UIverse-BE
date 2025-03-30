@@ -9,18 +9,18 @@ public record ProductListResponse(
         Labels labels,
         Integer originPrice,
         Integer discountPrice,
-        Boolean isDiscount,
+        int discountRate,
         String brand,
         String mainImage
 ) {
-    public static ProductListResponse from(Product product) {
+    public static ProductListResponse from(final Product product) {
         return new ProductListResponse(
                 product.getId(),
                 product.getName(),
                 product.getLabels(),
                 product.getOriginPrice(),
                 product.getDiscountPrice(),
-                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getBrand(),
                 product.getMainImage()
         );

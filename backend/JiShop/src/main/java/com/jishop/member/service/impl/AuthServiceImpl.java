@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
         if(user.isDeleteStatus()) throw new DomainException(ErrorType.USER_NOT_FOUND);
 
         session.setAttribute("userId", user.getId());
-        session.setMaxInactiveInterval(60 * 30);
+        session.setMaxInactiveInterval(60 * 60);
     };
 
 
@@ -51,12 +51,15 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByLoginId(request.email())
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
-        if(passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new DomainException(ErrorType.PASSWORD_EXISTS);
-        }
-
         String password = passwordEncoder.encode(request.password());
         user.updatePassword(password);
+    }
+
+    public boolean checkPW(RecoveryPWRequest request){
+        User user = userRepository.findByLoginId(request.email())
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+        return !passwordEncoder.matches(request.password(), user.getPassword());
     }
 
     public void updatePW(User user, UserNewPasswordRequest request){
@@ -82,10 +85,12 @@ public class AuthServiceImpl implements AuthService {
         user.updatePhone(request.phone());
     }
 
-    @Override
     public void deleteUser(User user) {
         user.delete();
     }
 
+    public Long checkLogin(User user) {
+        return user.getId();
+    }
 }
 
