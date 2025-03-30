@@ -78,4 +78,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("select r from Review r where r.imageUrls.image1 is not null")
     Slice<Review> findByAllWithImage(Pageable pageable);
+
+    @Query("SELECT r.orderDetail.id FROM Review r " +
+            "WHERE r.orderDetail.id IN :orderDetailIds " +
+            "AND r.deleteStatus = false")
+    List<Long> findOrderDetailIdsWithNonDeletedReviews(@Param("orderDetailIds") List<Long> orderDetailIds);
 }

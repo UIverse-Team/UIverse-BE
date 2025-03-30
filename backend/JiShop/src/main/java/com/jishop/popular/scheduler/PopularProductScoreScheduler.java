@@ -46,4 +46,27 @@ public class PopularProductScoreScheduler {
         }
         log.info("상품 계산 및 캐시 저장 완료 : {}", previousHourKey);
     }
+
+//    @Scheduled(cron = "0 */5 * * * *")
+//    public void calculatePopularProductScore() {
+//        LocalDateTime now = LocalDateTime.now();
+//        String currentFiveMinutes = now
+//                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+//                .substring(0, 11) + "0";
+//        String previousFiveMinutes = now.minusMinutes(5)
+//                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+//                .substring(0, 11) + "0";
+//
+//        String previousKey = MAIN_KEY_PREFIX + previousFiveMinutes;
+//        String gapKey = GAP_KEY_PREFIX + previousFiveMinutes;
+//
+//        popularCalculationService.calculateAndCacheResult(previousKey);
+//
+//        // gapKey의 데이터를 다음 시간대로 이동
+//        String nextKey = MAIN_KEY_PREFIX + currentFiveMinutes;
+//        redisTemplate.opsForZSet().unionAndStore(nextKey, gapKey, nextKey);
+//        redisTemplate.delete(gapKey);
+//
+//        log.info("상품 계산 및 캐시 저장 완료 : {}", previousKey);
+//    }
 }

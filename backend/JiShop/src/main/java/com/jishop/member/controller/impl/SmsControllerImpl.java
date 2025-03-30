@@ -24,7 +24,7 @@ public class SmsControllerImpl implements SmsController {
 
         //토큰을 쿠키에 저장
         Cookie cookie = new Cookie("certificationToken", token);
-        cookie.setMaxAge(300); //최대 5분
+        cookie.setMaxAge(180);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
