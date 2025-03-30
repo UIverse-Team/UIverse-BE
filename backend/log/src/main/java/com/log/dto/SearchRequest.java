@@ -7,4 +7,7 @@ public record SearchRequest(
         String searchKeyword,
         LocalDateTime searchTime
 ) {
+    public SearchRequest addUserId(Long userid) {
+        return new SearchRequest(userid, searchKeyword, searchTime);
+    }
 }

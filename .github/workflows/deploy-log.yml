@@ -11,8 +11,6 @@ on:
       - backend/log/src/**
       - backend/log/build.gradle
       - .github/workflows/deploy-log.yml
-      - .ebextensions/**
-      - .platform/**
 jobs:
   build:
     runs-on: ubuntu-latest
