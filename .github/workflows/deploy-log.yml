@@ -1,15 +1,15 @@
 name: Deploy to AWS EB - docker
 
 on:
-  push:
+  pull_request:
     branches:
-      - be/feat/222
+      - develop
 #    types:
 #      - closed
     # 해당 파일 또는 폴더 하위 파일들이 변경되었을 때에만!!!
     paths:
       - backend/log/src/**
-      - build.gradle
+      - backend/log/build.gradle
       - .github/workflows/deploy-log.yml
       - .ebextensions/**
       - .platform/**
@@ -39,10 +39,6 @@ jobs:
           utcOffset: "+09:00"
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
-      - name: Debug Deployment
-        run: |
-          echo "AWS Access Key length: ${#AWS_ACCESS_KEY}"
-          echo "AWS Secret Key length: ${#AWS_SECRET_KEY}"
 
       - name: Docker build
         working-directory: backend/log
