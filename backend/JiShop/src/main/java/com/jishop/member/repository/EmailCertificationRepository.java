@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface EmailCertificationRepository extends JpaRepository<EmailCertification, String> {
 
     Optional<EmailCertification> findByTokenAndCertificationCode(String token, String certificationCode);
+
     @Modifying
     @Transactional
     @Query("delete from EmailCertification e where e.expiresAt < :now")
