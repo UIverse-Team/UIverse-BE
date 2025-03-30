@@ -9,7 +9,7 @@ public record ProductListResponse(
         Labels labels,
         Integer originPrice,
         Integer discountPrice,
-        Boolean isDiscount,
+        int discountRate,
         String brand,
         String mainImage
 ) {
@@ -20,7 +20,7 @@ public record ProductListResponse(
                 product.getLabels(),
                 product.getOriginPrice(),
                 product.getDiscountPrice(),
-                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getBrand(),
                 product.getMainImage()
         );

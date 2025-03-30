@@ -104,12 +104,15 @@ public class OrderUtilServiceImpl implements OrderUtilService {
                 details.get(0).getOrder().getStatus() == OrderStatus.PURCHASED_CONFIRMED;
 
         List<Long> orderDetailIds = details.stream().map(OrderDetail::getId).toList();
-        List<Long> reviewedOrderDetailIds = isPurchaseConfirmed ?
-                reviewRepository.findOrderDetailIdsWithReviews(orderDetailIds) : Collections.emptyList();
+
+        //리뷰 삭제 상태가 아니라면
+        List<Long> notDeletedReviewOrderDetailIds = isPurchaseConfirmed ?
+                reviewRepository.findOrderDetailIdsWithNonDeletedReviews(orderDetailIds) : Collections.emptyList();
 
         return details.stream()
                 .map(detail -> {
-                    boolean canReview = isPurchaseConfirmed && !reviewedOrderDetailIds.contains(detail.getId());
+                    boolean canReview = isPurchaseConfirmed &&
+                            !notDeletedReviewOrderDetailIds.contains(detail.getId());
                     return OrderProductResponse.from(detail, canReview);
                 })
                 .toList();
