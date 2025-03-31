@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface PopularService {
 
-    PopularKeywordResponse getPopularKeywordsAndProducts();
+    PopularKeywordResponse getTop5PopularKeywordsAndProducts();
+    PopularKeywordResponse getTop10PopularKeywordsAndProducts();
+    PopularKeywordResponse getPopularKeywordsAndProducts(int limit);
 }

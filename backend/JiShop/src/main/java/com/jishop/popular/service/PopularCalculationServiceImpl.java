@@ -64,10 +64,25 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
         }
         PopularKeywordResponse response = new PopularKeywordResponse(redisKey, keywords);
 
+        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 사용 및 20분 뒤 만료
+//        PopularKeywordResponse response = new PopularKeywordResponse(
+//                LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
+//                keywords
+//        );
+//        String resultKey = RESULT_KEY_PREFIX + key;
+//        try {
+//            String stringResponse = objectMapper.writeValueAsString(response);
+//            redisTemplate.opsForValue().set(resultKey, stringResponse);
+//            redisTemplate.expire(resultKey, Duration.ofMinutes(20));
+//        } catch (JsonProcessingException e) {
+//            log.error("인기 검색어 결과 JSON 직렬화 실패", e);
+//        }
+//        PopularKeywordResponse response = new PopularKeywordResponse(
+//                LocalDateTime.now().minusHours(1)
+//                .format(DateTimeFormatter.ofPattern("HH")), keywords);
+
         // 캐시에 결과 저장 및 TTL 설정
         String resultKey = RESULT_KEY_PREFIX + key;
-//        redisTemplate.opsForValue().set(resultKey, response);
-//        redisTemplate.expire(resultKey, Duration.ofHours(1));
 
         // JSON 역직렬화 오류로 String으로 Redis에 저장
         try{
@@ -134,14 +149,6 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                 productScore.getProduct().getDiscountRate(),
                 productScore.getTotalOrderCount(),
                 productScore.getReviewRating().doubleValue()
-                // FE 요청으로 리뷰 평점 조정
-                // 4.0 ~ 4.4까지는 4.0으로 표현, 4.5 ~ 4.9까지는 4.5로 표현
-//                productScore.getReviewRating()
-//                        .multiply(BigDecimal.valueOf(2))
-//                        .setScale(0, RoundingMode.FLOOR)
-//                        .divide(BigDecimal.valueOf(2))
-//                        .doubleValue()
-
         );
     }
 }

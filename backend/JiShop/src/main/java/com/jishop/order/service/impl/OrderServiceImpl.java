@@ -1,5 +1,6 @@
 package com.jishop.order.service.impl;
 
+import com.jishop.cart.dto.CartResponse;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
 import com.jishop.order.service.OrderCancelService;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -44,16 +47,28 @@ public class OrderServiceImpl implements OrderService {
         return orderGetService.getPaginatedOrders(user, period, page, size);
     }
 
-    //회원, 비회원 주문 취소
+    //회원 주문 취소
     @Override
     public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
         orderCancelService.cancelOrder(user, orderId, orderNumber, phone);
     }
 
-    //회원, 비회원 주문 취소 상세 페이지 조회
+    //회원 주문 취소 상세 페이지 조회
     @Override
     public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
         return orderGetService.getCancelPage(user, orderId, orderNumber, phone);
+    }
+
+    //회원 장바구니에서 주문서로 넘어갈 때 사용되는 API
+    @Override
+    public CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest) {
+        return orderGetService.getCheckOut(user, orderDetailRequest);
+    }
+
+    //회원 바로 주문하기에서 주문서로 넘어갈 때 사용하는 API
+    @Override
+    public CartResponse getCheckoutInstant(User user,  Long saleProductId, int quantity) {
+        return orderGetService.getCheckoutInstant(null, saleProductId, quantity);
     }
 
     //비회원 주문 생성
@@ -84,5 +99,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderCancelResponse getGuestCancelPage(String orderNumber, String phone) {
         return orderGetService.getCancelPage(null, null, orderNumber, phone);
+    }
+
+    //비회원 장바구니에서 주문서로 넘어갈 때 사용하는 API
+    @Override
+    public CartResponse getGuestCheckout(User user, List<OrderDetailRequest> orderDetailRequest) {
+        return orderGetService.getCheckOut(null, orderDetailRequest);
+    }
+
+    //비회원 바로 주문하기에서 주문서로 넘어갈 때 사용하는 API
+    @Override
+    public CartResponse getGuestCheckoutInstant(User user,  Long saleProductId, int quantity) {
+        return orderGetService.getCheckoutInstant(null, saleProductId, quantity);
     }
 }

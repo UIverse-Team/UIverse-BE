@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 
-@Tag(name = "공지사항 API")
+@Tag(name = "FAQ API - 보류")
 public interface FaqController {
 
     ResponseEntity<PagedModel<FaqResponse>> getAllPopularFaqs(Pageable pageable);

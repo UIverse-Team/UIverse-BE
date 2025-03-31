@@ -67,8 +67,7 @@ public class OAuthControllerImpl implements OAuthController {
 
         User user = userService.oauthLogin(profile);
         session.setAttribute("userId", user.getId());
-        session.setMaxInactiveInterval(60 * 30);
-
+        session.setMaxInactiveInterval(60 * 60);
 
         return ResponseEntity.ok(profile);
     }

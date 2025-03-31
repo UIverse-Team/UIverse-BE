@@ -1,5 +1,8 @@
 package com.jishop.cart.controller.Impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.cart.controller.CartController;
 import com.jishop.cart.dto.*;
 import com.jishop.cart.service.CartService;
@@ -9,6 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -55,11 +61,20 @@ public class CartControllerImpl implements CartController {
     }
 
     //비회원 장바구니 조회
-    @Override
     @GetMapping("/guest")
-    public ResponseEntity<CartResponse> getGuestCartItems(@RequestBody List<GuestCartRequest> guestCartRequests) {
-        CartResponse cartResponses = cartService.getGuestCart(guestCartRequests);
+    public ResponseEntity<CartResponse> getGuestCartItems(@RequestParam String saleProductId) {
+        try {
+            // URL 디코딩
+            String decodedJson = URLDecoder.decode(saleProductId, StandardCharsets.UTF_8);
 
-        return ResponseEntity.ok(cartResponses);
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<GuestCartRequest> guestCartRequests = objectMapper.readValue(decodedJson, new TypeReference<>() {
+            });
+
+            CartResponse cartResponses = cartService.getGuestCart(guestCartRequests);
+            return ResponseEntity.ok(cartResponses);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }
