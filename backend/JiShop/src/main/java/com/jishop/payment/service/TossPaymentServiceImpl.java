@@ -15,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,6 +28,17 @@ public class TossPaymentServiceImpl implements TossPaymentService {
     private final RestTemplate restTemplate;
     private final TossPaymentConfig tossPaymentConfig;
     private final ObjectMapper objectMapper;
+
+    private static final Map<String, PaymentMethod> PAYMENT_METHOD_MAP = Map.of(
+            "카드", PaymentMethod.CARD,
+            "간편결제", PaymentMethod.SIMPLE_PAYMENT
+    );
+
+    private static final Map<String, PaymentProvider> PAYMENT_PROVIDER_MAP = Map.of(
+            "카카오페이", PaymentProvider.KAKAO_PAY,
+            "토스페이", PaymentProvider.TOSS_PAY,
+            "네이버페이", PaymentProvider.NAVER_PAY
+    );
 
     /**
      * 토스 결제 승인 API 호출 후 Payment 객체를 반환하는 메서드
@@ -46,7 +60,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
         ResponseEntity<String> responseEntity = sendConfirmRequest(httpEntity);
 
         // 토스 응답 파싱
-        JsonNode paymentNode = parseReposne(responseEntity.getBody());
+        JsonNode paymentNode = parseResponse(responseEntity.getBody());
 
         // Payment 엔티티 생성 및 반환
         return createPayment(paymentNode);
@@ -95,9 +109,10 @@ public class TossPaymentServiceImpl implements TossPaymentService {
      * @param responseBody 토스 응답 본문
      * @return 파싱된 JsonNode 객체
      */
-    private JsonNode parseReposne(String responseBody) {
+    private JsonNode parseResponse(String responseBody) {
         try {
-            return objectMapper.readTree(responseBody);
+            String convertedBody = convertToUTF8(responseBody);
+            return objectMapper.readTree(convertedBody);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new DomainException(ErrorType.TOSS_RESPONSE_PARSING_FAILED);
@@ -114,14 +129,18 @@ public class TossPaymentServiceImpl implements TossPaymentService {
         String paymentKey = paymentNode.get("paymentKey").asText();
         String orderId = paymentNode.get("orderId").asText();
         PaymentStatus status = PaymentStatus.valueOf(paymentNode.get("status").asText());
-        LocalDateTime requestedAt = LocalDateTime.parse(paymentNode.get("requestedAt").asText());
-        LocalDateTime approvedAt = LocalDateTime.parse(paymentNode.get("approvedAt").asText());
-        PaymentMethod method = PaymentMethod.valueOf(paymentNode.get("method").asText());
+
+        LocalDateTime requestedAt = java.time.OffsetDateTime.parse(paymentNode.get("requestedAt").asText()).toLocalDateTime();
+        LocalDateTime approvedAt = java.time.OffsetDateTime.parse(paymentNode.get("approvedAt").asText()).toLocalDateTime();
+
+        String methodText = paymentNode.get("method").asText().trim();
+        PaymentMethod method = convertToPaymentMethod(methodText);
+
         String currency = paymentNode.get("currency").asText();
         int totalAmount = paymentNode.get("totalAmount").asInt();
-        int suppliedAmount = paymentNode.get("suppliedAmount").asInt();
-        int vat = paymentNode.get("vat").asInt();
-        int taxFreeAmount = paymentNode.get("taxFreeAmount").asInt();
+        int suppliedAmount = getIntOrDefault(paymentNode, "suppliedAmount", 0);
+        int vat = getIntOrDefault(paymentNode, "vat", 0);
+        int taxFreeAmount = getIntOrDefault(paymentNode, "taxFreeAmount", 0);
 
         //  카드 정보(card), 간편 결제 정보(easyPay) 파싱
         CardInfo cardInfo = parseCardInfo(paymentNode);
@@ -152,17 +171,32 @@ public class TossPaymentServiceImpl implements TossPaymentService {
      * @return CardInfo(카드 결제) 객체, 다른 결제수단으로 결제 시 null
      */
     private CardInfo parseCardInfo(JsonNode paymentNode) {
-        if(!paymentNode.has("card") || paymentNode.get("card").isNull()) {
+        if (!paymentNode.has("card") || paymentNode.get("card").isNull()) {
             return null;
         }
-        try{
-            String cardInfoJson = paymentNode.get("card").toString();
-            return objectMapper.convertValue(objectMapper.readTree(cardInfoJson), CardInfo.class);
+
+        try {
+            JsonNode cardNode = paymentNode.get("card");
+
+            return CardInfo.builder()
+                    .issuerCode(getTextOrNull(cardNode, "issuerCode"))
+                    .acquirerCode(getTextOrNull(cardNode, "acquirerCode"))
+                    .number(getTextOrNull(cardNode, "number"))
+                    .installmentPlanMonths(getIntOrDefault(cardNode, "installmentPlanMonths", 0))
+                    .isInterestFree(getBooleanOrDefault(cardNode, "isInterestFree", false))
+                    .approveNo(getTextOrNull(cardNode, "approveNo"))
+                    .useCardPoint(getBooleanOrDefault(cardNode, "useCardPoint", false))
+                    .cardType(getTextOrNull(cardNode, "cardType"))
+                    .ownerType(getTextOrNull(cardNode, "ownerType"))
+                    .acquireStatus(getTextOrNull(cardNode, "acquireStatus"))
+                    .amount(getIntOrDefault(cardNode, "amount", 0))
+                    .build();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Failed to parse Card info: {}", e.getMessage(), e);
             return null;
         }
     }
+
 
     /**
      * 응답에서 간편 결제 정보를 추출해 CardInfo 객체 생성
@@ -171,16 +205,61 @@ public class TossPaymentServiceImpl implements TossPaymentService {
      * @return EasyPay(간편 결제)객체, 다른 결제수단으로 결제 시 null
      */
     private EasyPayInfo parseEasyPayInfo(JsonNode paymentNode) {
-        if(!paymentNode.has("easyPay") || paymentNode.get("easyPay").isNull()) {
+        if (!paymentNode.has("easyPay") || paymentNode.get("easyPay").isNull()) {
             return null;
         }
-        try{
-            String easyPayInfoJson = paymentNode.get("easyPay").toString();
-            return objectMapper.convertValue(objectMapper.readTree(easyPayInfoJson), EasyPayInfo.class);
+
+        try {
+            JsonNode easyPayNode = paymentNode.get("easyPay");
+            String providerText = getTextOrNull(easyPayNode, "provider");
+
+            if (providerText == null) {
+                log.warn("Provider field is missing in easyPay node");
+                return null;
+            }
+
+            PaymentProvider provider = convertToPaymentProvider(providerText);
+            int amount = getIntOrDefault(easyPayNode, "amount", 0);
+            int discountAmount = getIntOrDefault(easyPayNode, "discountAmount", 0);
+
+            return EasyPayInfo.builder()
+                    .provider(provider)
+                    .amount(amount)
+                    .discountAmount(discountAmount)
+                    .build();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Failed to parse EasyPay info: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    private String convertToUTF8(String value) {
+        return new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+    }
+
+    private PaymentProvider convertToPaymentProvider(String providerText) {
+        return Optional.ofNullable(PAYMENT_PROVIDER_MAP.get(providerText))
+                .orElseThrow(() -> new DomainException(ErrorType.TOSS_RESPONSE_PARSING_FAILED));
+    }
+
+    private PaymentMethod convertToPaymentMethod(String methodText) {
+        return Optional.ofNullable(PAYMENT_METHOD_MAP.get(methodText))
+                .orElseThrow(() -> new DomainException(ErrorType.TOSS_RESPONSE_PARSING_FAILED));
+    }
+
+    private String getTextOrNull(JsonNode node, String fieldName) {
+        return node.has(fieldName) && !node.get(fieldName).isNull() ?
+                node.get(fieldName).asText() : null;
+    }
+
+    private int getIntOrDefault(JsonNode node, String fieldName, int defaultValue) {
+        return node.has(fieldName) && !node.get(fieldName).isNull() ?
+                node.get(fieldName).asInt() : defaultValue;
+    }
+
+    private boolean getBooleanOrDefault(JsonNode node, String fieldName, boolean defaultValue) {
+        return node.has(fieldName) && !node.get(fieldName).isNull() ?
+                node.get(fieldName).asBoolean() : defaultValue;
     }
 }
 

@@ -67,7 +67,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         // 결제 금액 검증
-        if(order.getTotalOrderPrice() != request.amount()){
+        if(order.getTotalPaymentPrice() != request.amount()){
             throw new DomainException(ErrorType.ORDER_AMOUNT_MISMATCH);
         }
 
