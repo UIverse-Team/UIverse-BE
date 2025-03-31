@@ -82,7 +82,6 @@ dependencies {
 
 	// Logstash를 위한 logstash-logback-encoder
 //	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
-	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
 
 	// 토스 결제 연동 Thymeleaf
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
