@@ -62,19 +62,9 @@ public class Order extends BaseEntity {
     @Column(unique = true)
     private String orderNumber;
 
-    // 주문과 결제 관계 추가
-    @OneToOne
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
-
     public void updateStatus(OrderStatus status, LocalDateTime time) {
         this.status = status;
         this.setUpdatedAt(time);
-    }
-
-    // 결제 완료 후 결제 엔티티를 연결
-    public void setPayment(Payment payment) {
-        this.payment = payment;
     }
 
     // 주문 정보 업데이트 메서드

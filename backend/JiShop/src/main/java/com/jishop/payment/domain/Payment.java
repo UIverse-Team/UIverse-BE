@@ -27,14 +27,15 @@ public class Payment {
     @Column(nullable = false, unique = true)
     private String paymentKey;
 
-    @Column(nullable = false)
-    private String orderId;
+    // Order와 연관관계 추가
+    @JoinColumn(name = "order_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private Order order;
 
-//    @Column(nullable = false)
-//    private String orderName;
+    // Order엔티티의 OrderNumber(주문번호)
+    @Column(nullable = false, unique = true)
+    private String orderNumber;
 
-    // TODO : 토스테서 전달해주는 status 응답값 확인
-        // READY, IN_PROGRESS, WAITING_FOR_DEPOSIT, DONE, CANCELED, PARTIAL_CANCELED, ABORTED, EXPIRED
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
@@ -47,8 +48,6 @@ public class Payment {
     @Column(nullable = false)
     private LocalDateTime approvedAt;
 
-    // TODO : 토스에서 전달해주는 method 응답값 확인
-        // 카드, 가상계좌, 간편결제, 휴대폰, 게좌이체, 문화상품권, 도서문화상품권, 게임문화상품권
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PaymentMethod method;
@@ -76,31 +75,25 @@ public class Payment {
     @Embedded
     private EasyPayInfo easyPay;
 
-    @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY)
-    private Order order;
-
     @Builder
-    private Payment(String paymentKey, String orderId, String orderName, PaymentStatus status,
-                   LocalDateTime requestedAt, LocalDateTime approvedAt,
-                   PaymentMethod method, String currency, int totalAmount, int suppliedAmount, int vat, int taxFreeAmount,
-                   CardInfo card, Order order, EasyPayInfo easyPay) {
-        this.paymentKey = paymentKey;
-        this.orderId = orderId;
-        this.status = status;
-        this.requestedAt = requestedAt;
-        this.approvedAt = approvedAt;
-        this.method = method;
-        this.currency = currency;
-        this.totalAmount = totalAmount;
-        this.suppliedAmount = suppliedAmount;
-        this.vat = vat;
-        this.taxFreeAmount = taxFreeAmount;
-        this.card = card;
-        this.order = order;
+    public Payment(EasyPayInfo easyPay, CardInfo card,
+                   int taxFreeAmount, int vat, int suppliedAmount, int totalAmount,
+                   String currency, PaymentMethod method, LocalDateTime approvedAt,
+                   LocalDateTime requestedAt, PaymentStatus status, String orderNumber,
+                   Order order, String paymentKey) {
         this.easyPay = easyPay;
-    }
-
-    public void updateStatus(PaymentStatus status){
+        this.card = card;
+        this.taxFreeAmount = taxFreeAmount;
+        this.vat = vat;
+        this.suppliedAmount = suppliedAmount;
+        this.totalAmount = totalAmount;
+        this.currency = currency;
+        this.method = method;
+        this.approvedAt = approvedAt;
+        this.requestedAt = requestedAt;
         this.status = status;
+        this.orderNumber = orderNumber;
+        this.order = order;
+        this.paymentKey = paymentKey;
     }
 }
