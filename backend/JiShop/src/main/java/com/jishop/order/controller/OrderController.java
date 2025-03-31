@@ -18,7 +18,10 @@ import java.util.List;
 public interface OrderController {
 
     //회원 주문 - 결제와 연동
-    @Operation(summary = "회원 주문", description = "회원이 장바구니에서 주문 시 사용하는 API")
+    @Operation(
+            summary = "회원 주문 및 결제 API",
+            description = "회원이 장바구니에서 주문 및 결제 시 사용하는 API"
+    )
     void createOrder(User user, OrderRequest orderRequest, HttpServletResponse response) throws IOException;
 
     //회원 주문
