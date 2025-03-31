@@ -1,5 +1,6 @@
 package com.jishop.cart.dto;
 
+import com.jishop.cart.domain.Cart;
 import com.jishop.saleproduct.domain.SaleProduct;
 
 public record CartDetailResponse(
@@ -13,7 +14,8 @@ public record CartDetailResponse(
         int quantity,
         int totalPrice, //paymentPrice * quantity
         String image,
-        String brandName
+        String brandName,
+        boolean isExisted //장바구니에 동일상품이 존재하는지
 ) {
     public static CartDetailResponse from(
             Long cartId,
@@ -21,7 +23,8 @@ public record CartDetailResponse(
             int quantity,
             int paymentPrice,
             int orderPrice,
-            int discountPrice
+            int discountPrice,
+            boolean isExisted
     ) {
         return new CartDetailResponse(
                 cartId,
@@ -34,7 +37,30 @@ public record CartDetailResponse(
                 quantity,
                 paymentPrice * quantity,
                 product.getProduct().getMainImage(),
-                product.getProduct().getBrand()
+                product.getProduct().getBrand(),
+                isExisted
+        );
+    }
+
+    public static CartDetailResponse of(Cart cart, boolean isExisted) {
+        SaleProduct saleProduct = cart.getSaleProduct();
+        int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+        int orderPrice = saleProduct.getProduct().getOriginPrice();
+        int discountPrice = orderPrice - paymentPrice;
+
+        return new CartDetailResponse(
+                cart.getId(),
+                saleProduct.getId(),
+                saleProduct.getProduct().getName(),
+                saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
+                paymentPrice,
+                orderPrice,
+                discountPrice,
+                cart.getQuantity(),
+                paymentPrice * cart.getQuantity(),
+                saleProduct.getProduct().getMainImage(),
+                saleProduct.getProduct().getBrand(),
+                isExisted
         );
     }
 }
