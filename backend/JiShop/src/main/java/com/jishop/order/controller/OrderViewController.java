@@ -1,35 +1,14 @@
 package com.jishop.order.controller;
 
-import com.jishop.config.TossPaymentConfig;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller
-@RequiredArgsConstructor
-@RequestMapping("/orders")
-public class OrderViewController {
+public interface OrderViewController {
 
-    private final TossPaymentConfig tossPaymentConfig;
-
-    @GetMapping("/test")
-    public String test() {
-        return "test-order";
-    }
-
-    @GetMapping("/checkout/view")
-    public String createOrderAndRedirect(@RequestParam String orderNumber,
-                                         @RequestParam int amount,
-                                         Model model) {
-        // 결제 페이지에 필요한 데이터 전달
-        model.addAttribute("orderId", orderNumber); // Toss 결제용
-        model.addAttribute("amount", amount);
-        model.addAttribute("clientKey", tossPaymentConfig.getClientKey());
-        model.addAttribute("successUrl", "/payments/success");
-        model.addAttribute("failUrl", "/payments/fail");
-
-        return "checkout"; // templates/checkout.html
-    }
+    @Operation(
+            summary = "결제 페이징 렌더링 API",
+            description = "회원이 장바구니에서 주문 시 결제 페이지를 렌더링하는 API"
+    )
+    String createOrderAndRedirect(String orderNumber, int amount, Model model);
 }
-
