@@ -13,7 +13,7 @@ public class Task implements Serializable {
     private String id;
     // 작업 유형
     private TaskType type;
-    // 작업에 필요한 데이터 (이메일 주소, 보고사, 파라미터 등)
+    // 작업에 필요한 데이터
     private Map<String, Object> payload;
     // 작업 우선순위
     private int priority;
@@ -23,6 +23,16 @@ public class Task implements Serializable {
     private int retryCount;
     // 작업 상태 (PENDING, RETRY, FAILED, DONE)
     private String status;
+
+    private Task(TaskType type, Map<String, Object> payload, int priority) {
+        this.id = UUID.randomUUID().toString();
+        this.type = type;
+        this.payload = payload;
+        this.priority = priority;
+        this.createdAt = LocalDateTime.now();
+        this.retryCount = 0;
+        this.status = "PENDING";
+    }
 
     public void markAsRetry() {
         this.retryCount++;
@@ -37,17 +47,7 @@ public class Task implements Serializable {
         this.status = "DONE";
     }
 
-    private Task(TaskType type, Map<String, Object> payload, int priority) {
-        this.id = UUID.randomUUID().toString();
-        this.type = type;
-        this.payload = payload;
-        this.priority = priority;
-        this.createdAt = LocalDateTime.now();
-        this.retryCount = 0;
-        this.status = "PENDING";
-    }
-
-    public static Task of(String type, Map<String, Object> payload, int priority) {
+    public static Task of(TaskType type, Map<String, Object> payload, int priority) {
         return new Task(type, payload, priority);
     }
 }

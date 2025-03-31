@@ -50,7 +50,7 @@ public class TaskControllerImpl {
         if(task == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "해당 작업을 찾을 수 없습니다!"));
         }
-        return ResponseEntity.ok(Map.of("taskId", taskId, "status", "in_progress"));
+        return ResponseEntity.ok(Map.of("taskId", taskId, "status", task.getStatus()));
     }
 
     // 큐 상태 조회

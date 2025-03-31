@@ -1,9 +1,11 @@
 package com.jishop.queue.dto;
 
+import com.jishop.queue.domain.TaskType;
+
 import java.util.Map;
 
 public record TaskRequest(
-        String type,
+        TaskType type,
         Map<String, Object> payload,
         int priority
 ) {

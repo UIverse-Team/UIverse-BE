@@ -14,14 +14,7 @@ public class TaskConsumerImpl implements TaskConsumer {
 
     // 작업 유형별 실제 처리
     private void processTaskByType(Task task) {
-        switch (task.getType()) {
-            case "EMAIL":
-                break;
-            case "SOCIAL_LOGIN":
-                break;
-            default:
-                throw new UnsupportedOperationException("지원하지 않는 작업 유형: " + task.getType());
-        }
+        throw new UnsupportedOperationException("지원하지 않는 작업 유형: " + task.getType());
     }
 
     // 다음 작업 하나를 처리
