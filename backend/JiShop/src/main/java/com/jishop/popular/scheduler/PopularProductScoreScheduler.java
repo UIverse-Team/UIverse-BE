@@ -29,16 +29,14 @@ public class PopularProductScoreScheduler {
      */
     @Scheduled(cron = "0 56 * * * *")
     public void calculatePopularProductScore() {
-        // 이전 시간대 key 생성
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime previousHour  = now.minusHours(1);
-        String previousHourKey = MAIN_KEY_PREFIX + previousHour.format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        String currentHourKey = MAIN_KEY_PREFIX + now.format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
 
-        popularCalculationService.calculateAndCacheResult(previousHourKey);
+        popularCalculationService.calculateAndCacheResult(currentHourKey);
 
-        // 이전 시간대 gapKey를 생성하고, gapKey에 저장된 데이터가 있으면 다음 시간대 키와 병합
+        // 이전 시간대 gapKey를 생성하고,  저장된 데이터가 있으면 현재 시간대 키와 병합
         // gapKey에 저장된 데이터를 다음 시간대 계산에 반영시킴
-        String previousHourGapKey = GAP_KEY_PREFIX + previousHour.format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+        String previousHourGapKey = GAP_KEY_PREFIX + now.minusHours(1).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
         Long gapCount = redisTemplate.opsForZSet().size(previousHourGapKey);
 
         if (gapCount != null && gapCount > 0) {
@@ -46,29 +44,6 @@ public class PopularProductScoreScheduler {
             redisTemplate.opsForZSet().unionAndStore(currentKey, previousHourGapKey, currentKey);
             redisTemplate.delete(previousHourGapKey);
         }
-        log.info("상품 계산 및 캐시 저장 완료 : {}", previousHourKey);
+        log.info("상품 계산 및 캐시 저장 완료 : {}", currentHourKey);
     }
-
-//    @Scheduled(cron = "0 */5 * * * *")
-//    public void calculatePopularProductScore() {
-//        LocalDateTime now = LocalDateTime.now();
-//        String currentFiveMinutes = now
-//                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
-//                .substring(0, 11) + "0";
-//        String previousFiveMinutes = now.minusMinutes(5)
-//                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
-//                .substring(0, 11) + "0";
-//
-//        String previousKey = MAIN_KEY_PREFIX + previousFiveMinutes;
-//        String gapKey = GAP_KEY_PREFIX + previousFiveMinutes;
-//
-//        popularCalculationService.calculateAndCacheResult(previousKey);
-//
-//        // gapKey의 데이터를 다음 시간대로 이동
-//        String nextKey = MAIN_KEY_PREFIX + currentFiveMinutes;
-//        redisTemplate.opsForZSet().unionAndStore(nextKey, gapKey, nextKey);
-//        redisTemplate.delete(gapKey);
-//
-//        log.info("상품 계산 및 캐시 저장 완료 : {}", previousKey);
-//    }
 }
