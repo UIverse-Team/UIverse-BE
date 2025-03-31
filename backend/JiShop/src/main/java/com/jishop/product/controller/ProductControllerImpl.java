@@ -3,7 +3,7 @@ package com.jishop.product.controller;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.product.dto.request.ProductRequest;
-import com.jishop.product.dto.response.ProductListResponse;
+import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.service.ProductService;
@@ -23,7 +23,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductListResponse> getProductList(
+    public PagedModel<ProductResponse> getProductList(
             @Validated final ProductRequest productRequest,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size
@@ -37,14 +37,14 @@ public class ProductControllerImpl implements ProductController {
     // user가 null일 수 있음(비회원)
     @Override
     @GetMapping("/{productId}")
-    public ProductResponse getProduct(@CurrentUser final User user,  @PathVariable final Long productId) {
+    public ProductDetailResponse getProduct(@CurrentUser final User user,  @PathVariable final Long productId) {
         return productService.getProduct(user, productId);
     }
 
     // 상위 찜순 데이터
     @Override
     @GetMapping("/popular")
-    public List<ProductListResponse> getProductByWishTopTen(
+    public List<ProductResponse> getProductByWishTopTen(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size
     ) {

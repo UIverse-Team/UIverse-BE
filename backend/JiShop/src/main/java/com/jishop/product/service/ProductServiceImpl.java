@@ -1,5 +1,7 @@
 package com.jishop.product.service;
 
+import com.jishop.category.repository.CategoryRepository;
+import com.jishop.category.service.CategoryService;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
@@ -9,7 +11,7 @@ import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.DiscountStatus;
 import com.jishop.product.domain.Product;
 import com.jishop.product.dto.request.ProductRequest;
-import com.jishop.product.dto.response.ProductListResponse;
+import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.repository.ProductRepository;
@@ -31,28 +33,31 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
+    private final CategoryService categoryService;
+
     private final ProductRepository productRepository;
     private final ReviewProductRepository reviewProductRepository;
     private final ProductWishListRepository productWishListRepository;
     private final SaleProductRepository saleProductRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
-    public PagedModel<ProductListResponse> getProductList(final ProductRequest productRequest,
-                                                          final int page, final int size) {
-        final List<Product> targetedProducts = productRepository.findProductsByCondition(productRequest, page, size);
-        final List<ProductListResponse> productList = targetedProducts.stream()
-                .map(ProductListResponse::from).toList();
+    public PagedModel<ProductResponse> getProductList(final ProductRequest productRequest,
+                                                      final int page, final int size) {
+        final List<Product> selectedProducts = productRepository.findProductsByCondition(productRequest, page, size);
+        final List<ProductResponse> productListResponse = selectedProducts.stream()
+                .map(ProductResponse::from).toList();
 
         final long totalCount = productRepository.countProductsByCondition(productRequest);
         final Pageable pageable = PageRequest.of(page, size);
-        final Page<ProductListResponse> productListResponse = new PageImpl<>(productList, pageable, totalCount);
+        final Page<ProductResponse> pagedProductsResponse = new PageImpl<>(productListResponse, pageable, totalCount);
 
-        return new PagedModel<>(productListResponse);
+        return new PagedModel<>(pagedProductsResponse);
     }
 
     @Override
-    public ProductResponse getProduct(final User user, final Long productId) {
+    public ProductDetailResponse getProduct(final User user, final Long productId) {
         final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
@@ -78,15 +83,16 @@ public class ProductServiceImpl implements ProductService {
         final int reviewCount = productsReviews.isEmpty() ? 0 : productsReviews.get(0).getReviewCount();
         final double reviewRate = productsReviews.isEmpty() ? 0.0 : productsReviews.get(0).getAverageRating();
 
-        return ProductResponse.from(product, isWished, reviewCount, reviewRate, productsOptions);
+        return ProductDetailResponse
+                .from(ProductResponse.from(product), product, isWished, reviewCount, reviewRate, productsOptions);
     }
 
     @Override
-    public List<ProductListResponse> getProductsByWishList(final int page, final int size) {
+    public List<ProductResponse> getProductsByWishList(final int page, final int size) {
         final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         final Page<Product> productPage = productWishListRepository.getPopularProductsByWishList(pageable);
 
-        return productPage.stream().map(ProductListResponse::from).toList();
+        return productPage.stream().map(ProductResponse::from).toList();
     }
 
     @Override

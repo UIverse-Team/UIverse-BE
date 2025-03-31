@@ -8,6 +8,7 @@ public record ProductDetailResponse(
         ProductResponse productResponse,
         String description,
         Boolean isDiscount,
+        @JsonUnwrapped
         Object option,
         int reviewCount,
         double reviewRate,

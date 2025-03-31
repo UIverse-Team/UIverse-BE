@@ -27,7 +27,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
 
         addPriceRangesFiltering(productRequest.priceRanges(), product, builder);
         addRatingsFilter(productRequest.ratings(), reviewProduct, product, builder);
-        addCategory(productRequest.category(), product, builder);
+        addCategory(productRequest.categoryId(), product, builder);
         addKeyword(productRequest.keyword(), product, builder);
         return builder;
     }
@@ -121,7 +121,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
     private void addCategory(final Long categoryId, final QProduct product, final BooleanBuilder builder) {
         if (categoryId == null) return;
 
-        final List<Long> categoryIds = categoryRepository.findByCategoryId(categoryId)
+        final List<Long> categoryIds = categoryRepository.findById(categoryId)
                 .map(category -> {
                     final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
                             categoryRepository.findAllSubCategoryIds(categoryId)
