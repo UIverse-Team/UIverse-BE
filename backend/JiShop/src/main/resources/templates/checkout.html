@@ -1,65 +1,158 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8" />
     <script src="https://js.tosspayments.com/v2/standard"></script>
+    <title>결제위젯 샘플</title>
+    <link rel="stylesheet" th:href="@{/css/payment.css}" />
 </head>
 <body>
 
 <!-- 결제 UI -->
 <div id="payment-method"></div>
-
 <!-- 이용약관 UI -->
 <div id="agreement"></div>
-
 <!-- 결제하기 버튼 -->
 <button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener('DOMContentLoaded', async function() {
+<script>
+    main();
+
+    async function main() {
         const button = document.getElementById("payment-button");
 
-        // 결제위젯 초기화
-        const clientKey = /*[[${clientKey}]]*/ '';
-        const customerKey = /*[[${customerKey}]]*/ '';
-        const tossPayments = TossPayments(clientKey);
+        // Thymeleaf로부터 동적으로 주입된 값들
+        const clientKey = '[[${clientKey}]]';
+        const orderId = '[[${orderId}]]';
+        const successUrl = window.location.origin + '[[${successUrl}]]';
+        const failUrl = window.location.origin + '[[${failUrl}]]';
+        // 동적으로 주문의 금액을 설정 (서버에서 내려온 값을 정수로 파싱)
+        const amountValue = parseInt('[[${amount}]]');
 
+        const tossPayments = TossPayments(clientKey);
+        // 회원 결제: 고객 키를 사용 (비회원인 경우 TossPayments.ANONYMOUS 사용 가능)
+        const customerKey = "dCKrXTPra7OihnMyu0nHv";
         const widgets = tossPayments.widgets({ customerKey });
 
-        // 초기 결제 금액 설정
-        const originalAmount = /*[[${originalAmount}]]*/ 50000;
+        // 주문의 결제 금액을 동적으로 설정
         await widgets.setAmount({
             currency: "KRW",
-            value: originalAmount
+            value: amountValue,
         });
 
-        // 결제 UI 및 약관 UI 렌더링
         await Promise.all([
             widgets.renderPaymentMethods({
                 selector: "#payment-method",
-                variantKey: "DEFAULT"
+                variantKey: "DEFAULT",
             }),
             widgets.renderAgreement({
                 selector: "#agreement",
-                variantKey: "AGREEMENT"
-            })
+                variantKey: "AGREEMENT",
+            }),
         ]);
 
-        // 결제하기 버튼 이벤트
-        button.addEventListener("click", async function () {
-            await widgets.requestPayment({
-                orderId: /*[[${orderId}]]*/ '',
-                orderName: /*[[${orderName}]]*/ '',
-                successUrl: window.location.origin + "/payments/success",
-                failUrl: window.location.origin + "/payments/fail",
-                customerEmail: /*[[${customerEmail}]]*/ '',
-                customerName: /*[[${customerName}]]*/ '',
-                customerMobilePhone: /*[[${customerPhone}]]*/ ''
-            });
+        // '결제하기' 버튼 클릭 시 결제 요청
+        button.addEventListener("click", async () => {
+            try {
+                await widgets.requestPayment({
+                    orderId: orderId,
+                    orderName: "Ora 상품 결제",
+                    successUrl: successUrl,
+                    failUrl: failUrl,
+                });
+            } catch (err) {
+                console.error("결제 요청 중 에러 발생:", err);
+            }
         });
-    });
-    /*]]>*/
+    }
 </script>
 </body>
 </html>
+
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="utf-8" />-->
+<!--    <script src="https://js.tosspayments.com/v2/standard"></script>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--&lt;!&ndash; 할인 쿠폰 &ndash;&gt;-->
+<!--&lt;!&ndash;<div>&ndash;&gt;-->
+<!--&lt;!&ndash;    <input type="checkbox" id="coupon-box" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <label for="coupon-box"> 5,000원 쿠폰 적용 </label>&ndash;&gt;-->
+<!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+<!--&lt;!&ndash; 결제 UI &ndash;&gt;-->
+<!--<div id="payment-method"></div>-->
+<!--&lt;!&ndash; 이용약관 UI &ndash;&gt;-->
+<!--<div id="agreement"></div>-->
+<!--&lt;!&ndash; 결제하기 버튼 &ndash;&gt;-->
+<!--<button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>-->
+
+<!--<script>-->
+<!--    main();-->
+
+<!--    async function main() {-->
+<!--        const button = document.getElementById("payment-button");-->
+<!--        const coupon = document.getElementById("coupon-box");-->
+<!--        // &#45;&#45;&#45;&#45;&#45;&#45;  결제위젯 초기화 &#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--        const clientKey = '[[${clientKey}]]';-->
+<!--        const tossPayments = TossPayments(clientKey);-->
+<!--        // 회원 결제-->
+<!--        const customerKey = "dCKrXTPra7OihnMyu0nHv";-->
+<!--        const widgets = tossPayments.widgets({-->
+<!--            customerKey,-->
+<!--        });-->
+<!--        // 비회원 결제-->
+<!--        // const widgets = tossPayments.widgets({ customerKey: TossPayments.ANONYMOUS });-->
+
+<!--        // &#45;&#45;&#45;&#45;&#45;&#45; 주문의 결제 금액 설정 &#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--        await widgets.setAmount({-->
+<!--            currency: "KRW",-->
+<!--            value: 149000,-->
+<!--        });-->
+
+<!--        await Promise.all([-->
+<!--            // &#45;&#45;&#45;&#45;&#45;&#45;  결제 UI 렌더링 &#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--            widgets.renderPaymentMethods({-->
+<!--                selector: "#payment-method",-->
+<!--                variantKey: "DEFAULT",-->
+<!--            }),-->
+<!--            // &#45;&#45;&#45;&#45;&#45;&#45;  이용약관 UI 렌더링 &#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--            widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),-->
+<!--        ]);-->
+
+<!--        // &#45;&#45;&#45;&#45;&#45;&#45;  주문서의 결제 금액이 변경되었을 경우 결제 금액 업데이트 &#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--        // coupon.addEventListener("change", async function () {-->
+<!--        //     if (coupon.checked) {-->
+<!--        //         await widgets.setAmount({-->
+<!--        //             currency: "KRW",-->
+<!--        //             value: 50000 - 5000,-->
+<!--        //         });-->
+<!--        //-->
+<!--        //         return;-->
+<!--        //     }-->
+<!--        //-->
+<!--        //     await widgets.setAmount({-->
+<!--        //         currency: "KRW",-->
+<!--        //         value: 149000,-->
+<!--        //     });-->
+<!--        // });-->
+
+<!--        // &#45;&#45;&#45;&#45;&#45;&#45; '결제하기' 버튼 누르면 결제창 띄우기 &#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--        button.addEventListener("click", async function () {-->
+<!--            await widgets.requestPayment({-->
+<!--                orderId: '[[${orderId}]]',-->
+<!--                orderName: "Ora 상품 결제",-->
+<!--                successUrl: '[[${successUrl}]]',-->
+<!--                failUrl: '[[${failUrl}]]',-->
+<!--            });-->
+<!--        });-->
+<!--    }-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
