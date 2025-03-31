@@ -6,13 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Getter
-@Configuration
+@Component
 public class TossPaymentConfig {
 
     @Value("${payment.toss.client-key}")
@@ -29,11 +30,6 @@ public class TossPaymentConfig {
 //
 //    @Value("${payment.toss.fail-url}")
 //    private String failUrl;
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
     
     // 토스 API 호출에 필요한 헤더 생성
     public HttpHeaders getHeaders() {
