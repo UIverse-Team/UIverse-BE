@@ -109,7 +109,8 @@ public class OrderGetServiceImpl implements OrderGetService {
                             quantity,
                             paymentPrice,
                             orderPrice,
-                            discountPrice
+                            discountPrice,
+                            false
                     );
                 })
                 .toList();
@@ -134,7 +135,8 @@ public class OrderGetServiceImpl implements OrderGetService {
                 quantity,
                 paymentPrice,
                 orderPrice,
-                discountPrice
+                discountPrice,
+                false
         );
 
         return CartResponse.of(List.of(cartDetailResponse));
