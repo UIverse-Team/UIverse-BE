@@ -1,6 +1,5 @@
 package com.jishop.product.service;
 
-import com.jishop.category.repository.CategoryRepository;
 import com.jishop.category.service.CategoryService;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
@@ -40,7 +39,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductWishListRepository productWishListRepository;
     private final SaleProductRepository saleProductRepository;
     private final OrderDetailRepository orderDetailRepository;
-    private final CategoryRepository categoryRepository;
 
     @Override
     public PagedModel<ProductResponse> getProductList(final ProductRequest productRequest,
