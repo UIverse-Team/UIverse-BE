@@ -1,6 +1,5 @@
 package com.jishop.category.controller;
 
-import com.jishop.category.dto.CategoryDropDownResponse;
 import com.jishop.category.dto.CategoryResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +15,4 @@ public interface CategoryController {
     List<CategoryResponse> getCategoryFilterInfo();
 
     List<CategoryResponse> getSubcategoriesByParentId(Long categoryId);
-
-    List<CategoryDropDownResponse> getCategoryDropDown();
 }

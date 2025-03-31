@@ -1,7 +1,6 @@
 package com.jishop.category.service.Impl;
 
 import com.jishop.category.domain.Category;
-import com.jishop.category.dto.CategoryDropDownResponse;
 import com.jishop.category.dto.CategoryResponse;
 import com.jishop.category.repository.CategoryRepository;
 import com.jishop.category.service.CategoryService;
@@ -54,21 +53,6 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> subcategories = categoryRepository.findSubcategoriesById(categoryId);
 
         return subcategories.stream().map(CategoryResponse::from).toList();
-    }
-
-    @Override
-    public List<CategoryDropDownResponse> getCategoryDropDown() {
-        List<Category> categories = categoryRepository.findTopLevelCategoriesWithSubcategories();
-
-        return categories.stream()
-                .map(category -> {
-                    CategoryResponse rootCategory = CategoryResponse.from(category);
-                    List<CategoryResponse> subCategories = category.getChildren().stream()
-                            .map(CategoryResponse::from)
-                            .toList();
-
-                    return CategoryDropDownResponse.from(rootCategory, subCategories);
-                }).toList();
     }
 
     //    public List<SubCategoryResponse> getSubCategories(Long categoryId) {
