@@ -5,12 +5,14 @@ import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
 import com.jishop.order.service.OrderService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -20,15 +22,26 @@ public class OrderControllerImpl implements OrderController {
 
     private final OrderService orderService;
 
-    //주문 생성
+    //주문 생성 - 결제 페이지와 연동
     @Override
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
-                                                     @Valid @RequestBody OrderRequest orderRequest) {
+    public void createOrder(@CurrentUser User user,
+                            @RequestBody @Valid OrderRequest orderRequest,
+                            HttpServletResponse response) throws IOException {
         OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
-
-        return ResponseEntity.ok(orderResponse);
+        response.sendRedirect("/orders/checkout/view?orderNumber="
+                + orderResponse.orderNumber()
+                + "&amount=" + orderResponse.totalPrice());
     }
+
+//    @Override
+//    @PostMapping
+//    public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
+//                                                     @Valid @RequestBody OrderRequest orderRequest) {
+//        OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
+//
+//        return ResponseEntity.ok(orderResponse);
+//    }
 
     //주문 내역 단건 조회
     @Override
