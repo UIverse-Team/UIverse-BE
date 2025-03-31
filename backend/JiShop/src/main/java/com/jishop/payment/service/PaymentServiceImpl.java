@@ -42,11 +42,10 @@ public class PaymentServiceImpl implements PaymentService {
         
         // 토스 결제 승인 요청
         TossConfirmRequest tossConfirmRequest = TossConfirmRequest.fromPaymentConfirmRequest(request);
-        Payment payment = tossPaymentService.confirmPayment(tossConfirmRequest);
+        Payment payment = tossPaymentService.confirmPayment(tossConfirmRequest, order);
 
         // 결제 정보 저장 및 주문 정보 업데이트
         paymentRepository.save(payment);
-        order.setPayment(payment);
         order.updateStatus(OrderStatus.PAYMENT_COMPLETED, LocalDateTime.now());
         orderRepository.save(order);
 
