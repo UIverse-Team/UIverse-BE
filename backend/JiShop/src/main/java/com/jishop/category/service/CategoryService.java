@@ -1,6 +1,5 @@
 package com.jishop.category.service;
 
-import com.jishop.category.dto.CategoryDropDownResponse;
 import com.jishop.category.dto.CategoryResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import org.springframework.data.web.PagedModel;
@@ -14,6 +13,4 @@ public interface CategoryService {
     List<CategoryResponse> getCategoryFilterInfo();
 
     List<CategoryResponse> getSubcategoriesByParentId(Long categoryId);
-
-    List<CategoryDropDownResponse> getCategoryDropDown();
 }

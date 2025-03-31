@@ -1,6 +1,5 @@
 package com.jishop.category.controller;
 
-import com.jishop.category.dto.CategoryDropDownResponse;
 import com.jishop.category.dto.CategoryResponse;
 import com.jishop.category.service.CategoryService;
 import com.jishop.product.dto.response.ProductResponse;
@@ -40,13 +39,7 @@ public class CategoryControllerImpl implements CategoryController {
     @Override
     @GetMapping("/subcategories")
     public List<CategoryResponse> getSubcategoriesByParentId(
-            @RequestParam Long categoryId) {
+            @RequestParam(defaultValue = "0") Long categoryId) {
         return categoryService.getSubcategoriesByParentId(categoryId);
-    }
-
-    @Override
-    @GetMapping("/dropDown")
-    public List<CategoryDropDownResponse> getCategoryDropDown() {
-        return categoryService.getCategoryDropDown();
     }
 }
