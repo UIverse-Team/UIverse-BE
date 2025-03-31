@@ -46,12 +46,6 @@ public class PopularServiceImpl implements PopularService {
     public PopularKeywordResponse getPopularKeywordsAndProducts(int limit){
         LocalDateTime now = LocalDateTime.now();
 
-        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 사용 및 20분 뒤 만료
-//        String currentFiveMinutes = now
-//                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
-//                .substring(0, 11) + "0";
-//        String resultKey = RESULT_KEY_PREFIX + currentFiveMinutes;
-
         String previousHourKey = now.minusHours(1).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
         String resultKey = RESULT_KEY_PREFIX + previousHourKey;
 
@@ -67,7 +61,6 @@ public class PopularServiceImpl implements PopularService {
         }
 
         PopularKeywordResponse calculatedResponse = popularCalculationService.calculateAndCacheResult(previousHourKey);
-//        PopularKeywordResponse calculatedResponse = popularCalculationService.calculateAndCacheResult(currentFiveMinutes);
         return limitKeywords(calculatedResponse, limit);
     }
 
