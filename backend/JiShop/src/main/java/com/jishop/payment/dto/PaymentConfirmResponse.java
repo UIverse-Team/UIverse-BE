@@ -10,7 +10,7 @@ public record PaymentConfirmResponse(
 ) {
     public static PaymentConfirmResponse fromPayment(Payment payment, String message) {
         return new PaymentConfirmResponse(
-                payment.getOrderId(),
+                payment.getOrderNumber(),
                 payment.getTotalAmount(),
                 payment.getStatus().name(),
                 message
