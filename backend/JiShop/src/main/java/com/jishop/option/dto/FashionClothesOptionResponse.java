@@ -1,17 +1,16 @@
 package com.jishop.option.dto;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.jishop.common.exception.DomainException;
-import com.jishop.common.exception.ErrorType;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public record FashionClothesOptionResponse(
-        @JsonValue Map<String, List<SizeOption>> option
+        List<ColorSizeOption> option
 ) {
     public static FashionClothesOptionResponse from(List<Map<String, Object>> productOptions) {
         if (productOptions == null || productOptions.isEmpty()) {
-            throw new DomainException(ErrorType.OPTION_NOT_FOUND);
+            return new FashionClothesOptionResponse(List.of());
         }
 
         Map<String, List<SizeOption>> fashionClothesOptions = new HashMap<>();
@@ -36,6 +35,10 @@ public record FashionClothesOptionResponse(
             }
         }
 
-        return new FashionClothesOptionResponse(fashionClothesOptions);
+        List<ColorSizeOption> colorSizeOptions = fashionClothesOptions.entrySet().stream()
+                .map(entry -> new ColorSizeOption(entry.getKey(), entry.getValue()))
+                .toList();
+
+        return new FashionClothesOptionResponse(colorSizeOptions);
     }
 }

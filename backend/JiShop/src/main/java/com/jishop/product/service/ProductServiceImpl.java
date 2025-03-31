@@ -69,7 +69,9 @@ public class ProductServiceImpl implements ProductService {
         if (categoryType == 50000000L) {
             final List<Map<String, Object>> fashionClothesOptions = saleProductRepository
                     .findFashionClothesOptionsByProductId(productId);
-            productsOptions = FashionClothesOptionResponse.from(fashionClothesOptions);
+            productsOptions = fashionClothesOptions.isEmpty() ?
+                              List.of() :
+                              FashionClothesOptionResponse.from(fashionClothesOptions);
         } else {
             final List<Map<String, Object>> generalOptions = saleProductRepository
                     .findGeneralOptionsByProductId(productId);
