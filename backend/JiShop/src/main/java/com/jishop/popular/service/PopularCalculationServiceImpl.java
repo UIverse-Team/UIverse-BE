@@ -45,7 +45,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
      */
     @Override
     public PopularKeywordResponse calculateAndCacheResult(String key) {
-        //  Redis에서 이전 시간대 인기 검색어 상위 10개 가져오기
+        //  Redis에서 시간대 key로 인기 검색어 상위 10개 가져오기
         String redisKey = MAIN_KEY_PREFIX + key;
         Set<ZSetOperations.TypedTuple<Object>> popularKewords = redisTemplate.opsForZSet()
                 .reverseRangeWithScores(redisKey, 0, 9);
@@ -63,24 +63,11 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                     keywordValue,
                     popularProducts));
         }
-        PopularKeywordResponse response = new PopularKeywordResponse(redisKey, keywords);
 
-        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 사용 및 20분 뒤 만료
-//        PopularKeywordResponse response = new PopularKeywordResponse(
-//                LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
-//                keywords
-//        );
-//        String resultKey = RESULT_KEY_PREFIX + key;
-//        try {
-//            String stringResponse = objectMapper.writeValueAsString(response);
-//            redisTemplate.opsForValue().set(resultKey, stringResponse);
-//            redisTemplate.expire(resultKey, Duration.ofMinutes(20));
-//        } catch (JsonProcessingException e) {
-//            log.error("인기 검색어 결과 JSON 직렬화 실패", e);
-//        }
-//        PopularKeywordResponse response = new PopularKeywordResponse(
-//                LocalDateTime.now().minusHours(1)
-//                .format(DateTimeFormatter.ofPattern("HH")), keywords);
+        PopularKeywordResponse response = new PopularKeywordResponse(
+                redisKey.substring(redisKey.length() - 2),
+                keywords
+        );
 
         // 캐시에 결과 저장 및 TTL 설정
         String resultKey = RESULT_KEY_PREFIX + key;
@@ -114,7 +101,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
             products = productRepository.findAllByBrand(keyword);
         }
         // 브랜드 이름이 부분 포함된 경우
-        else if(productRepository.existsByNameContaining(keyword)){
+        else if(productRepository.existsByBrandContaining(keyword)){
             products = productRepository.findAllByBrandContaining(keyword);
         }
         else{
