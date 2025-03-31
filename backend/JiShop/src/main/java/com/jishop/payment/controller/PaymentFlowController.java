@@ -7,7 +7,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public interface PaymentFlowController {
 
-    String checkoutPage(String orderNumber, int amount, String orderName, Model model);
     String handleSuccess(String paymentKey, String orderId, int amount, RedirectAttributes redirectAttributes);
     String handleFail(String code, String message, RedirectAttributes redirectAttributes);
     String resultPage();
