@@ -63,7 +63,7 @@ public class EmailCertificationServiceImpl implements EmailCertificationService 
             <tr>
               <td align="left">
                 <img src="https://raw.githubusercontent.com/UIverse-Team/UIverse-BE/develop/backend/JiShop/src/main/resources/static/Ora.png" alt="Ora 로고" width="74" height="31" style="display:block;" />              
-                <p style="font-size: 14px; color: #FF4D00; font-weight: bold;">Ora에서 보낸 인증 번호입니다.</p>
+                <p style="font-size: 14px;color: #FF4D00;font-weight: bold;margin: 10px 0;">Ora에서 보낸 인증 번호입니다.</p>
                 
                 <h2 style="color: #333333; margin-top: 30px;">이메일 인증을 해주세요</h2>
                 <p style="font-size: 16px; color: #555555;">아래 인증번호를 입력하시면 인증이 완료됩니다.</p>
