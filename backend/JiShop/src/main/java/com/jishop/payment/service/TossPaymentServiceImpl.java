@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.config.TossPaymentConfig;
+import com.jishop.order.domain.Order;
 import com.jishop.payment.domain.*;
 import com.jishop.payment.dto.TossConfirmRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
 
     private static final Map<String, PaymentMethod> PAYMENT_METHOD_MAP = Map.of(
             "카드", PaymentMethod.CARD,
-            "간편결제", PaymentMethod.SIMPLE_PAYMENT
+            "간편결제", PaymentMethod.EASY_PAY
     );
 
     private static final Map<String, PaymentProvider> PAYMENT_PROVIDER_MAP = Map.of(
@@ -47,7 +48,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
      * @return Payment 객체
      */
     @Override
-    public Payment confirmPayment(TossConfirmRequest request) {
+    public Payment confirmPayment(TossConfirmRequest request, Order order) {
 
         // 결제 승인 요청 데이터 생성
         String jsonBody = serializeRequest(request);
@@ -63,7 +64,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
         JsonNode paymentNode = parseResponse(responseEntity.getBody());
 
         // Payment 엔티티 생성 및 반환
-        return createPayment(paymentNode);
+        return createPayment(paymentNode, order);
     }
 
     /**
@@ -125,9 +126,9 @@ public class TossPaymentServiceImpl implements TossPaymentService {
      * @param paymentNode  응답 루트 JsonNode
      * @return Payment 객체
      */
-    private Payment createPayment(JsonNode paymentNode) {
+    private Payment createPayment(JsonNode paymentNode, Order order) {
         String paymentKey = paymentNode.get("paymentKey").asText();
-        String orderId = paymentNode.get("orderId").asText();
+        String orderNumber = paymentNode.get("orderId").asText();
         PaymentStatus status = PaymentStatus.valueOf(paymentNode.get("status").asText());
 
         LocalDateTime requestedAt = java.time.OffsetDateTime.parse(paymentNode.get("requestedAt").asText()).toLocalDateTime();
@@ -149,7 +150,8 @@ public class TossPaymentServiceImpl implements TossPaymentService {
         // Payment 엔티티 생성 및 반환
         return Payment.builder()
                 .paymentKey(paymentKey)
-                .orderId(orderId)
+                .order(order)
+                .orderNumber(orderNumber)
                 .status(status)
                 .requestedAt(requestedAt)
                 .approvedAt(approvedAt)
