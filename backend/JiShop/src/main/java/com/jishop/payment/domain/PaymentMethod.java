@@ -5,7 +5,7 @@ package com.jishop.payment.domain;
  */
 public enum PaymentMethod {
     CARD("카드"),
-    SIMPLE_PAYMENT("간편결제");
+    EASY_PAY("간편결제");
 //    VIRTUAL_ACCOUNT(가상 계좌)
 //    MOBILE("휴대폰결제")
 //    BANK_TRANSFER("계좌이체")
