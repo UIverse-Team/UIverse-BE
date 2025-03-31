@@ -24,8 +24,10 @@ public class PopularProductScoreScheduler {
 
     /**
      * 매 시간마다 Redis에 저장된 인기 검색어를 바탕으로 연관 상품 점수를 계산하는 스케줄러
+     * 55분까지 입력된 검색어를 현재 시간대의 인기 검색어로 처리하고,
+     * 56분부터는 인기 검색어에 해당하는 인기 상품 리스트를 반환하기 위해 상품 점수를 계산하는 시간으로 스케줄러 처리
      */
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 56 * * * *")
     public void calculatePopularProductScore() {
         // 이전 시간대 key 생성
         LocalDateTime now = LocalDateTime.now();
