@@ -66,7 +66,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);
 
-    // 문의사항 작성에 필요한 메서드 정의
     Optional<Order> findByOrderNumber(String orderNumber);
 
     //스케쥴러를 위한 쿼리
