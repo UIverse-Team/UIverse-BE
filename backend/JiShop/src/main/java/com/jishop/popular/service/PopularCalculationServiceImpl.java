@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.popular.dto.PopularKeywordResponse;
 import com.jishop.popular.dto.PopularProductResponse;
-import com.jishop.popular.dto.PopularReponse;
+import com.jishop.popular.dto.PopularResponse;
 import com.jishop.product.domain.Product;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.productscore.domain.ProductScore;
@@ -50,7 +50,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
         Set<ZSetOperations.TypedTuple<Object>> popularKewords = redisTemplate.opsForZSet()
                 .reverseRangeWithScores(redisKey, 0, 9);
 
-        List<PopularReponse> keywords = new ArrayList<>();
+        List<PopularResponse> keywords = new ArrayList<>();
         int rank = 1;
 
         for(ZSetOperations.TypedTuple<Object> keyword : popularKewords) {
@@ -58,7 +58,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
             keywordValue = keywordValue.replace("\"", "");
 
             List<PopularProductResponse> popularProducts = findPopularProductsByKeyword(keywordValue, 4);
-            keywords.add(new PopularReponse(
+            keywords.add(new PopularResponse(
                     String.valueOf(rank++),
                     keywordValue,
                     popularProducts));
