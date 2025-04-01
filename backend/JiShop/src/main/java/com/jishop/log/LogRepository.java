@@ -1,14 +1,12 @@
 package com.jishop.log;
 
-import com.jishop.log.dto.PageViewLogDto;
-import com.jishop.log.dto.ProductClickLogDto;
-import com.jishop.log.dto.ReviewLogDto;
-import com.jishop.log.dto.SearchLogDto;
+import com.jishop.log.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -18,6 +16,15 @@ public class LogRepository {
 
     public LogRepository(@Qualifier("logJdbcTemplate") JdbcTemplate logJdbcTemplate) {
         this.logJdbcTemplate = logJdbcTemplate;
+    }
+
+    public List<ProductClickLogDto> findRecentProductClickLogs(Long userId, int page, int size) {
+        int offset = (page - 1) * size;
+
+        String sql = "SELECT id,user_id, product_id, product_name, click_time " +
+                "FROM product_click_logs WHERE user_id = ? ORDER BY click_time LIMIT ? OFFSET ?";
+
+        return logJdbcTemplate.query(sql, new Object[]{userId, size, offset}, new ProductClickLogRowMapper());
     }
 
     public List<PageViewLogDto> findRecentPageViewsByUserId(Long userId) {
@@ -53,24 +60,6 @@ public class LogRepository {
                         rs.getLong("user_id"),
                         rs.getString("search_keyword"),
                         rs.getTimestamp("search_time").toLocalDateTime()
-                )
-        );
-    }
-
-    public List<ProductClickLogDto> findRecentProductClicksByUserId(Long userId) {
-        String sql = "SELECT id, user_id, product_id, product_name, click_time " +
-                "FROM product_click_logs " +
-                "WHERE user_id = ? " +
-                "ORDER BY click_time DESC " +
-                "LIMIT 10";
-
-        return logJdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) ->
-                new ProductClickLogDto(
-                        rs.getLong("id"),
-                        rs.getLong("user_id"),
-                        rs.getLong("product_id"),
-                        rs.getString("product_name"),
-                        rs.getTimestamp("click_time").toLocalDateTime()
                 )
         );
     }

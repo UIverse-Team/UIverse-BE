@@ -14,6 +14,7 @@ import java.util.List;
 public class LogService {
     private final LogRepository logRepository;
 
+
     public List<PageViewLogDto> getUserRecentPageViews(Long userId) {
         return logRepository.findRecentPageViewsByUserId(userId);
     }
@@ -22,8 +23,8 @@ public class LogService {
         return logRepository.findRecentSearchesByUserId(userId);
     }
 
-    public List<ProductClickLogDto> getUserRecentProductClicks(Long userId) {
-        return logRepository.findRecentProductClicksByUserId(userId);
+    public List<ProductClickLogDto> findRecentProductClickLogs(Long userId, int page, int size) {
+        return logRepository.findRecentProductClickLogs(userId, page, size);
     }
 
     public List<ReviewLogDto> getUserRecentReviewViews(Long userId) {
