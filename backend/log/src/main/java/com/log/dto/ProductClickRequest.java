@@ -8,4 +8,7 @@ public record ProductClickRequest(
         String productName,
         LocalDateTime clickTime
 ) {
+    public ProductClickRequest addUserId(Long userId) {
+       return new ProductClickRequest(userId, productId, productName, clickTime);
+    }
 }

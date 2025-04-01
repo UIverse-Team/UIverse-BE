@@ -9,4 +9,7 @@ public record ReviewRequest(
         Long reviewId,
         LocalDateTime viewTime
 ) {
+    public ReviewRequest addUserId(Long userId) {
+        return new ReviewRequest(userId, productId, productName, reviewId, viewTime);
+    }
 }

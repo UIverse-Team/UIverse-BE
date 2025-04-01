@@ -76,19 +76,6 @@ public class SearchServiceImpl implements SearchService {
             redisTemplate.expire(hourKey, Duration.ofHours(2));
         }
 
-        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 사용 및 20분 뒤 만료
-//        if(minute % 5 == 4){
-//            String gapKey = GAP_KEY_PREFIX + minuteKey;
-//            redisTemplate.opsForZSet().incrementScore(gapKey, keyword, 1.0);
-//            redisTemplate.expire(hourKey, Duration.ofMinutes(20));
-//        }
-//        else {
-//            String mainKey = MAIN_KEY_PREFIX + minuteKey;
-//            redisTemplate.opsForZSet().incrementScore(mainKey, keyword, 1.0);
-//            redisTemplate.expire(hourKey, Duration.ofMinutes(20));
-//        }
-
-
         // ♻️ 배포를 위해 Logstash(ELK) 제거
         // 로그 데이터 생성 및 전송 - 검색어, 사용자IP, 타임스탬프
 //        Map<String, Object> logData = new HashMap<>();
@@ -119,6 +106,8 @@ public class SearchServiceImpl implements SearchService {
         if(keyword == null || keyword.trim().isEmpty()){
             return false;
         }
+        log.info("검색어 유효성 검증 완료: {}", keyword);
+
         return true;
     }
 
@@ -130,6 +119,8 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean isRelatedToSaleProduct(String keyword) {
+        log.info("상품 또는 쇼핑몰과의 연관성 검증 완료: {}", keyword);
+
         return productRepository.existsByNameContaining(keyword) ||
                 productRepository.existsByBrandContaining(keyword);
     }

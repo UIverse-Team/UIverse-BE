@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,7 +45,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
      */
     @Override
     public PopularKeywordResponse calculateAndCacheResult(String key) {
-        //  Redis에서 이전 시간대 인기 검색어 상위 10개 가져오기
+        //  Redis에서 시간대 key로 인기 검색어 상위 10개 가져오기
         String redisKey = MAIN_KEY_PREFIX + key;
         Set<ZSetOperations.TypedTuple<Object>> popularKewords = redisTemplate.opsForZSet()
                 .reverseRangeWithScores(redisKey, 0, 9);
@@ -62,24 +63,11 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                     keywordValue,
                     popularProducts));
         }
-        PopularKeywordResponse response = new PopularKeywordResponse(redisKey, keywords);
 
-        // ♻️ 시연 및 테스트를 위해 Redis Key를 5분 단위로 사용 및 20분 뒤 만료
-//        PopularKeywordResponse response = new PopularKeywordResponse(
-//                LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
-//                keywords
-//        );
-//        String resultKey = RESULT_KEY_PREFIX + key;
-//        try {
-//            String stringResponse = objectMapper.writeValueAsString(response);
-//            redisTemplate.opsForValue().set(resultKey, stringResponse);
-//            redisTemplate.expire(resultKey, Duration.ofMinutes(20));
-//        } catch (JsonProcessingException e) {
-//            log.error("인기 검색어 결과 JSON 직렬화 실패", e);
-//        }
-//        PopularKeywordResponse response = new PopularKeywordResponse(
-//                LocalDateTime.now().minusHours(1)
-//                .format(DateTimeFormatter.ofPattern("HH")), keywords);
+        PopularKeywordResponse response = new PopularKeywordResponse(
+                redisKey.substring(redisKey.length() - 2),
+                keywords
+        );
 
         // 캐시에 결과 저장 및 TTL 설정
         String resultKey = RESULT_KEY_PREFIX + key;
@@ -98,6 +86,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
     /**
      * 검색 키워드로 검색한 상품 목록 중 점수를 기준으로 상위 4(limit)개 인기상품 반환
      * 검색 키워드는 브랜드명을 우선순위로 두고 처리
+     * 상품 점수가 0인 경우 상품 조회수를 기준으로 인기상품 반환
      *
      * @param keyword   검색 키워드
      * @param limit     반환할 상품 목록 개수
@@ -112,7 +101,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
             products = productRepository.findAllByBrand(keyword);
         }
         // 브랜드 이름이 부분 포함된 경우
-        else if(productRepository.existsByNameContaining(keyword)){
+        else if(productRepository.existsByBrandContaining(keyword)){
             products = productRepository.findAllByBrandContaining(keyword);
         }
         else{
@@ -121,13 +110,27 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
 
         // 상품 리스트를 ProductScoreService로 전달해 상품들의 점수를 계산
         List<ProductScore> productScores = productScoreService.calculateAndUpdateScore(products);
-
-        // 상품 점수를 기준으로 정렬하고 상위 4개 PopularProductResponse 반환
-        return productScores.stream()
-                .sorted(Comparator.comparing(ProductScore::getWeightedScore).reversed())
-                .limit(limit)
-                .map(this::convertToPopularProductResponse)
-                .toList();
+    
+        // 모든 상품 리스트의 점수가 0점인지 확인
+        boolean allZeroScore =  productScores.stream()
+                .allMatch(score -> score.getWeightedScore() == BigDecimal.ZERO);
+        
+        // 모든 상품 리스트의 점수가 0점이면 상품 조회수(product_view_count)를 기준으로 정렬
+        if(allZeroScore){
+            return products.stream()
+                    .sorted(Comparator.comparing(Product::getProductViewCount).reversed())
+                    .limit(limit)
+                    .map(this::convertToPopularProductResponseFromProduct)
+                    .toList();
+        }
+        
+        else{
+            return productScores.stream()
+                    .sorted(Comparator.comparing(ProductScore::getWeightedScore).reversed())
+                    .limit(limit)
+                    .map(this::convertToPopularProductResponse)
+                    .toList();
+        }
     }
 
     /**
@@ -149,6 +152,26 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                 productScore.getProduct().getDiscountRate(),
                 productScore.getTotalOrderCount(),
                 productScore.getReviewRating().doubleValue()
+        );
+    }
+
+    /**
+     * 상품 조회수를 기반으로 인기상품 DTO 반환
+     * 
+     * @param product   상품
+     * @return 인기상품 DTO
+     */
+    public PopularProductResponse convertToPopularProductResponseFromProduct(Product product){
+        return new PopularProductResponse(
+                product.getId(),
+                product.getMainImage(),
+                product.getBrand(),
+                product.getName(),
+                product.getOriginPrice(),
+                product.getDiscountPrice(),
+                product.getDiscountRate(),
+                0,
+                0.0
         );
     }
 }

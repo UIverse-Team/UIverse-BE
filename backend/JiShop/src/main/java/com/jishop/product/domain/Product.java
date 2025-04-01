@@ -3,12 +3,15 @@ package com.jishop.product.domain;
 import com.jishop.category.domain.Category;
 import com.jishop.common.util.BaseEntity;
 import com.jishop.productscore.domain.ProductScore;
+import com.jishop.saleproduct.domain.SaleProduct;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -79,6 +82,9 @@ public class Product extends BaseEntity {
     private Long mCatId;
     @Column(name = "s_cat_id")
     private Long sCatId;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<SaleProduct> saleProducts = new ArrayList<>();
 
     // 상품 점수(ProductScore)와 연관관게 추가
     @OneToOne(mappedBy = "product",

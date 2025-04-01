@@ -22,4 +22,6 @@ public interface AddressController {
     ResponseEntity<String> updateAddress(User user, Long id, AddressRequest request);
     @Operation(summary = "배송지 삭제")
     ResponseEntity<String> deleteAddress(Long id);
+    @Operation(summary = "기본 배송지 가져오기")
+    ResponseEntity<?> getDefaultAddress(User user);
 }
