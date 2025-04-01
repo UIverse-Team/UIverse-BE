@@ -1,6 +1,7 @@
 package com.jishop.order.service.impl;
 
 import com.jishop.address.repository.AddressRepository;
+import com.jishop.cart.repository.CartRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +30,9 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final AddressRepository addressRepository;
     private final OrderUtilService orderUtilService;
     private final DistributedLockService distributedLockService;
+    private final CartRepository cartRepository;
 
     // 주문 생성 - 통합
-
-
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
@@ -78,6 +79,15 @@ public class OrderCreationServiceImpl implements OrderCreationService {
 
         // 이제 모든 필수 필드가 설정된 상태로 주문 저장
         orderRepository.save(order);
+
+        List<Long> cartIds = orderRequest.orderDetailRequestList().stream()
+                .map(OrderDetailRequest::cartId)
+                .filter(Objects::nonNull)
+                .toList();
+
+        if(!cartIds.isEmpty()) {
+            cartRepository.deleteAllById(cartIds);
+        }
 
         // 응답 생성
         List<OrderProductResponse> orderProductResponses = orderUtilService.convertToOrderDetailResponses(order.getOrderDetails(), user);
