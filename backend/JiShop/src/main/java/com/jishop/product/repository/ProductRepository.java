@@ -17,13 +17,20 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
 
     boolean existsByBrand(String keyword);
 
-    boolean existsByNameContaining(String keyword);
-
-    boolean existsByBrandContaining(String keyword);
+    // "남성 셔츠" 가 검색어로 들어온 경우 +남성 +셔츠로 변환(BOOLEAN MODE)
+    // "남성셔츠" 가 검색으로 들어온 경우 남성, 성셔, 셔츠로 변환(ngram parser)
+    @Query(
+            value = "SELECT EXISTS (SELECT 1 FROM products WHERE MATCH(name, brand) AGAINST(:keyword IN BOOLEAN MODE))",
+            nativeQuery = true
+    )
+    Long existsByFulltext(String keyword);
 
     List<Product> findAllByBrand(String keyword);
 
-    List<Product> findAllByNameContaining(String keyword);
 
-    List<Product> findAllByBrandContaining(String keyword);
+    @Query(
+            value = "SELECT * FROM products WHERE MATCH(name, brand) AGAINST(:keyword IN BOOLEAN MODE)",
+            nativeQuery = true
+    )
+    List<Product> searchByNameOrBrandFulltext(@Param("keyword") String keyword);
 }
