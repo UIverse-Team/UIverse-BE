@@ -3,8 +3,6 @@ package com.jishop.address.controller;
 import com.jishop.address.dto.AddressRequest;
 import com.jishop.address.dto.AddressResponse;
 import com.jishop.address.service.AddressService;
-import com.jishop.common.exception.DomainException;
-import com.jishop.common.exception.ErrorType;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,9 +57,13 @@ public class AddressControllerImpl implements AddressController {
 
     // 기본 배송지 가져오기
     @GetMapping("/default-address")
-    public ResponseEntity<AddressResponse> getDefaultAddress(@CurrentUser User user) {
-        AddressResponse addressResponse = addressService.getDefaultAddress(user);
+    public ResponseEntity<?> getDefaultAddress(@CurrentUser User user) {
+        Optional<AddressResponse> addressResponse = addressService.getDefaultAddress(user);
 
-        return ResponseEntity.ok(addressResponse);
+        if(addressResponse.isPresent()) {
+            return ResponseEntity.ok(addressResponse.get());
+        } else {
+            return ResponseEntity.ok("기본배송지가 존재하지 않습니다");
+        }
     }
 }
