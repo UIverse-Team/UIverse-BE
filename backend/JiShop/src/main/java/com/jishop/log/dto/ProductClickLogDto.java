@@ -1,12 +1,12 @@
 package com.jishop.log.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record ProductClickLogDto(
         Long id,
         Long userId,
         Long productId,
         String productName,
-        LocalDateTime clickTime
+        LocalDate clickTime
 ) {
 }
