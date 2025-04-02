@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/recentsf")
+@RequestMapping("/recent")
 public class RecentProductControllerImpl implements RecentProductController {
 
     private final RecentProductService recentProductService;
