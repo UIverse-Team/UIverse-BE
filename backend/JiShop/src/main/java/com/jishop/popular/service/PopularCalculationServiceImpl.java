@@ -52,7 +52,7 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
         int rank = 1;
 
         for(ZSetOperations.TypedTuple<Object> keyword : popularKewords) {
-            String keywordValue = (String)keyword.getValue();
+            String keywordValue = removePlusSign((String)keyword.getValue());
             keywordValue = keywordValue.replace("\"", "");
 
             List<PopularProductResponse> popularProducts = findPopularProductsByKeyword(keywordValue, 4);
@@ -183,5 +183,15 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                 .filter(word -> !word.isBlank())
                 .map(word -> "+" + word)
                 .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * 검색어 결과 전처리 메서드
+     *
+     * @param keyword   DB 조회 시 BOOLEAN MODE로 전처리된 검색어
+     * @return          + 문자가 빠진 검색어
+     */
+    private String removePlusSign(String keyword){
+        return keyword.replace("+", "");
     }
 }
