@@ -24,15 +24,74 @@ repositories {
 }
 
 dependencies {
+
+	//AWS
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1'
+
+	// Spring WebMvc
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    // Spring WebFlux (WebClient 사용을 위한 의존성)
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // org.json (JSONObject 사용을 위한 의존성)
+	implementation 'org.json:json:20220924'
+
+	//redisson
+	implementation 'org.redisson:redisson-spring-boot-starter:3.34.1'
+
+	// Querydsl
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	//coolSMS 사용을 위한 의존성
+	implementation 'net.nurigo:sdk:4.3.0'
+	implementation 'net.nurigo:javaSDK:2.2'
+
+	// DB
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 사용자 비밀번호 암호화
+	implementation 'org.springframework.security:spring-security-crypto:5.7.3'
+
+	// AWS ses
+	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.708'
+
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// Logstash를 위한 logstash-logback-encoder
+//	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
+
+	// 토스 결제 연동 Thymeleaf
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+}
+
+// naver 구현 요청을 위한 의존성 주입
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.2"
+    }
 }
 
 tasks.named('test') {

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 처리 중...</title>
+    <script>
+        // 리디렉션된 후 실행되는 콜백 처리
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const provider = state?.split('-')[0];
+
+            if (!code || !provider) {
+                alert("잘못된 요청입니다.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/oauth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ provider, code })
+                });
+
+                if (!response.ok) throw new Error("로그인 실패");
+
+                const profile = await response.json();
+                console.log("로그인 성공:", profile);
+
+                // 로그인 성공 시 원하는 페이지로 리디렉션
+                window.location.href = '/dashboard';
+            } catch (error) {
+                console.error("OAuth 로그인 실패:", error);
+                alert("로그인에 실패했습니다.");
+            }
+        }
+
+        window.onload = handleOAuthCallback;
+    </script>
+</head>
+<body>
+<h3>로그인 처리 중입니다... 잠시만 기다려주세요.</h3>
+</body>
+</html>
