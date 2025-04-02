@@ -36,10 +36,8 @@ jobs:
           utcOffset: "+09:00"
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
-
       - name: Set TAG using GitHub run number
         run: echo "TAG=build-${{ github.run_number }}" >> $GITHUB_ENV
-
       - name: Docker build
         working-directory: backend/log
         run: |
