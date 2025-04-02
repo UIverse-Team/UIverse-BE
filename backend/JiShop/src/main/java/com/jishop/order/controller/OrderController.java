@@ -41,26 +41,35 @@ public interface OrderController {
             @Parameter(description = "각 페이지에 가져올 데이터의 개수를 정하는 값", example = "10") int size
     );
 
-    //회원 주문 상세 조회
-    @Operation(summary = "회원 주문 상세 조회", description = "orderId로 조회 가능")
+    //회원 주문 상세 조회 - 결제와 연동
+    @Operation(
+            summary = "회원 주문 상세 조회",
+            description = "주문 및 결제 완료 후 orderNumber로 조회 가능")
     ResponseEntity<OrderDetailPageResponse> getOrder(
             User user,
-            @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
+            @Parameter(description = "조회할 주문 ID", example = "O250401T6P0C") String orderNumber
     );
+
+//    //회원 주문 상세 조회
+//    @Operation(summary = "회원 주문 상세 조회", description = "orderId로 조회 가능")
+//    ResponseEntity<OrderDetailPageResponse> getOrder(
+//            User user,
+//            @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
+//    );
 
     //회원 주문 취소
-    @Operation(summary = "회원 주문 취소", description = "orderId로 주문 취소 가능")
-    ResponseEntity<String> cancelOrder(
-            User user,
-            @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
-    );
+//    @Operation(summary = "회원 주문 취소", description = "orderId로 주문 취소 가능")
+//    ResponseEntity<String> cancelOrder(
+//            User user,
+//            @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
+//    );
 
     //회원 취소 상세페이지
-    @Operation(summary = "회원 취소 상세 페이지", description = "orderId로 취소 상세 페이지 조회 가능")
-    ResponseEntity<OrderCancelResponse> getOrderCancel(
-            User user,
-            @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
-    );
+//    @Operation(summary = "회원 취소 상세 페이지", description = "orderId로 취소 상세 페이지 조회 가능")
+//    ResponseEntity<OrderCancelResponse> getOrderCancel(
+//            User user,
+//            @Parameter(description = "조회할 주문 ID", example = "1") Long orderId
+//    );
 
     // 장바구니에서 주문서로 넘어가는 API
     @Operation(summary = "장바구니에서 주문서로 넘어갈 때 사용하는 API")

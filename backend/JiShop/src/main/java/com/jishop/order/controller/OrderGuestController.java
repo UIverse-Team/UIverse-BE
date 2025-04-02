@@ -25,16 +25,16 @@ public interface OrderGuestController {
     );
 
     //비회원 주문 취소
-    @Operation(summary = "비회원 주문 취소", description = "비회원은 주문 번호와 주문 시 사용했던 전화번호로 취소가 가능")
-    ResponseEntity<String> cancelGuestOrder(
-            @Parameter(description = "조회할 주문번호", example = "O250327QNPUY") String orderNumber,
-            @Parameter(description = "조회할 주문 수신자의 전화번호", example = "01012345678") String phone
-    );
+//    @Operation(summary = "비회원 주문 취소", description = "비회원은 주문 번호와 주문 시 사용했던 전화번호로 취소가 가능")
+//    ResponseEntity<String> cancelGuestOrder(
+//            @Parameter(description = "조회할 주문번호", example = "O250327QNPUY") String orderNumber,
+//            @Parameter(description = "조회할 주문 수신자의 전화번호", example = "01012345678") String phone
+//    );
 
     //비회원 취소 상세페이지
-    @Operation(summary = "비회원 주문 취소 상세 페이지", description = "비회원은 주문 번호와 주문 시 사용했던 전화번호로 주문 취소 상세 페이지 조회가 가능")
-    ResponseEntity<OrderCancelResponse> getGuestOrderCancel(
-            @Parameter(description = "조회할 주문번호", example = "O250327QNPUY") String orderNumber,
-            @Parameter(description = "조회할 주문 수신자의 전화번호", example = "01012345678") String phone
-    );
+//    @Operation(summary = "비회원 주문 취소 상세 페이지", description = "비회원은 주문 번호와 주문 시 사용했던 전화번호로 주문 취소 상세 페이지 조회가 가능")
+//    ResponseEntity<OrderCancelResponse> getGuestOrderCancel(
+//            @Parameter(description = "조회할 주문번호", example = "O250327QNPUY") String orderNumber,
+//            @Parameter(description = "조회할 주문 수신자의 전화번호", example = "01012345678") String phone
+//    );
 }

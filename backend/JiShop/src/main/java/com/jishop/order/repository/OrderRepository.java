@@ -17,19 +17,31 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     // 특정 사용자의 단일 주문 조회 (fetch join 적용)
+//    @Query("SELECT DISTINCT o FROM Order o " +
+//            "LEFT JOIN FETCH o.orderDetails od " +
+//            "WHERE o.id = :orderId AND o.userId = :userId")
+//    Optional<Order> findByIdWithDetails(@Param("userId") Long userId, @Param("orderId") Long orderId);
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
-            "WHERE o.id = :orderId AND o.userId = :userId")
-    Optional<Order> findByIdWithDetails(@Param("userId") Long userId, @Param("orderId") Long orderId);
+            "WHERE o.orderNumber = :orderNumber AND o.userId = :userId")
+    Optional<Order> findByIdWithDetails(@Param("userId") Long userId, @Param("orderNumber") Long orderNumber);
 
+//    @Query("SELECT DISTINCT o FROM Order o " +
+//            "LEFT JOIN FETCH o.orderDetails od " +
+//            "LEFT JOIN FETCH od.saleProduct sp " +
+//            "LEFT JOIN FETCH sp.option " +
+//            "LEFT JOIN FETCH sp.product " +
+//            "LEFT JOIN FETCH sp.stock " +
+//            "WHERE o.orderId = :orderId AND o.userId = :userId")
+//    Optional<Order> findByIdWithDetailsAndProducts(@Param("userId") Long userId, @Param("orderId") Long orderNumber);
     @Query("SELECT DISTINCT o FROM Order o " +
             "LEFT JOIN FETCH o.orderDetails od " +
             "LEFT JOIN FETCH od.saleProduct sp " +
             "LEFT JOIN FETCH sp.option " +
             "LEFT JOIN FETCH sp.product " +
             "LEFT JOIN FETCH sp.stock " +
-            "WHERE o.id = :orderId AND o.userId = :userId")
-    Optional<Order> findByIdWithDetailsAndProducts(@Param("userId") Long userId, @Param("orderId") Long orderId);
+            "WHERE o.orderNumber = :orderNumber AND o.userId = :userId")
+    Optional<Order> findByIdWithDetailsAndProducts(@Param("userId") Long userId, @Param("orderNumber") String orderNumber);
 
     // 페이징을 위한 첫 번째 쿼리: 페이징된 ID 목록 가져오기
     @Query("SELECT o.id FROM Order o " +
