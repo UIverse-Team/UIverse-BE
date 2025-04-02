@@ -1,9 +1,10 @@
 package com.jishop.order.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestParam;
 
+@Tag(name = "결제 페이지 렌더링 API")
 public interface OrderViewController {
 
     @Operation(
