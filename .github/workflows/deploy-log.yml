@@ -37,13 +37,22 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
+      - name: Set TAG using GitHub run number
+        run: echo "TAG=build-${{ github.run_number }}" >> $GITHUB_ENV
+
       - name: Docker build
         working-directory: backend/log
         run: |
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker build -t log-cicd .
-          docker tag log-cicd ${{ secrets.DOCKERHUB_USERNAME }}/log-cicd:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/log-cicd:latest
+          docker tag log-cicd ${{ secrets.DOCKERHUB_USERNAME }}/log-cicd:$TAG
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/log-cicd:$TAG
+          
+      - name: Update Dockerrun.aws.json with dynamic tag
+        run: |
+          sed -i "s|wlgksdjf/log-cicd:.*|wlgksdjf/log-cicd:${TAG}|g" Dockerrun.aws.json
+
+
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
         with:

@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "wlgksdjf/log-cicd:latest",
+    "Name": "wlgksdjf/log-cicd:build-123",
     "Update": "true"
   },
   "Ports": [
