@@ -10,6 +10,7 @@ on:
       - backend/log/src/**
       - backend/log/build.gradle
       - .github/workflows/deploy-log.yml
+
 jobs:
   build:
     runs-on: ubuntu-latest
