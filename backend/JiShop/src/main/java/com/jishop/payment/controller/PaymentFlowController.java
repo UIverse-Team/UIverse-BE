@@ -4,12 +4,7 @@ import com.jishop.payment.dto.PaymentConfirmRequest;
 import com.jishop.payment.dto.PaymentConfirmResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Tag(name = "결제 승인 성공 및 실패 API")
 public interface PaymentFlowController {
