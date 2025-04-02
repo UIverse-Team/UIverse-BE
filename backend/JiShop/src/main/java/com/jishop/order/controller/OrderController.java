@@ -6,17 +6,27 @@ import com.jishop.order.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
+
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "주문 API", description = "주문 관련 API")
 public interface OrderController {
 
+    //회원 주문 - 결제와 연동
+    @Operation(
+            summary = "회원 주문 및 결제 API",
+            description = "회원이 장바구니에서 주문 및 결제 시 사용하는 API"
+    )
+    void createOrder(User user, OrderRequest orderRequest, HttpServletResponse response) throws IOException;
+
     //회원 주문
-    @Operation(summary = "회원 주문", description = "회원이 장바구니에서 주문 시 사용하는 API")
-    ResponseEntity<OrderResponse> createOrder(User user, OrderRequest orderRequest);
+//    @Operation(summary = "회원 주문", description = "회원이 장바구니에서 주문 시 사용하는 API")
+//    ResponseEntity<OrderResponse> createOrder(User user, OrderRequest orderRequest);
 
     //회원 바로주문
     @Operation(summary = "회원 바로 주문", description = "회원이 상품 상세 페이지에서 바로 주문할 때 사용되는 API")

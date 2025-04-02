@@ -92,6 +92,11 @@ public class OrderGetServiceImpl implements OrderGetService {
 
         List<CartDetailResponse> cartDetails = saleProducts.stream()
                 .map(product -> {
+                    var matchingRequest = orderDetailRequest.stream()
+                            .filter(request -> request.saleProductId().equals(product.getId()))
+                            .findFirst()
+                            .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
                     // 해당 상품의 수량을 찾음
                     int quantity = orderDetailRequest.stream()
                             .filter(request -> request.saleProductId().equals(product.getId()))
@@ -104,12 +109,14 @@ public class OrderGetServiceImpl implements OrderGetService {
                     int discountPrice = orderPrice - paymentPrice;
 
                     return CartDetailResponse.from(
-                            null, // 장바구니에서 넘어온 것이므로 cartId는 null
+                            // 장바구니에서 넘어온 것이므로 cartId는 null
+                            matchingRequest.cartId(),
                             product,
                             quantity,
                             paymentPrice,
                             orderPrice,
-                            discountPrice
+                            discountPrice,
+                            false
                     );
                 })
                 .toList();
@@ -134,7 +141,8 @@ public class OrderGetServiceImpl implements OrderGetService {
                 quantity,
                 paymentPrice,
                 orderPrice,
-                discountPrice
+                discountPrice,
+                false
         );
 
         return CartResponse.of(List.of(cartDetailResponse));
