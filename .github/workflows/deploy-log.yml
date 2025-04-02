@@ -4,9 +4,8 @@ on:
   pull_request:
     branches:
       - develop
-#    types:
-#      - closed
-    # 해당 파일 또는 폴더 하위 파일들이 변경되었을 때에만!!!
+    types:
+      - closed
     paths:
       - backend/log/src/**
       - backend/log/build.gradle
