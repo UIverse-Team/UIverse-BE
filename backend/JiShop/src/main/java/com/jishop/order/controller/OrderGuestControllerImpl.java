@@ -44,21 +44,21 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     }
 
     //비회원 주문 취소하기
-    @Override
-    @PatchMapping("/{orderNumber}")
-    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
-                                                   @RequestParam String phone) {
-        orderService.cancelGuestOrder(orderNumber, phone);
-
-        return ResponseEntity.ok("주문이 취소되었습니다.");
-    }
+//    @Override
+//    @PatchMapping("/{orderNumber}")
+//    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
+//                                                   @RequestParam String phone) {
+//        orderService.cancelGuestOrder(orderNumber, phone);
+//
+//        return ResponseEntity.ok("주문이 취소되었습니다.");
+//    }
 
     //비회원 주문 취소 상세 페이지
-    @Override
-    @GetMapping("/getCancel/{orderNumber}")
-    public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
-        OrderCancelResponse orderCancelResponse = orderService.getGuestCancelPage(orderNumber, phone);
-
-        return ResponseEntity.ok(orderCancelResponse);
-    }
+//    @Override
+//    @GetMapping("/getCancel/{orderNumber}")
+//    public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
+//        OrderCancelResponse orderCancelResponse = orderService.getGuestCancelPage(orderNumber, phone);
+//
+//        return ResponseEntity.ok(orderCancelResponse);
+//    }
 }
