@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,7 +42,7 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean processSearch(String keyword, String clientIp) {
-        keyword = keyword.trim();
+        keyword = convertToBooleanString(keyword);
 
         if(!isValidKeyword(keyword)){
             log.info("유효하지 않은 검색어: {}", keyword);
@@ -106,7 +108,6 @@ public class SearchServiceImpl implements SearchService {
         if(keyword == null || keyword.trim().isEmpty()){
             return false;
         }
-        log.info("검색어 유효성 검증 완료: {}", keyword);
 
         return true;
     }
@@ -119,9 +120,20 @@ public class SearchServiceImpl implements SearchService {
      */
     @Override
     public boolean isRelatedToSaleProduct(String keyword) {
-        log.info("상품 또는 쇼핑몰과의 연관성 검증 완료: {}", keyword);
+        return productRepository.existsByFulltext(keyword) > 0;
+    }
 
-        return productRepository.existsByNameContaining(keyword) ||
-                productRepository.existsByBrandContaining(keyword);
+    /**
+     * 검색어 전처리 메서드
+     * 검색어 유효성 검사 시 fulltext index를 boolean mode로 사용하기 위함
+     *
+     * @param keyword   입력받은 검색어
+     * @return          전처리된 검색어
+     */
+    private String convertToBooleanString(String keyword){
+        return Arrays.stream(keyword.trim().split("\\s+"))
+                .filter(word -> !word.isBlank())
+                .map(word -> "+" + word)
+                .collect(Collectors.joining(" "));
     }
 }

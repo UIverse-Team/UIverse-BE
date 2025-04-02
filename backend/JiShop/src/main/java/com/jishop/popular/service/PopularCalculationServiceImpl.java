@@ -18,10 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -94,18 +92,16 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
      */
     @Override
     public List<PopularProductResponse> findPopularProductsByKeyword(String keyword, int limit) {
+        keyword = convertToBooleanString(keyword);
         List<Product> products;
 
         // 브랜드 이름과 정확히 일치하는 경우
         if(productRepository.existsByBrand(keyword)){
             products = productRepository.findAllByBrand(keyword);
         }
-        // 브랜드 이름이 부분 포함된 경우
-        else if(productRepository.existsByBrandContaining(keyword)){
-            products = productRepository.findAllByBrandContaining(keyword);
-        }
-        else{
-            products = productRepository.findAllByNameContaining(keyword);
+        // 그 외에는 Fulltext 검색으로 통합 처리
+        else {
+            products = productRepository.searchByNameOrBrandFulltext(keyword);
         }
 
         // 상품 리스트를 ProductScoreService로 전달해 상품들의 점수를 계산
@@ -173,5 +169,19 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
                 0,
                 0.0
         );
+    }
+
+    /**
+     * 검색어 전처리 메서드
+     * 검색어로 상품 리스트 조회 시 fulltext index를 boolean mode로 사용하기 위함
+     *
+     * @param keyword   입력받은 검색어
+     * @return          전처리된 검색어
+     */
+    private String convertToBooleanString(String keyword){
+        return Arrays.stream(keyword.trim().split("\\s+"))
+                .filter(word -> !word.isBlank())
+                .map(word -> "+" + word)
+                .collect(Collectors.joining(" "));
     }
 }
