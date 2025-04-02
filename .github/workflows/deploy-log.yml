@@ -52,8 +52,6 @@ jobs:
           
       - name: Update Dockerrun.aws.json with dynamic tag
         run: |
-          sed -i "s|wlgksdjf/log-cicd:.*|wlgksdjf/log-cicd:${TAG}|g" Dockerrun.aws.json
-          cat Dockerrun.aws.json  # 이 줄을 추가하여 내용 확인
           sed -i "s|\"Name\": \"wlgksdjf/log-cicd:.*\"|\"Name\": \"wlgksdjf/log-cicd:${TAG}\"|g" Dockerrun.aws.json
           cat Dockerrun.aws.json
 
