@@ -38,7 +38,7 @@ public class PaymentFlowControllerImpl {
         PaymentConfirmResponse confirmResponse = paymentService.confirmPayment(request);
 
         // 프론트 주소로 주문번호(orderNumber) 전달
-        String redirectUrl = UriComponentsBuilder.fromUriString("https://uiverse.shop/")
+        String redirectUrl = UriComponentsBuilder.fromUriString("https://uiverse.shop/purchase-complete")
                 .queryParam("orderNumber", confirmResponse.orderId())
                 .build()
                 .toUriString();
