@@ -1,11 +1,11 @@
 name: Deploy to AWS EB - docker
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
-    types:
-      - closed
+      - be/feat/255
+#    types:
+#      - closed
     paths:
       - backend/log/src/**
       - backend/log/build.gradle
