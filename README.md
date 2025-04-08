@@ -19,11 +19,11 @@
     <th>Backend</th>
   </tr>
   <tr>
-    <td><img src="https://i.pinimg.com/736x/c9/02/e1/c902e1a7ba903ec63e6defc6837572ab.jpg" width="100"/></td>
-    <td><img src="https://i.pinimg.com/736x/c9/02/e1/c902e1a7ba903ec63e6defc6837572ab.jpg" width="100"/></td>
-    <td><img src="https://i.pinimg.com/736x/c9/02/e1/c902e1a7ba903ec63e6defc6837572ab.jpg" width="100"/></td>
-    <td><img src="https://i.pinimg.com/736x/4b/74/01/4b7401e166d19975d18302042879e14e.jpg" width="100"/></td>
-    <td><img src="https://i.pinimg.com/736x/4b/74/01/4b7401e166d19975d18302042879e14e.jpg" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/174756236?v=4" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/104291422?v=4" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/110446078?v=4" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/61807816?v=4" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/150502999?v=4" width="100"/></td>
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/KWAK-JINHO">곽진호</a></td>
@@ -41,9 +41,9 @@
     <th>Frontend</th>
   </tr>
   <tr>
-    <td><img src="https://i.pinimg.com/736x/c9/02/e1/c902e1a7ba903ec63e6defc6837572ab.jpg" width="100"/></td>
-    <td><img src="https://i.pinimg.com/736x/c9/02/e1/c902e1a7ba903ec63e6defc6837572ab.jpg" width="100"/></td>
-    <td><img src="https://i.pinimg.com/736x/4b/74/01/4b7401e166d19975d18302042879e14e.jpg" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/55516901?v=4" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/50770004?v=4" width="100"/></td>
+    <td><img src="https://avatars.githubusercontent.com/u/109134495?v=4" width="100"/></td>
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/rondido">박진현</a></td>
