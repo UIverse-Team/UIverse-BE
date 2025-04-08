@@ -6,6 +6,7 @@ import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.option.dto.FashionClothesOptionResponse;
 import com.jishop.option.dto.GeneralOptionResponse;
+import com.jishop.option.dto.SizeOption;
 import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.DiscountStatus;
 import com.jishop.product.domain.Product;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -59,26 +59,24 @@ public class ProductServiceImpl implements ProductService {
         final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-        // 찜 상태
         final boolean isWished = (user != null) && productWishListRepository
                 .isProductWishedByUser(user.getId(), productId);
 
-        // 상품 옵션
         final Long categoryType = product.getLCatId();
+
         final Object productsOptions;
         if (categoryType == 50000000L) {
-            final List<Map<String, Object>> fashionClothesOptions = saleProductRepository
+            final List<SizeOption> fashionClothesOptions = saleProductRepository
                     .findFashionClothesOptionsByProductId(productId);
-            productsOptions = fashionClothesOptions.isEmpty() ?
+                    productsOptions = fashionClothesOptions.isEmpty() ?
                               List.of() :
                               FashionClothesOptionResponse.from(fashionClothesOptions);
         } else {
-            final List<Map<String, Object>> generalOptions = saleProductRepository
+            final List<SizeOption> generalOptions = saleProductRepository
                     .findGeneralOptionsByProductId(productId);
-            productsOptions = GeneralOptionResponse.from(generalOptions);
+                    productsOptions = GeneralOptionResponse.from(generalOptions);
         }
 
-        // 상품 리뷰
         final List<ReviewProduct> productsReviews = reviewProductRepository.findAllByProduct(product);
         final int reviewCount = productsReviews.isEmpty() ? 0 : productsReviews.get(0).getReviewCount();
         final double reviewRate = productsReviews.isEmpty() ? 0.0 : productsReviews.get(0).getAverageRating();
