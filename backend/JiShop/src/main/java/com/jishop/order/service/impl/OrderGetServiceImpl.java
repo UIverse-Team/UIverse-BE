@@ -36,16 +36,9 @@ public class OrderGetServiceImpl implements OrderGetService {
     private final SaleProductRepository saleProductRepository;
 
     // 주문 상세 조회 (회원/비회원 통합)
-//    @Override
-//    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
-//        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
-//
-//        return createOrderDetailPageResponse(order, user);
-//    }
-
     @Override
-    public OrderDetailPageResponse getOrder(User user, String orderNumber, String phone) {
-        Order order = orderUtilService.findOrder(user, orderNumber, phone);
+    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
+        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
 
         return createOrderDetailPageResponse(order, user);
     }
@@ -79,14 +72,14 @@ public class OrderGetServiceImpl implements OrderGetService {
     }
 
     // 회원,비회원 주문 취소 상세 페이지
-//    @Override
-//    public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
-//        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
-//
-//        OrderDetailPageResponse pageResponse = createOrderDetailPageResponse(order, user);
-//
-//        return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
-//    }
+    @Override
+    public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
+        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+
+        OrderDetailPageResponse pageResponse = createOrderDetailPageResponse(order, user);
+
+        return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
+    }
 
     //회원, 비회원 장바구니에서 주문서로 넘어가는 API
     @Override

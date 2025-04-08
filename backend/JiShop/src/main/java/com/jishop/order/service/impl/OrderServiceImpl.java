@@ -36,14 +36,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //회원 주문 상세 조회
-//    @Override
-//    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
-//        return orderGetService.getOrder(user, orderId, orderNumber, phone);
-//    }
-
     @Override
-    public OrderDetailPageResponse getOrder(User user, String orderNumber, String phone) {
-        return orderGetService.getOrder(user, orderNumber, phone);
+    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
+        return orderGetService.getOrder(user, orderId, orderNumber, phone);
     }
 
     //회원 주문 목록 조회
@@ -53,16 +48,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //회원 주문 취소
-//    @Override
-//    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
-//        orderCancelService.cancelOrder(user, orderId, orderNumber, phone);
-//    }
+    @Override
+    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
+        orderCancelService.cancelOrder(user, orderId, orderNumber, phone);
+    }
 
     //회원 주문 취소 상세 페이지 조회
-//    @Override
-//    public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
-//        return orderGetService.getCancelPage(user, orderId, orderNumber, phone);
-//    }
+    @Override
+    public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
+        return orderGetService.getCancelPage(user, orderId, orderNumber, phone);
+    }
 
     //회원 장바구니에서 주문서로 넘어갈 때 사용되는 API
     @Override
@@ -90,24 +85,21 @@ public class OrderServiceImpl implements OrderService {
 
     //비회원 주문 상세 페이지
     @Override
-//    public OrderDetailPageResponse getGuestOrder(String orderNumber, String phone) {
-//        return orderGetService.getOrder(null, null, orderNumber, phone);
-//    }
     public OrderDetailPageResponse getGuestOrder(String orderNumber, String phone) {
-        return orderGetService.getOrder(null, orderNumber, phone);
+        return orderGetService.getOrder(null, null, orderNumber, phone);
     }
 
     //비회원 주문 취소
-//    @Override
-//    public void cancelGuestOrder(String orderNumber, String phone) {
-//        orderCancelService.cancelOrder(null, null, orderNumber, phone);
-//    }
+    @Override
+    public void cancelGuestOrder(String orderNumber, String phone) {
+        orderCancelService.cancelOrder(null, null, orderNumber, phone);
+    }
 
     //비회원 주문 취소 페이지 조회
-//    @Override
-//    public OrderCancelResponse getGuestCancelPage(String orderNumber, String phone) {
-//        return orderGetService.getCancelPage(null, null, orderNumber, phone);
-//    }
+    @Override
+    public OrderCancelResponse getGuestCancelPage(String orderNumber, String phone) {
+        return orderGetService.getCancelPage(null, null, orderNumber, phone);
+    }
 
     //비회원 장바구니에서 주문서로 넘어갈 때 사용하는 API
     @Override

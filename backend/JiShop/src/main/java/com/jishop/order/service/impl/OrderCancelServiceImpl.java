@@ -26,12 +26,12 @@ public class OrderCancelServiceImpl implements OrderCancelService {
     private final OrderUtilService orderUtilService;
 
     // 주문 취소 - (회원/비회원 통합)
-//    @Override
-//    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
-//        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
-//
-//        processCancellation(order);
-//    }
+    @Override
+    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
+        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+
+        processCancellation(order);
+    }
 
     private void processCancellation(Order order) {
         orderUtilService.validateOrderCancellation(order);
