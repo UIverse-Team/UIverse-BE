@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -42,10 +43,12 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
         final BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, product, reviewProduct);
 
-        return queryFactory.select(product.count())
-                .from(product)
-                .where(filterBuilder)
-                .fetchOne();
+        return Optional.ofNullable(
+                queryFactory.select(product.count())
+                        .from(product)
+                        .where(filterBuilder)
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     private OrderSpecifier<?> addSorting(final String sort, final QProduct product) {
