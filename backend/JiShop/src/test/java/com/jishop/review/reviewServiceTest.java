@@ -7,10 +7,15 @@ import com.jishop.product.domain.Product;
 import com.jishop.review.domain.tag.Tag;
 import com.jishop.review.dto.ReviewRequest;
 import com.jishop.saleproduct.domain.SaleProduct;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class reviewServiceTest {
+
+
+
 
     private Option createOption(OptionCategory optionCategory, String optionValue, int optionExtra) {
         return new Option(optionCategory, optionValue, optionExtra);

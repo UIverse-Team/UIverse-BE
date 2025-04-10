@@ -1,19 +1,25 @@
 package com.jishop.review;
 
+import com.jishop.product.repository.ProductRepository;
 import com.jishop.review.dto.ReviewImageResponse;
 import com.jishop.review.repository.ReviewRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@SpringBootTest
+@Transactional
+@ActiveProfiles("test")
 public class reviewRepositoryTest {
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private ReviewRepository reviewRepository;
