@@ -42,9 +42,10 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
         final BooleanBuilder filterBuilder = productQueryHelper
                 .findProductsByCondition(productRequest, product, reviewProduct);
 
-        return queryFactory.selectFrom(product)
+        return queryFactory.select(product.count())
+                .from(product)
                 .where(filterBuilder)
-                .fetchCount();
+                .fetchOne();
     }
 
     private OrderSpecifier<?> addSorting(final String sort, final QProduct product) {
