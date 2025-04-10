@@ -33,13 +33,20 @@ public class User extends BaseEntity implements Serializable {
     private boolean picAgreement;
     private boolean adAgreement;
 
+    private boolean adSMSAgree;
+    private boolean adEmailAgree;
+
     //소셜 회원가입
     @Builder
-    public User(boolean ageAgreement, boolean useAgreement, boolean picAgreement, boolean adAgreement, String loginId, String password, String name, String birthDate, String gender, String phone, LoginType provider) {
+    public User(boolean ageAgreement, boolean useAgreement, boolean picAgreement, boolean adAgreement,
+                boolean adSMSAgree, boolean adEmailAgree, String loginId, String password,
+                String name, String birthDate, String gender, String phone, LoginType provider) {
         this.ageAgreement = ageAgreement;
         this.useAgreement = useAgreement;
         this.picAgreement = picAgreement;
         this.adAgreement = adAgreement;
+        this.adSMSAgree = adSMSAgree;
+        this.adEmailAgree = adEmailAgree;
         this.loginId = loginId;
         this.password = password;
         this.name = name;
@@ -59,5 +66,13 @@ public class User extends BaseEntity implements Serializable {
 
     public void updatePhone(String phone) {
         this.phone = phone;
+    }
+
+    public void updateAdSMSAgree(boolean adSMSAgree) {
+        this.adSMSAgree = adSMSAgree;
+    }
+
+    public void updateAdEmailAgree(boolean adEmailAgree) {
+        this.adEmailAgree = adEmailAgree;
     }
 }
