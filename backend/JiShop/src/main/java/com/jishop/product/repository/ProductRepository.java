@@ -12,10 +12,10 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryQueryDsl {
 
-    @Query("SELECT p FROM Product p WHERE p.discountStatus = :status AND p.isDiscount = true")
+    @Query("SELECT p FROM Product p WHERE p.status.discountStatus = :status AND p.status.isDiscount = true")
     Page<Product> findDailDealProducts(@Param("status") DiscountStatus status, Pageable pageable);
 
-    boolean existsByBrand(String keyword);
+    boolean existsByProductInfo_Brand(String keyword);
 
     // "남성 셔츠" 가 검색어로 들어온 경우 +남성 +셔츠로 변환(BOOLEAN MODE)
     // "남성셔츠" 가 검색으로 들어온 경우 남성, 성셔, 셔츠로 변환(ngram parser)
@@ -25,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     )
     Long existsByFulltext(String keyword);
 
-    List<Product> findAllByBrand(String keyword);
+    List<Product> findAllByProductInfo_Brand(String keyword);
 
 
     @Query(

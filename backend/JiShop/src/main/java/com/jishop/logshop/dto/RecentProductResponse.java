@@ -39,14 +39,14 @@ public class RecentProductResponse {
         public static ProductResponse from(Product product) {
             return new ProductResponse(
                     product.getId(),
-                    product.getName(),
-                    product.getMallSeq(),
-                    product.getBrand(),
-                    product.getDescription(),
-                    product.getOriginPrice(),
-                    product.getDiscountPrice(),
-                    product.getDiscountRate(),
-                    product.getMainImage()
+                    product.getProductInfo().getName(),
+                    product.getProductInfo().getMallSeq(),
+                    product.getProductInfo().getBrand(),
+                    product.getProductInfo().getDescription(),
+                    product.getProductInfo().getOriginPrice(),
+                    product.getProductInfo().getDiscountPrice(),
+                    product.getProductInfo().getDiscountRate(),
+                    product.getImage().getMainImage()
             );
         }
     }

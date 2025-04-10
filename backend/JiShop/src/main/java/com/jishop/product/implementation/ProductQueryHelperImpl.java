@@ -39,13 +39,13 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
         for (final Integer range : priceRanges) {
             switch (range) {
                 case 0 ->
-                        priceBuilder.or(product.discountPrice.between(0, 25000));
+                        priceBuilder.or(product.productInfo.discountPrice.between(0, 25000));
                 case 25000 ->
-                        priceBuilder.or(product.discountPrice.between(25001, 50000));
+                        priceBuilder.or(product.productInfo.discountPrice.between(25001, 50000));
                 case 50000 ->
-                        priceBuilder.or(product.discountPrice.between(50001, 100000));
+                        priceBuilder.or(product.productInfo.discountPrice.between(50001, 100000));
                 case 100000 ->
-                        priceBuilder.or(product.discountPrice.gt(100000));
+                        priceBuilder.or(product.productInfo.discountPrice.gt(100000));
                 default -> { }
             }
         }
@@ -137,7 +137,7 @@ public class ProductQueryHelperImpl implements ProductQueryHelper {
 
     private static void addKeyword(final String keyword, final QProduct product, final BooleanBuilder builder) {
         builder.and(
-                product.name.containsIgnoreCase(keyword).or(product.description.containsIgnoreCase(keyword))
+                product.productInfo.name.containsIgnoreCase(keyword).or(product.productInfo.description.containsIgnoreCase(keyword))
         );
     }
 }

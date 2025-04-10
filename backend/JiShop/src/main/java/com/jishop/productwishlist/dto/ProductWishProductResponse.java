@@ -8,7 +8,7 @@ public record ProductWishProductResponse(
         String mainImage
 ) {
     public ProductWishProductResponse(Product product){
-        this(product.getId(), product.getName(), product.getMainImage());
+        this(product.getId(), product.getProductInfo().getName(), product.getImage().getMainImage());
     }
 }
 

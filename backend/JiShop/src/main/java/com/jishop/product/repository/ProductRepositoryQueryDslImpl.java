@@ -54,9 +54,9 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     private OrderSpecifier<?> addSorting(final String sort, final QProduct product) {
         return switch (sort) {
             case "latest" -> product.createdAt.desc();
-            case "priceAsc" -> product.discountPrice.asc();
-            case "priceDesc" -> product.discountPrice.desc();
-            case "discount" -> product.discountRate.desc();
+            case "priceAsc" -> product.productInfo.discountPrice.asc();
+            case "priceDesc" -> product.productInfo.discountPrice.desc();
+            case "discount" -> product.productInfo.discountRate.desc();
             default -> product.wishListCount.desc();
         };
     }

@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
         final boolean isWished = (user != null) && productWishListRepository
                 .isProductWishedByUser(user.getId(), productId);
 
-        final Long categoryType = product.getLCatId();
+        final Long categoryType = product.getCategoryInfo().getLCatId();
 
         final Object productsOptions;
         if (categoryType == 50000000L) {

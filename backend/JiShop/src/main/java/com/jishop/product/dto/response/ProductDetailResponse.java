@@ -23,13 +23,18 @@ public record ProductDetailResponse(
 
         return new ProductDetailResponse(
                 productResponse,
-                product.getDescription(),
-                product.getIsDiscount(),
+                product.getProductInfo().getDescription(),
+                product.getStatus().getIsDiscount(),
                 option,
                 reviewCount,
                 reviewRate,
-                new String[] { product.getImage1(), product.getImage2(), product.getImage3(), product.getImage4() },
-                product.getDetailImage(),
+                new String[] {
+                        product.getImage().getImage1(),
+                        product.getImage().getImage2(),
+                        product.getImage().getImage3(),
+                        product.getImage().getImage4()
+                },
+                product.getImage().getDetailImage(),
                 wishStatus
         );
     }

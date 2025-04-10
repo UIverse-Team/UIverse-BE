@@ -133,15 +133,16 @@ public class CartServiceImpl implements CartService {
                     return new CartDetailResponse(
                             null, //장바구니 ID는 null (비회원이니까)
                             saleProduct.getId(),
-                            saleProduct.getProduct().getName(),
+                            saleProduct.getProduct().getProductInfo().getName(),
                             saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
-                            saleProduct.getProduct().getDiscountPrice(),
-                            saleProduct.getProduct().getOriginPrice(),
-                            saleProduct.getProduct().getOriginPrice() - saleProduct.getProduct().getDiscountPrice(),
+                            saleProduct.getProduct().getProductInfo().getDiscountPrice(),
+                            saleProduct.getProduct().getProductInfo().getOriginPrice(),
+                            saleProduct.getProduct().getProductInfo().getOriginPrice() -
+                                    saleProduct.getProduct().getProductInfo().getDiscountPrice(),
                             quantity,
-                            saleProduct.getProduct().getDiscountPrice() * quantity,
-                            saleProduct.getProduct().getMainImage(),
-                            saleProduct.getProduct().getBrand(),
+                            saleProduct.getProduct().getProductInfo().getDiscountPrice() * quantity,
+                            saleProduct.getProduct().getImage().getMainImage(),
+                            saleProduct.getProduct().getProductInfo().getBrand(),
                             false
                     );
                 })
