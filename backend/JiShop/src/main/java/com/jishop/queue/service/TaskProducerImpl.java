@@ -17,8 +17,8 @@ public class TaskProducerImpl implements TaskProducer {
 
     // 생산자 -> 외부 작업 요청 들어올시 Task 객체 만들고 Redis 큐에 등록
     @Async
-    public CompletableFuture<String> submitTask(TaskType type, Map<String, Object> payload, int priority){
-        Task task = Task.of(type, payload, priority);
+    public CompletableFuture<String> submitTask(TaskType type, Map<String, Object> payload/*, int priority*/){
+        Task task = Task.of(type, payload/*, priority*/);
         String taskId = queueService.enqueueTask(task);
         return CompletableFuture.completedFuture(taskId);
     }

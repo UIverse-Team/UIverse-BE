@@ -6,7 +6,7 @@ import java.util.Map;
 
 public record TaskRequest(
         TaskType type,
-        Map<String, Object> payload,
-        int priority
+        Map<String, Object> payload
+        //int priority
 ) {
 }

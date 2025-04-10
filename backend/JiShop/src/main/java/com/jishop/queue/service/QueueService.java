@@ -14,4 +14,8 @@ public interface QueueService {
     List<Task> getDeadLetterTasks();
     Task getTaskById(String taskId);
     Task requeueDeadLetter(String taskId);
+    void incrementActiveRequests();
+    void decrementActiveRequests();
+    int getCurrentActiveRequests();
+    boolean useQueue();
 }

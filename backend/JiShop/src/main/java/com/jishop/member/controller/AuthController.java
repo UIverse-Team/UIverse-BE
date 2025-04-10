@@ -10,11 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 
+import java.util.concurrent.ExecutionException;
+
 @Tag(name = "로컬 로그인 API")
 public interface AuthController {
     @Operation(summary = "로컬 회원 로그인")
-    ResponseEntity<String> signIn(SignInFormRequest request, HttpServletRequest httpRequest,
-                                  HttpServletResponse response);
+    ResponseEntity<?> signIn(SignInFormRequest request, HttpServletRequest httpRequest,
+                                  HttpServletResponse response) throws ExecutionException, InterruptedException;
     @Operation(summary = "회원 로그아웃")
     ResponseEntity<Void> logout(HttpServletRequest request);
     @Operation(summary = "로그인 상태 체크")

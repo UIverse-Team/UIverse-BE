@@ -26,15 +26,14 @@ public class TaskControllerImpl {
     public ResponseEntity<?> addTask(@RequestBody TaskRequest request) {
         try{
             CompletableFuture<String> future = taskProducer.submitTask(
-                    request.type(), request.payload(), request.priority());
+                    request.type(), request.payload()/*, request.priority()*/);
 
-            if(queueService.getQueueSize()> 1000) {
+            if(queueService.getQueueSize()> 50) {
                 return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                         .header("Retry-After", "30")
                         .body(Map.of("taskId", future.get(), "status", "queued",
                                 "message", "잠시 후 다시 시도해주세요!"));
             }
-
             return ResponseEntity.accepted()
                     .body(Map.of("taskId", future.get(), "status", "queued"));
         } catch (Exception e) {

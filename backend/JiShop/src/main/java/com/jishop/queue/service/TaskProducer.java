@@ -7,5 +7,5 @@ import java.util.concurrent.CompletableFuture;
 
 public interface TaskProducer {
 
-    CompletableFuture<String> submitTask(TaskType type, Map<String, Object> payload, int priority);
+    CompletableFuture<String> submitTask(TaskType type, Map<String, Object> payload/*, int priority*/);
 }
