@@ -80,6 +80,9 @@ dependencies {
 	implementation 'org.springframework.session:spring-session-data-redis'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+	// Apple Silicon native DNS resolver
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.100.Final:osx-aarch_64'
+
 	// Logstash를 위한 logstash-logback-encoder
 //	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
 
