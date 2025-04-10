@@ -14,10 +14,10 @@ spring:
 
   # JPA 설정
   jpa:
-    hibernate:
-      ddl-auto: create-drop
     show-sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate.format_sql: true   # SQL 이쁘게 출력
+      hibernate.highlight_sql: true # SQL 컬러 출력
 
   data:
     redis:
