@@ -97,28 +97,10 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     // 바로 주문하기 (회원/비회원 통합)
     @Override
     @Transactional
-    public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
+    public OrderResponse createInstantOrder(User user, OrderRequest instantOrderRequest) {
         //락키 생성 (상품 ID를 기반으로)
-        String lockKey = "order:instant:" + instantOrderRequest.saleProductId();
+        String lockKey = "order:instant:" + instantOrderRequest.orderDetailRequestList().get(0).saleProductId();
 
-        return distributedLockService.executeWithLock(lockKey, () -> {
-            // InstantOrderRequest => OrderRequest
-            OrderRequest orderRequest = convertInstantToOrderRequest(instantOrderRequest);
-            return processOrderCreation(user, orderRequest);
-        });
-    }
-
-    private OrderRequest convertInstantToOrderRequest(InstantOrderRequest instantOrderRequest) {
-        SaleProduct saleProduct = saleProductRepository.findById(instantOrderRequest.saleProductId())
-                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
-
-        OrderDetailRequest detailRequest = new OrderDetailRequest(
-                saleProduct.getId(), instantOrderRequest.quantity()
-        );
-
-        return new OrderRequest(
-                instantOrderRequest.address(),
-                List.of(detailRequest)
-        );
+        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, instantOrderRequest));
     }
 }

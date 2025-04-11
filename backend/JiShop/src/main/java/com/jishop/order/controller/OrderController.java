@@ -21,7 +21,7 @@ public interface OrderController {
 
     //회원 바로주문
     @Operation(summary = "회원 바로 주문", description = "회원이 상품 상세 페이지에서 바로 주문할 때 사용되는 API")
-    ResponseEntity<OrderResponse> createInstantOrder(User user, InstantOrderRequest orderRequest);
+    ResponseEntity<OrderResponse> createInstantOrder(User user, OrderRequest orderRequest);
 
     //회원 주문 목록 조회 페이징 처리
     @Operation(summary = "회원 주문 목록 조회", description = "조회하는 회원의 ID에 따른 주문 목록 페이지")
