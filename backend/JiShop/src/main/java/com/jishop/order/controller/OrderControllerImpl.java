@@ -4,7 +4,9 @@ import com.jishop.cart.dto.CartResponse;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
-import com.jishop.order.service.OrderService;
+import com.jishop.order.service.OrderCancelService;
+import com.jishop.order.service.OrderCreationService;
+import com.jishop.order.service.OrderGetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,14 +20,16 @@ import java.util.List;
 @RequestMapping("/orders")
 public class OrderControllerImpl implements OrderController {
 
-    private final OrderService orderService;
+    private final OrderCreationService orderCreationService;
+    private final OrderGetService orderGetService;
+    private final OrderCancelService orderCancelService;
 
     // 주문 생성
     @Override
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
                                                      @Valid @RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(user, orderRequest);
+        OrderResponse orderResponse = orderCreationService.createOrder(user, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }
@@ -34,7 +38,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailPageResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
-        OrderDetailPageResponse orderDetailResponse = orderService.getOrder(user, orderId, null, null);
+        OrderDetailPageResponse orderDetailResponse = orderGetService.getOrder(user, orderId, null, null);
 
         return ResponseEntity.ok(orderDetailResponse);
     }
@@ -48,7 +52,7 @@ public class OrderControllerImpl implements OrderController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<OrderResponse> responseList = orderService.getPaginatedOrders(user, period, page, size);
+        Page<OrderResponse> responseList = orderGetService.getPaginatedOrders(user, period, page, size);
 
         return ResponseEntity.ok(responseList);
     }
@@ -57,7 +61,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PatchMapping("/{orderId}")
     public ResponseEntity<String> cancelOrder(@CurrentUser User user, @PathVariable Long orderId){
-        orderService.cancelOrder(user, orderId, null, null);
+        orderCancelService.cancelOrder(user, orderId, null, null);
 
         return ResponseEntity.ok("주문이 취소되었습니다");
     }
@@ -66,7 +70,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createInstantOrder(user, orderRequest);
+        OrderResponse orderResponse = orderCreationService.createInstantOrder(user, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }
@@ -75,7 +79,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @GetMapping("/getCancel/{orderId}")
     public ResponseEntity<OrderCancelResponse> getOrderCancel(@CurrentUser User user, @PathVariable Long orderId) {
-        OrderCancelResponse orderCancelResponse = orderService.getCancelPage(user, orderId, null, null);
+        OrderCancelResponse orderCancelResponse = orderGetService.getCancelPage(user, orderId, null, null);
 
         return ResponseEntity.ok(orderCancelResponse);
     }
@@ -83,18 +87,7 @@ public class OrderControllerImpl implements OrderController {
     //장바구니에서 주문서로 넘어갈 때 사용하는 API
     @PostMapping("/checkout")
     public ResponseEntity<CartResponse> getCheckout(@CurrentUser User user, @RequestBody List<OrderDetailRequest> orderDetailRequest) {
-        CartResponse products = orderService.getCheckout(user, orderDetailRequest);
-
-        return ResponseEntity.ok(products);
-    }
-
-    //바로주문하기에서 주문서로 넘어갈 때 사용하는 API
-    @Override
-    @GetMapping("/checkoutInstant")
-    public ResponseEntity<CartResponse> getCheckoutInstant(@CurrentUser User user,
-                                                           @RequestParam("saleProductId") Long saleProductId,
-                                                           @RequestParam("quantity") int quantity) {
-        CartResponse products = orderService.getCheckoutInstant(user, saleProductId, quantity);
+        CartResponse products = orderGetService.getCheckout(user, orderDetailRequest);
 
         return ResponseEntity.ok(products);
     }
