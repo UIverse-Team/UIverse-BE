@@ -21,8 +21,5 @@ public interface OrderGetService {
     OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone);
 
     //회원 비회원 장바구니에서 주문서로 넘어가는 API
-    CartResponse getCheckOut(User user, List<OrderDetailRequest> orderDetailRequest);
-
-    //회원 비회원 바로주문하기에서 주문서로 넘어가는 API
-    CartResponse getCheckoutInstant(User user,  Long saleProductId, int quantity);
+    CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest);
 }

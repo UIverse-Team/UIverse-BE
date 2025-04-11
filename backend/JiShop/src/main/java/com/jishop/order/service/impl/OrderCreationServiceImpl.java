@@ -13,7 +13,6 @@ import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.DistributedLockService;
 import com.jishop.order.service.OrderCreationService;
 import com.jishop.order.service.OrderUtilService;
-import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import java.util.Objects;
 public class OrderCreationServiceImpl implements OrderCreationService {
 
     private final OrderRepository orderRepository;
-    private final SaleProductRepository saleProductRepository;
     private final AddressRepository addressRepository;
     private final OrderUtilService orderUtilService;
     private final DistributedLockService distributedLockService;

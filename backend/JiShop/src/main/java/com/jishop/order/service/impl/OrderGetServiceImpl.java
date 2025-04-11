@@ -83,7 +83,7 @@ public class OrderGetServiceImpl implements OrderGetService {
 
     //회원, 비회원 장바구니에서 주문서로 넘어가는 API
     @Override
-    public CartResponse getCheckOut(User user, List<OrderDetailRequest> orderDetailRequest) {
+    public CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest) {
         List<Long> saleProductIds = orderDetailRequest.stream()
                 .map(OrderDetailRequest::saleProductId)
                 .toList();
@@ -122,32 +122,7 @@ public class OrderGetServiceImpl implements OrderGetService {
                 .toList();
 
         // CartResponse 생성 및 반환
-        return CartResponse.of(cartDetails);
-    }
-
-    //바로 주문하기에서 주문서로 넘어갈 때 사용하는 API
-    @Override
-    public CartResponse getCheckoutInstant(User user,  Long saleProductId, int quantity) {
-        SaleProduct saleProduct = saleProductRepository.findById(saleProductId)
-                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
-
-        int paymentPrice = saleProduct.getProduct().getDiscountPrice();
-        int orderPrice = saleProduct.getProduct().getOriginPrice();
-        int discountPrice = orderPrice - paymentPrice;
-
-        CartDetailResponse cartDetailResponse = CartDetailResponse.from(
-                null,
-                saleProduct,
-                quantity,
-                paymentPrice,
-                orderPrice,
-                discountPrice,
-                false
-        );
-
-        return CartResponse.of(List.of(cartDetailResponse));
-    }
-
+        return CartResponse.of(cartDetails);    }
 
     private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {
         boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;
