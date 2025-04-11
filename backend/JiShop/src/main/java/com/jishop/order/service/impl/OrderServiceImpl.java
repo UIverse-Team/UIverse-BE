@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     //회원 바로 주문 생성
     @Override
-    public OrderResponse createInstantOrder(User user, InstantOrderRequest instantOrderRequest) {
+    public OrderResponse createInstantOrder(User user, OrderRequest instantOrderRequest) {
         return orderCreationService.createInstantOrder(user, instantOrderRequest);
     }
 
@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     //비회원 바로 주문 생성
     @Override
-    public OrderResponse createGuestInstantOrder(InstantOrderRequest orderRequest) {
+    public OrderResponse createGuestInstantOrder(OrderRequest orderRequest) {
         return orderCreationService.createInstantOrder(null, orderRequest);
     }
 

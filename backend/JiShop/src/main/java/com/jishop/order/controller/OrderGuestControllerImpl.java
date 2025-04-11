@@ -1,7 +1,9 @@
 package com.jishop.order.controller;
 
-import com.jishop.order.dto.*;
-import com.jishop.order.service.OrderGuestService;
+import com.jishop.order.dto.OrderCancelResponse;
+import com.jishop.order.dto.OrderDetailPageResponse;
+import com.jishop.order.dto.OrderRequest;
+import com.jishop.order.dto.OrderResponse;
 import com.jishop.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     //비회원 바로주문 생성
     @Override
     @PostMapping("/instant")
-    public ResponseEntity<OrderResponse> createGuestInstantOrder(@RequestBody @Valid InstantOrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> createGuestInstantOrder(@RequestBody @Valid OrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createGuestInstantOrder(orderRequest);
 
         return ResponseEntity.ok(orderResponse);
@@ -44,21 +46,21 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     }
 
     //비회원 주문 취소하기
-//    @Override
-//    @PatchMapping("/{orderNumber}")
-//    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
-//                                                   @RequestParam String phone) {
-//        orderService.cancelGuestOrder(orderNumber, phone);
-//
-//        return ResponseEntity.ok("주문이 취소되었습니다.");
-//    }
+    @Override
+    @PatchMapping("/{orderNumber}")
+    public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
+                                                   @RequestParam String phone) {
+        orderService.cancelGuestOrder(orderNumber, phone);
+
+        return ResponseEntity.ok("주문이 취소되었습니다.");
+    }
 
     //비회원 주문 취소 상세 페이지
-//    @Override
-//    @GetMapping("/getCancel/{orderNumber}")
-//    public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
-//        OrderCancelResponse orderCancelResponse = orderService.getGuestCancelPage(orderNumber, phone);
-//
-//        return ResponseEntity.ok(orderCancelResponse);
-//    }
+    @Override
+    @GetMapping("/getCancel/{orderNumber}")
+    public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
+        OrderCancelResponse orderCancelResponse = orderService.getGuestCancelPage(orderNumber, phone);
+
+        return ResponseEntity.ok(orderCancelResponse);
+    }
 }

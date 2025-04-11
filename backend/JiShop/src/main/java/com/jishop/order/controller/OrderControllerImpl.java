@@ -5,14 +5,12 @@ import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
 import com.jishop.order.service.OrderService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -67,7 +65,7 @@ public class OrderControllerImpl implements OrderController {
     // 바로 구매하기
     @Override
     @PostMapping("/instant")
-    public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid InstantOrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid OrderRequest orderRequest) {
         OrderResponse orderResponse = orderService.createInstantOrder(user, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
