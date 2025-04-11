@@ -18,6 +18,7 @@ import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -47,7 +48,6 @@ public class ReviewServiceImpl implements ReviewService {
 
         SaleProduct saleProduct = orderDetail.getSaleProduct();
 
-        String productSummary = makeProductSummar(saleProduct, orderDetail);
 
         Product product = saleProduct.getProduct();
 
@@ -64,10 +64,14 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewProduct.increaseRating(reviewRequest.rating());
 
-        // 리뷰 저장
-        Review review = reviewRepository.save(reviewRequest.toEntity(reviewRequest.images(), product, orderDetail, user, productSummary));
+        String productSummary = makeProductSummar(saleProduct, orderDetail);
 
-        return review.getId();
+        try {
+            Review review = reviewRepository.save(reviewRequest.toEntity(reviewRequest.images(), product, orderDetail, user, productSummary));
+            return review.getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new DomainException(ErrorType.REVIEW_DUPLICATE);
+        }
     }
 
     private String makeProductSummar(SaleProduct saleProduct, OrderDetail orderDetail) {
