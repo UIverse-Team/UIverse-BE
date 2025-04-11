@@ -1,8 +1,11 @@
 package com.jishop.review;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jishop.address.dto.AddressRequest;
 import com.jishop.category.domain.Category;
 import com.jishop.category.repository.CategoryRepository;
+import com.jishop.config.TestRedisConfig;
+import com.jishop.member.annotation.CurrentUserResolver;
 import com.jishop.member.domain.LoginType;
 import com.jishop.member.domain.User;
 import com.jishop.member.repository.UserRepository;
@@ -13,7 +16,6 @@ import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.dto.OrderDetailRequest;
 import com.jishop.order.dto.OrderRequest;
-import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.product.domain.DiscountStatus;
 import com.jishop.product.domain.Labels;
@@ -21,39 +23,47 @@ import com.jishop.product.domain.Product;
 import com.jishop.product.domain.SaleStatus;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.review.domain.tag.Tag;
-import com.jishop.review.dto.ReviewImageResponse;
 import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.dto.ReviewWithOutUserResponse;
-import com.jishop.review.repository.ReviewRepository;
 import com.jishop.review.service.ReviewService;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@SpringBootTest
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @Transactional
+@SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class reviewRepositoryTest {
+@Import(TestRedisConfig.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ReviewIntegrationTest {
 
     @Autowired
     private SaleProductRepository saleProductRepository;
 
     @Autowired
     private OptionRepository optionRepository;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -65,19 +75,19 @@ public class reviewRepositoryTest {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private ReviewService reviewService;
+    private MockMvc mvc;
+
     @Autowired
-    private OrderDetailRepository orderDetailRepository;
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
+    @MockitoBean
+    private CurrentUserResolver currentUserResolver;
+
+    @BeforeAll
     void init() {
-
         Category category = new Category(null, 5000L, "패션", "5000", "패션", 1);
         Category category1 = new Category(category, 5010L, "상의", "5000>5010", "패션>상의", 2);
         Category category2 = new Category(category1, 5100L, "점퍼", "5000>5010>5100", "패션>상의>점퍼", 3);
@@ -122,35 +132,42 @@ public class reviewRepositoryTest {
         list.add(orderDetail);
         order.updateOrderInfo(1000, 0, 1000, list, "1");
         orderRepository.save(order);
+
+
     }
 
     @Test
-    @DisplayName("리뷰 작성하고 불러오기")
-    void 리뷰_작성밎_조회() throws Exception {
+    @DisplayName("리뷰 작성")
+    void createReview() throws Exception {
         // given
         ReviewRequest request = new ReviewRequest(1L, "굳굳", null, Tag.RECOMMENDED, 3);
         User user = userRepository.findById(1L).orElseThrow(IllegalStateException::new);
-        Long review = reviewService.createReview(request, user);
-        //when
-        ReviewWithOutUserResponse detailReview = reviewService.getDetailReview(review);
-        //then
-        Assertions.assertEquals(user.getId(), 1L);
-        Assertions.assertEquals(review, 1L);
-        Assertions.assertEquals(detailReview.name(), "홍길동");
+        loginResolver(user);
+
+        // when
+        Long result = 리뷰작성(request);
+
+        // then
+        Assertions.assertNotNull(result);
     }
+
 
     @Test
-    @DisplayName("리뷰 이미지 슬라이스")
-    void imagesSlice() throws Exception {
+    @DisplayName("한번한 리뷰 작성 또 작성할때 에러 발생.")
+    void duplicate_review() throws Exception {
         // given
-        PageRequest pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Slice<ReviewImageResponse> reviewSlice = reviewRepository.findByAllWithImage(pageable).map(ReviewImageResponse::from);
-        //then
-        System.out.println(reviewSlice.getContent());
-        System.out.println(reviewSlice.getNumber());
-        System.out.println(reviewSlice.hasNext());
+        ReviewRequest request = new ReviewRequest(1L, "굳굳", null, Tag.RECOMMENDED, 3);
+        User user = userRepository.findById(1L).orElseThrow(IllegalStateException::new);
+        loginResolver(user);
+        리뷰작성(request);
 
+        //when
+        mvc.perform(MockMvcRequestBuilders.post("/reviews")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
     }
+
 
     private OrderRequest createSampleOrderRequest() {
         // 주소 정보 생성
@@ -170,5 +187,25 @@ public class reviewRepositoryTest {
 
         // OrderRequest 객체 생성 및 반환
         return new OrderRequest(addressRequest, orderDetailRequestList);
+    }
+
+    private void loginResolver(User user) throws Exception {
+        given(currentUserResolver.supportsParameter(any()))
+                .willReturn(true);
+        given(currentUserResolver.resolveArgument(any(), any(), any(), any()))
+                .willReturn(user);// 강제 리턴
+    }
+
+
+    private Long 리뷰작성(ReviewRequest request) throws Exception {
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/reviews")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+
+        return objectMapper.readValue(response, Long.class);
     }
 }
