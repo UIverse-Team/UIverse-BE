@@ -3,7 +3,6 @@ package com.jishop.product.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-import java.util.Arrays;
 import java.util.List;
 
 public record ProductRequest(
@@ -22,8 +21,8 @@ public record ProductRequest(
         public ProductRequest {
                 if (sort == null || sort.isEmpty()) {sort = "wish";}
                 if (priceRanges == null || priceRanges.isEmpty()) {
-                        priceRanges = Arrays.asList(0, 25000, 50000, 100000);
+                        priceRanges = List.of(0, 25000, 50000, 100000);
                 }
-                if (ratings == null || ratings.isEmpty()) {ratings = Arrays.asList(1, 2, 3, 4, 5);}
+                if (ratings == null || ratings.isEmpty()) {ratings = List.of(1, 2, 3, 4, 5);}
         }
 }
