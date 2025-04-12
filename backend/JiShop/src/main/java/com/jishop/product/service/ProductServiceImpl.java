@@ -1,6 +1,5 @@
 package com.jishop.product.service;
 
-import com.jishop.category.service.CategoryService;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
@@ -31,8 +30,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
-
-    private final CategoryService categoryService;
 
     private final ProductRepository productRepository;
     private final ReviewProductRepository reviewProductRepository;
