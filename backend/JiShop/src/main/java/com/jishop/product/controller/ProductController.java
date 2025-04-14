@@ -22,8 +22,11 @@ public interface ProductController {
     ProductDetailResponse getProduct(final User user, final Long productId);
 
     @Operation(summary = "인기순(찜순) 상품 조회")
-    List<ProductResponse> getProductByWishTopTen(final int page, final int size);
+    List<ProductResponse> getProductsByWishTopTen(final int page, final int size);
 
     @Operation(summary = "오늘의 특가 상품 조회")
-    PagedModel<TodaySpecialListResponse> getProductByTodaySpecial(final int page, final int size);
+    PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size);
+
+    @Operation(summary = "헤더 카테고리 상품 조회")
+    PagedModel<ProductResponse> getProductsByCategory(final Long CategoryId, final int page, final int size);
 }

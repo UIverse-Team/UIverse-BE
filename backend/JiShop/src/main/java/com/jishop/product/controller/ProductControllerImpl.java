@@ -6,6 +6,7 @@ import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
+import com.jishop.product.service.ProductCategoryService;
 import com.jishop.product.service.ProductService;
 import com.jishop.product.service.ProductWishlistService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class ProductControllerImpl implements ProductController {
 
     private final ProductService productService;
     private final ProductWishlistService productWishListService;
+    private final ProductCategoryService productCategoryService;
 
     @Override
     @GetMapping
@@ -43,10 +45,9 @@ public class ProductControllerImpl implements ProductController {
         return productService.getProduct(user, productId);
     }
 
-    // 상위 찜순 데이터
     @Override
     @GetMapping("/popular")
-    public List<ProductResponse> getProductByWishTopTen(
+    public List<ProductResponse> getProductsByWishTopTen(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size
     ) {
@@ -58,7 +59,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping("/specialPrices")
-    public PagedModel<TodaySpecialListResponse> getProductByTodaySpecial(
+    public PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size
     ) {
@@ -66,5 +67,16 @@ public class ProductControllerImpl implements ProductController {
         if (size <= 0 || size > 100) {size = 8;}
 
         return productService.getProductsByTodaySpecial(page, size);
+    }
+
+    @Override
+    @GetMapping("/category/{categoryId}")
+    public PagedModel<ProductResponse> getProductsByCategory(
+            @PathVariable final Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        if (page < 0 || page > 100) {page = 0;}
+
+        return productCategoryService.getProductsByCategory(categoryId, page, size);
     }
 }
