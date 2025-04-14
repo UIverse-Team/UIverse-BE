@@ -35,4 +35,20 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 productPage.getTotalElements()
         ));
     }
+
+    @Override
+    public List<Long> getCategoryIdsWithSubcategories(final Long categoryId) {
+        if (categoryId == null) return List.of();
+
+        return categoryRepository.findById(categoryId)
+                .map(category -> {
+                    final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
+                            categoryRepository.findAllSubCategoryIds(categoryId)
+                    );
+                    return subCategoryPKs.isEmpty()
+                            ? List.of(category.getId())
+                            : subCategoryPKs;
+                })
+                .orElse(List.of());
+    }
 }

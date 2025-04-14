@@ -1,6 +1,5 @@
 package com.jishop.product.service.impl;
 
-import com.jishop.category.repository.CategoryRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
@@ -15,6 +14,7 @@ import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.repository.ProductRepository;
+import com.jishop.product.service.ProductCategoryService;
 import com.jishop.product.service.ProductService;
 import com.jishop.product.service.ProductWishlistService;
 import com.jishop.reviewproduct.domain.ReviewProduct;
@@ -36,15 +36,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ReviewProductRepository reviewProductRepository;
     private final SaleProductRepository saleProductRepository;
-    private final CategoryRepository categoryRepository;
     private final OrderDetailRepository orderDetailRepository;
 
     private final ProductWishlistService wishlistService;
+    private final ProductCategoryService productCategoryService;
 
     @Override
     public PagedModel<ProductResponse> getProductList(final ProductRequest productRequest,
                                                       final int page, final int size) {
-        final List<Long> categoryIds = getCategoryIdsWithSubcategories(productRequest.categoryId());
+        final List<Long> categoryIds = productCategoryService.getCategoryIdsWithSubcategories(productRequest.categoryId());
 
         final List<Product> selectedProducts = productRepository.findProductsByCondition(productRequest, page, size, categoryIds);
         final List<ProductResponse> productListResponse = selectedProducts.stream()
@@ -99,20 +99,5 @@ public class ProductServiceImpl implements ProductService {
         });
 
         return new PagedModel<>(responsePage);
-    }
-
-    private List<Long> getCategoryIdsWithSubcategories(Long categoryId) {
-        if (categoryId == null) return List.of();
-
-        return categoryRepository.findById(categoryId)
-                .map(category -> {
-                    final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
-                            categoryRepository.findAllSubCategoryIds(categoryId)
-                    );
-                    return subCategoryPKs.isEmpty()
-                            ? List.of(category.getId())
-                            : subCategoryPKs;
-                })
-                .orElse(List.of());
     }
 }
