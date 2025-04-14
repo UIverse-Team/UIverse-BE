@@ -6,6 +6,8 @@ import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.reviewproduct.domain.QReviewProduct;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -46,6 +48,16 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
         }
 
         final OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort());
+
+//        BooleanBuilder testBuilder = new BooleanBuilder();
+//        testBuilder.and(reviewProduct.reviewCount.gt(0));
+//
+//        JPQLQuery<Long> simpleSubQuery = JPAExpressions
+//                .select(reviewProduct.product.id)
+//                .from(reviewProduct)
+//                .where(testBuilder);
+//
+//        builder.and(product.id.in(simpleSubQuery));
 
         return queryFactory.selectFrom(product)
                 .where(builder)
@@ -122,41 +134,44 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
 
             final BooleanBuilder ratingBuilder = new BooleanBuilder();
 
-            // 나눗셈 오류 방지
+            // review_count > 0 조건을 AND로 추가 (OR 대신)
             ratingBuilder.and(reviewProduct.reviewCount.gt(0));
+
+            // 평점 필터링을 위한 내부 Builder
+            BooleanBuilder ratingRangeBuilder = new BooleanBuilder();
+
+            NumberExpression<Double> avgRating = Expressions.numberTemplate(
+                    Double.class,
+                    "1.0 * {0} / {1}",
+                    reviewProduct.reviewScore,
+                    reviewProduct.reviewCount
+            );
 
             // 평점 = 리뷰총점 / 리뷰개수
             for (final Integer rating : ratings) {
                 switch (rating) {
-                    case 1 -> ratingBuilder.or(
-                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount)
-                                    .goe(1.0).and(
-                                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount).lt(2.0)
-                                    )
+                    case 1 -> ratingRangeBuilder.or(
+                            avgRating.goe(1.0).and(avgRating.lt(2.0))
                     );
-                    case 2 -> ratingBuilder.or(
-                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount)
-                                    .goe(2.0).and(
-                                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount).lt(3.0)
-                                    )
+                    case 2 -> ratingRangeBuilder.or(
+                            avgRating.goe(2.0).and(avgRating.lt(3.0))
                     );
-                    case 3 -> ratingBuilder.or(
-                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount)
-                                    .goe(3.0).and(
-                                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount).lt(4.0)
-                                    )
+                    case 3 -> ratingRangeBuilder.or(
+                            avgRating.goe(3.0).and(avgRating.lt(4.0))
                     );
-                    case 4 -> ratingBuilder.or(
-                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount)
-                                    .goe(4.0).and(
-                                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount).lt(5.0)
-                                    )
+                    case 4 -> ratingRangeBuilder.or(
+                            avgRating.goe(4.0).and(avgRating.lt(5.0))
                     );
-                    case 5 -> ratingBuilder.or(
-                            reviewProduct.reviewScore.divide(reviewProduct.reviewCount).goe(5.0)
+                    case 5 -> ratingRangeBuilder.or(
+                            avgRating.goe(5.0)
                     );
                     default -> {}
                 }
+            }
+
+            // 평점 범위 조건을 메인 rating builder에 AND로 추가
+            if (ratingRangeBuilder.hasValue()) {
+                ratingBuilder.and(ratingRangeBuilder);
             }
 
             if (ratingBuilder.hasValue()) {
@@ -170,7 +185,6 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     }
 
     private void addCategoryFilter(final List<Long> categoryIds, final BooleanBuilder builder) {
-
         builder.and(product.category.id.in(categoryIds));
     }
 
