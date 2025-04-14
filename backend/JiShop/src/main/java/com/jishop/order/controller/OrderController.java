@@ -56,11 +56,6 @@ public interface OrderController {
     // 장바구니에서 주문서로 넘어가는 API
     @Operation(summary = "장바구니에서 주문서로 넘어갈 때 사용하는 API")
     ResponseEntity<CartResponse> getCheckout(User user, List<OrderDetailRequest> orderDetailRequest);
-
-    //바로 주문하기에서 주문서로 넘어가는 API
-    @Operation(summary = "바로 주문하기에서 주문서로 넘어갈 때 사용하는 API")
-    ResponseEntity<CartResponse> getCheckoutInstant(User user, Long saleProductId, int quantity);
-
     //회원 주문 - 결제와 연동
 //    @Operation(
 //            summary = "회원 주문 및 결제 API",

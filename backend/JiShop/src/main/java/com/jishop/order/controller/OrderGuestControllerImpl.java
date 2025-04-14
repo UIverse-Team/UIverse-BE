@@ -4,7 +4,9 @@ import com.jishop.order.dto.OrderCancelResponse;
 import com.jishop.order.dto.OrderDetailPageResponse;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
-import com.jishop.order.service.OrderService;
+import com.jishop.order.service.OrderCancelService;
+import com.jishop.order.service.OrderCreationService;
+import com.jishop.order.service.OrderGetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +17,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/ordersGuest")
 public class OrderGuestControllerImpl implements OrderGuestController {
 
-    private final OrderService orderService;
+    private final OrderCreationService orderCreationService;
+    private final OrderGetService orderGetService;
+    private final OrderCancelService orderCancelService;
 
     //비회원 주문 생성
     @Override
     @PostMapping
     public ResponseEntity<OrderResponse> createGuestOrder(@RequestBody @Valid OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createGuestOrder(orderRequest);
+        OrderResponse orderResponse = orderCreationService.createOrder(null, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }
@@ -30,7 +34,7 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     @Override
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createGuestInstantOrder(@RequestBody @Valid OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createGuestInstantOrder(orderRequest);
+        OrderResponse orderResponse = orderCreationService.createInstantOrder(null, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }
@@ -40,7 +44,7 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     @GetMapping("/{orderNumber}")
     public ResponseEntity<OrderDetailPageResponse> getGuestOrderDetail(@PathVariable String orderNumber,
                                                                        @RequestParam String phone) {
-        OrderDetailPageResponse orderDetailList = orderService.getGuestOrder(orderNumber, phone);
+        OrderDetailPageResponse orderDetailList = orderGetService.getOrder(null, null, orderNumber, phone);
 
         return ResponseEntity.ok(orderDetailList);
     }
@@ -50,7 +54,7 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     @PatchMapping("/{orderNumber}")
     public ResponseEntity<String> cancelGuestOrder(@PathVariable String orderNumber,
                                                    @RequestParam String phone) {
-        orderService.cancelGuestOrder(orderNumber, phone);
+        orderCancelService.cancelOrder(null, null, orderNumber, phone);
 
         return ResponseEntity.ok("주문이 취소되었습니다.");
     }
@@ -59,7 +63,7 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     @Override
     @GetMapping("/getCancel/{orderNumber}")
     public ResponseEntity<OrderCancelResponse> getGuestOrderCancel(@PathVariable String orderNumber, @RequestParam String phone){
-        OrderCancelResponse orderCancelResponse = orderService.getGuestCancelPage(orderNumber, phone);
+        OrderCancelResponse orderCancelResponse = orderGetService.getCancelPage(null,null, orderNumber, phone);
 
         return ResponseEntity.ok(orderCancelResponse);
     }
