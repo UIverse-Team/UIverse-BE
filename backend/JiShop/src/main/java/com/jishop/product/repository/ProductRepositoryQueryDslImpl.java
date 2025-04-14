@@ -72,6 +72,10 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     }
 
     private BooleanExpression priceRangesFilter(final List<Integer> priceRanges) {
+        if (priceRanges == null || priceRanges.isEmpty()) {
+            return null;
+        }
+
         BooleanBuilder priceBuilder = new BooleanBuilder();
 
         for (final Integer range : priceRanges) {
@@ -88,7 +92,7 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     }
 
     private BooleanExpression ratingsFilter(final List<Integer> ratings) {
-        if (ratings.size() == 5) {
+        if (ratings == null || ratings.isEmpty() || ratings.size() == 5) {
             return null;
         }
         // 카운트 > 0 조건 builder
