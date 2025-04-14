@@ -7,12 +7,10 @@ import com.jishop.option.dto.FashionClothesOptionResponse;
 import com.jishop.option.dto.GeneralOptionResponse;
 import com.jishop.option.dto.SizeOption;
 import com.jishop.order.repository.OrderDetailRepository;
-import com.jishop.product.domain.DiscountStatus;
 import com.jishop.product.domain.Product;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
-import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.product.service.ProductCategoryService;
 import com.jishop.product.service.ProductService;
@@ -21,7 +19,10 @@ import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,19 +86,5 @@ public class ProductServiceImpl implements ProductService {
 
         return ProductDetailResponse
                 .from(ProductResponse.from(product), product, isWished, reviewCount, reviewRate, productsOptions);
-    }
-
-    @Override
-    public PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size) {
-        final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        final Page<Product> productPage = productRepository.findDailDealProducts(DiscountStatus.DAILY_DEAL, pageable);
-
-        final Page<TodaySpecialListResponse> responsePage = productPage.map(product -> {
-            final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());
-
-            return TodaySpecialListResponse.from(product, totalSales);
-        });
-
-        return new PagedModel<>(responsePage);
     }
 }

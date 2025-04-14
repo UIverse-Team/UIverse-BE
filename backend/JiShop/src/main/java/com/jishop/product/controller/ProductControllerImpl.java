@@ -7,6 +7,7 @@ import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.service.ProductCategoryService;
+import com.jishop.product.service.ProductDiscountService;
 import com.jishop.product.service.ProductService;
 import com.jishop.product.service.ProductWishlistService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class ProductControllerImpl implements ProductController {
     private final ProductService productService;
     private final ProductWishlistService productWishListService;
     private final ProductCategoryService productCategoryService;
+    private final ProductDiscountService productDiscountService;
 
     @Override
     @GetMapping
@@ -66,7 +68,7 @@ public class ProductControllerImpl implements ProductController {
         if (page < 0 || page > 100) {page = 0;}
         if (size <= 0 || size > 100) {size = 8;}
 
-        return productService.getProductsByTodaySpecial(page, size);
+        return productDiscountService.getProductsByDailyDeal(page, size);
     }
 
     @Override
