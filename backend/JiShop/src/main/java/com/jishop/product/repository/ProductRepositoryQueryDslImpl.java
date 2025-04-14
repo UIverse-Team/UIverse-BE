@@ -32,10 +32,18 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
                                                  final List<Long> categoryIds) {
         final BooleanBuilder builder = new BooleanBuilder();
 
-        addPriceRangesFiltering(productRequest.priceRanges(), builder);
-        addRatingsFilter(productRequest.ratings(), builder);
-        addCategoryFilter(categoryIds, builder);
-        addKeywordFilter(productRequest.keyword(), builder);
+        if (productRequest.priceRanges() != null && !productRequest.priceRanges().isEmpty()) {
+            addPriceRangesFiltering(productRequest.priceRanges(), builder);
+        }
+        if (productRequest.ratings() != null && !productRequest.ratings().isEmpty()) {
+            addRatingsFilter(productRequest.ratings(), builder);
+        }
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            addCategoryFilter(categoryIds, builder);
+        }
+        if (productRequest.keyword() != null && !productRequest.keyword().trim().isEmpty()) {
+            addKeywordFilter(productRequest.keyword(), builder);
+        }
 
         final OrderSpecifier<?> orderSpecifier = addSorting(productRequest.sort());
 
@@ -51,10 +59,18 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     public long countProductsByCondition(final ProductRequest productRequest, final List<Long> categoryIds) {
         final BooleanBuilder builder = new BooleanBuilder();
 
-        addPriceRangesFiltering(productRequest.priceRanges(), builder);
-        addRatingsFilter(productRequest.ratings(), builder);
-        addCategoryFilter(categoryIds, builder);
-        addKeywordFilter(productRequest.keyword(), builder);
+        if (productRequest.priceRanges() != null && !productRequest.priceRanges().isEmpty()) {
+            addPriceRangesFiltering(productRequest.priceRanges(), builder);
+        }
+        if (productRequest.ratings() != null && !productRequest.ratings().isEmpty()) {
+            addRatingsFilter(productRequest.ratings(), builder);
+        }
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            addCategoryFilter(categoryIds, builder);
+        }
+        if (productRequest.keyword() != null && !productRequest.keyword().trim().isEmpty()) {
+            addKeywordFilter(productRequest.keyword(), builder);
+        }
 
         return Optional.ofNullable(
                 queryFactory.select(product.count())
@@ -154,7 +170,6 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     }
 
     private void addCategoryFilter(final List<Long> categoryIds, final BooleanBuilder builder) {
-        if (categoryIds == null || categoryIds.isEmpty()) return;
 
         builder.and(product.category.id.in(categoryIds));
     }
