@@ -34,12 +34,7 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
                                                  final List<Long> categoryIds) {
 
         return queryFactory.selectFrom(product)
-                .where(
-                        priceRangesFilter(productRequest.priceRanges()),
-                        ratingsFilter(productRequest.ratings()),
-                        categoryFilter(categoryIds),
-                        keywordFilter(productRequest.keyword())
-                )
+                .where(buildProductConditions(productRequest, categoryIds))
                 .orderBy(getSortOrderSpecifier(productRequest.sort()))
                 .offset((long) page * size)
                 .limit(size)
@@ -52,14 +47,18 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
         return Optional.ofNullable(
                 queryFactory.select(product.count())
                         .from(product)
-                        .where(
-                                priceRangesFilter(productRequest.priceRanges()),
-                                ratingsFilter(productRequest.ratings()),
-                                categoryFilter(categoryIds),
-                                keywordFilter(productRequest.keyword())
-                        )
+                        .where(buildProductConditions(productRequest, categoryIds))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    private BooleanExpression buildProductConditions(final ProductRequest request, final List<Long> categoryIds) {
+        return Expressions.allOf(
+                priceRangesFilter(request.priceRanges()),
+                ratingsFilter(request.ratings()),
+                categoryFilter(categoryIds),
+                keywordFilter(request.keyword())
+        );
     }
 
     private OrderSpecifier<?> getSortOrderSpecifier(final String sort) {
@@ -128,7 +127,9 @@ public class ProductRepositoryQueryDslImpl implements ProductRepositoryQueryDsl 
     }
 
     private BooleanExpression categoryFilter(final List<Long> categoryIds) {
-
+        if (categoryIds == null || categoryIds.isEmpty()) {
+            return null;
+        }
         return product.category.id.in(categoryIds);
     }
 
