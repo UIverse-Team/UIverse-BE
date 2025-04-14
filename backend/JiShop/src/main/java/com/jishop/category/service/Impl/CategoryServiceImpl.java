@@ -4,12 +4,8 @@ import com.jishop.category.domain.Category;
 import com.jishop.category.dto.CategoryResponse;
 import com.jishop.category.repository.CategoryRepository;
 import com.jishop.category.service.CategoryService;
-import com.jishop.product.domain.Product;
-import com.jishop.product.dto.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
-import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +19,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 //    private final CategoryRedisService categoryRedisService;
-
-    @Override
-    public PagedModel<ProductResponse> getProductsByCategory(Long categoryId, int page) {
-
-        Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "wishListCount"));
-        Page<Product> productPage = categoryRepository.findProductsByCategoryWithAllDescendants(categoryId, pageable);
-
-        List<ProductResponse> productsResponse = productPage.getContent().stream()
-                .map(ProductResponse::from)
-                .toList();
-
-        return new PagedModel<>(new PageImpl<>(
-                productsResponse,
-                pageable,
-                productPage.getTotalElements()
-        ));
-    }
 
     @Override
     public List<CategoryResponse> getCategoryFilterInfo() {
