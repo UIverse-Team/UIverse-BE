@@ -7,6 +7,7 @@ import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.service.ProductService;
+import com.jishop.product.service.ProductWishlistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,7 @@ import java.util.List;
 public class ProductControllerImpl implements ProductController {
 
     private final ProductService productService;
+    private final ProductWishlistService productWishListService;
 
     @Override
     @GetMapping
@@ -51,7 +53,7 @@ public class ProductControllerImpl implements ProductController {
         if (page < 0 || page > 100) {page = 0;}
         if (size <= 0 || size > 100) {size = 8;}
 
-        return productService.getProductsByWishList(page, size);
+        return productWishListService.getProductsByWishList(page, size);
     }
 
     @Override

@@ -1,5 +1,6 @@
-package com.jishop.product.service;
+package com.jishop.product.service.impl;
 
+import com.jishop.category.repository.CategoryRepository;
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
@@ -14,7 +15,8 @@ import com.jishop.product.dto.response.ProductDetailResponse;
 import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import com.jishop.product.repository.ProductRepository;
-import com.jishop.productwishlist.repository.ProductWishListRepository;
+import com.jishop.product.service.ProductService;
+import com.jishop.product.service.ProductWishlistService;
 import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
@@ -33,18 +35,22 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ReviewProductRepository reviewProductRepository;
-    private final ProductWishListRepository productWishListRepository;
     private final SaleProductRepository saleProductRepository;
+    private final CategoryRepository categoryRepository;
     private final OrderDetailRepository orderDetailRepository;
+
+    private final ProductWishlistService wishlistService;
 
     @Override
     public PagedModel<ProductResponse> getProductList(final ProductRequest productRequest,
                                                       final int page, final int size) {
-        final List<Product> selectedProducts = productRepository.findProductsByCondition(productRequest, page, size);
+        final List<Long> categoryIds = getCategoryIdsWithSubcategories(productRequest.categoryId());
+
+        final List<Product> selectedProducts = productRepository.findProductsByCondition(productRequest, page, size, categoryIds);
         final List<ProductResponse> productListResponse = selectedProducts.stream()
                 .map(ProductResponse::from).toList();
 
-        final long totalCount = productRepository.countProductsByCondition(productRequest);
+        final long totalCount = productRepository.countProductsByCondition(productRequest, categoryIds);
         final Pageable pageable = PageRequest.of(page, size);
         final Page<ProductResponse> pagedProductsResponse = new PageImpl<>(productListResponse, pageable, totalCount);
 
@@ -56,8 +62,7 @@ public class ProductServiceImpl implements ProductService {
         final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-        final boolean isWished = (user != null) && productWishListRepository
-                .isProductWishedByUser(user.getId(), productId);
+        final boolean isWished = wishlistService.isProductWishedByUser(user, productId);
 
         final Long categoryType = product.getCategoryInfo().getLCatId();
 
@@ -83,14 +88,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getProductsByWishList(final int page, final int size) {
-        final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        final Page<Product> productPage = productWishListRepository.getPopularProductsByWishList(pageable);
-
-        return productPage.stream().map(ProductResponse::from).toList();
-    }
-
-    @Override
     public PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size) {
         final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         final Page<Product> productPage = productRepository.findDailDealProducts(DiscountStatus.DAILY_DEAL, pageable);
@@ -102,5 +99,22 @@ public class ProductServiceImpl implements ProductService {
         });
 
         return new PagedModel<>(responsePage);
+    }
+
+
+
+    private List<Long> getCategoryIdsWithSubcategories(Long categoryId) {
+        if (categoryId == null) return List.of();
+
+        return categoryRepository.findById(categoryId)
+                .map(category -> {
+                    final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
+                            categoryRepository.findAllSubCategoryIds(categoryId)
+                    );
+                    return subCategoryPKs.isEmpty()
+                            ? List.of(category.getId())
+                            : subCategoryPKs;
+                })
+                .orElse(List.of());
     }
 }
