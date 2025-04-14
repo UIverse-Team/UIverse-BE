@@ -76,6 +76,7 @@ public class ProductControllerImpl implements ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size) {
         if (page < 0 || page > 100) {page = 0;}
+        if (size <= 0 || size > 100) {size = 12;}
 
         return productCategoryService.getProductsByCategory(categoryId, page, size);
     }
