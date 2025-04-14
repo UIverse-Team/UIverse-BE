@@ -101,8 +101,6 @@ public class ProductServiceImpl implements ProductService {
         return new PagedModel<>(responsePage);
     }
 
-
-
     private List<Long> getCategoryIdsWithSubcategories(Long categoryId) {
         if (categoryId == null) return List.of();
 

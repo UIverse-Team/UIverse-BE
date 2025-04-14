@@ -13,6 +13,5 @@ public interface ProductService {
 
     ProductDetailResponse getProduct(final User user, final Long productId);
 
-
     PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size);
 }

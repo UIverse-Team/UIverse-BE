@@ -17,7 +17,6 @@ public record ProductRequest(
 ){
         public ProductRequest {
                 if (keyword == null) { keyword = ""; }
-                if (sort == null || sort.isEmpty()) { sort = "wish"; }
                 if (priceRanges == null || priceRanges.isEmpty()) { priceRanges = List.of(0, 25000, 50000, 100000); }
                 if (ratings == null || ratings.isEmpty()) { ratings = List.of(1, 2, 3, 4, 5); }
         }
