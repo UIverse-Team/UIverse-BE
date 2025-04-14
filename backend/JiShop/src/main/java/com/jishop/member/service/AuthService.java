@@ -19,4 +19,5 @@ public interface AuthService {
     Long checkLogin(User user);
     void updateAdSMSAgree(User user, UserAdSMSRequest request);
     void updateAdEmailAgree(User user, UserAdEmailRequest request);
+    void logout(User user);
 }

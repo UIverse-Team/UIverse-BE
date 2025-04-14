@@ -67,13 +67,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void updatePW(User user, UserNewPasswordRequest request){
-        if(passwordEncoder.matches(request.password(), user.getPassword())){
+        User persistUser = getPersistUser(user);
+
+        if(passwordEncoder.matches(request.password(), persistUser.getPassword())){
             throw new DomainException(ErrorType.PASSWORD_EXISTS);
         }
 
         String password = passwordEncoder.encode(request.password());
-        user.updatePassword(password);
-        updateUserCache(user);
+        persistUser.updatePassword(password);
+        updateUserCache(persistUser);
     }
 
     // todo: 회원 정보 조회
@@ -83,17 +85,22 @@ public class AuthServiceImpl implements AuthService {
 
     // todo: 회원 정보 수정 (이름, 전화번호)
     public void updateUserName(User user, UserNameRequest request) {
-        user.updateName(request.name());
-        updateUserCache(user);
+        User persistUser = getPersistUser(user);
+
+        persistUser.updateName(request.name());
+        updateUserCache(persistUser);
     }
 
     public void updatePhone(User user, UserPhoneRequest request) {
-        user.updatePhone(request.phone());
-        updateUserCache(user);
+        User persistUser = getPersistUser(user);
+
+        persistUser.updatePhone(request.phone());
+        updateUserCache(persistUser);
     }
 
     public void deleteUser(User user) {
-        user.delete();
+        User persistUser = getPersistUser(user);
+        persistUser.delete();
     }
 
     public Long checkLogin(User user) {
@@ -101,13 +108,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void updateAdSMSAgree(User user, UserAdSMSRequest request){
-        user.updateAdSMSAgree(request.adSMSAgree());
-        updateUserCache(user);
+        User persistUser = getPersistUser(user);
+
+        persistUser.updateAdSMSAgree(request.adSMSAgree());
+        updateUserCache(persistUser);
     }
 
     public void updateAdEmailAgree(User user, UserAdEmailRequest request){
-        user.updateAdEmailAgree(request.adEmailAgree());
-        updateUserCache(user);
+        User persistUser = getPersistUser(user);
+
+        persistUser.updateAdEmailAgree(request.adEmailAgree());
+        updateUserCache(persistUser);
     }
 
     private void updateUserCache(User user) {
@@ -115,6 +126,18 @@ public class AuthServiceImpl implements AuthService {
         // 캐시 업데이트 (기존 캐시 삭제 후 최신 정보로 재설정)
         redisTemplate.delete(cacheKey);
         redisTemplate.opsForValue().set(cacheKey, user, Duration.ofMinutes(30));
+    }
+
+    private User getPersistUser(User user){
+        User persistUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+
+        return persistUser;
+    }
+
+    public void logout(User user) {
+        String cacheKey = "user::" + user.getId();
+        redisTemplate.delete(cacheKey);
     }
 }
 
