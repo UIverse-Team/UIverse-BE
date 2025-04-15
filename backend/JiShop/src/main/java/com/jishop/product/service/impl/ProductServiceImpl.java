@@ -6,7 +6,6 @@ import com.jishop.member.domain.User;
 import com.jishop.option.dto.FashionClothesOptionResponse;
 import com.jishop.option.dto.GeneralOptionResponse;
 import com.jishop.option.dto.SizeOption;
-import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.Product;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductDetailResponse;
@@ -37,7 +36,6 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ReviewProductRepository reviewProductRepository;
     private final SaleProductRepository saleProductRepository;
-    private final OrderDetailRepository orderDetailRepository;
 
     private final ProductWishlistService wishlistService;
     private final ProductCategoryService productCategoryService;
