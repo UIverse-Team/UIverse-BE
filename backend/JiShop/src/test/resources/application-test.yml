@@ -18,6 +18,8 @@ spring:
     properties:
       hibernate.format_sql: true   # SQL 이쁘게 출력
       hibernate.highlight_sql: true # SQL 컬러 출력
+      hibernate:
+        hbm2ddl.auto: create
 
   data:
     redis:

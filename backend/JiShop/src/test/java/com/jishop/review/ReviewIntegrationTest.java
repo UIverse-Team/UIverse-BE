@@ -63,9 +63,6 @@ public class ReviewIntegrationTest {
     private OptionRepository optionRepository;
 
     @Autowired
-    private ReviewService reviewService;
-
-    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
