@@ -3,6 +3,9 @@ package com.jishop.product.dto.response;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.jishop.product.domain.Product;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 public record ProductDetailResponse(
         @JsonUnwrapped
         ProductResponse productResponse,
@@ -12,7 +15,7 @@ public record ProductDetailResponse(
         Object option,
         int reviewCount,
         double reviewRate,
-        String[] images,
+        List<String> images,
         String detailImage,
         Object isWished
 ) {
@@ -21,6 +24,17 @@ public record ProductDetailResponse(
                                              final Object option) {
         final Object wishStatus = isWished != null && isWished;
 
+        ProductImageUrlResponse imageUrlResponse = ProductImageUrlResponse.from(product.getImage());
+
+        List<String> imageList = Stream.of(
+                        imageUrlResponse.image1(),
+                        imageUrlResponse.image2(),
+                        imageUrlResponse.image3(),
+                        imageUrlResponse.image4()
+                )
+                .filter(img -> img != null && !img.isEmpty())
+                .toList();
+
         return new ProductDetailResponse(
                 productResponse,
                 product.getProductInfo().getDescription(),
@@ -28,13 +42,8 @@ public record ProductDetailResponse(
                 option,
                 reviewCount,
                 reviewRate,
-                new String[] {
-                        product.getImage().getImage1(),
-                        product.getImage().getImage2(),
-                        product.getImage().getImage3(),
-                        product.getImage().getImage4()
-                },
-                product.getImage().getDetailImage(),
+                imageList,
+                imageUrlResponse.detailImage(),
                 wishStatus
         );
     }
