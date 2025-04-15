@@ -18,7 +18,6 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-//    private final CategoryRedisService categoryRedisService;
 
     @Override
     public List<CategoryResponse> getCategoryFilterInfo() {
