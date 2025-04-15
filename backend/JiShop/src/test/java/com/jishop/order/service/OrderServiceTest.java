@@ -29,14 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Execution(ExecutionMode.CONCURRENT)
 public class OrderServiceTest {
 
-    @Autowired
-    private OrderService orderService;
-
     private static final int THREAD_COUNT = 10;
     private ExecutorService executorService;
     private CountDownLatch latch;
     @Autowired
     private StockRepository stockRepository;
+    @Autowired
+    private OrderCreationService orderCreationService;
 
     @BeforeEach
     void setUp() {
@@ -65,7 +64,7 @@ public class OrderServiceTest {
 
                     OrderRequest orderRequest = createSampleOrderRequest();
                     // 실제 orderService 메서드 호출하여 주문 생성
-                    OrderResponse response = orderService.createOrder(null, orderRequest);
+                    OrderResponse response = orderCreationService.createOrder(orderRequest);
                     orderResponses.add(response);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -143,7 +142,7 @@ public class OrderServiceTest {
                     OrderRequest orderRequest = createSampleOrderRequest(); // 각 주문당 3개 구매
 
                     try {
-                        orderService.createOrder(null, orderRequest); // null은 비회원 주문을 의미
+                        orderCreationService.createOrder(orderRequest);
                     } catch (Exception e) {
                         // 재고 부족 등의 예외 발생 시 실패 카운트 증가
                         failCount.incrementAndGet();
