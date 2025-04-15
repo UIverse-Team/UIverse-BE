@@ -16,21 +16,14 @@ public record FashionClothesOptionResponse(
         Map<String, List<SizeOption>> fashionClothesOptions = new HashMap<>();
 
         for (SizeOption option : productOptions) {
-            String optionValue = option.optionValue();
-            String[] colorAndSize = optionValue.split("/");
-
-            if (colorAndSize.length == 2) {
-                String color = colorAndSize[0];
-                String size = colorAndSize[1];
+            if (option.isValidOption()) {
+                String color = option.extractColor();
 
                 if (!fashionClothesOptions.containsKey(color)) {
                     fashionClothesOptions.put(color, new ArrayList<>());
                 }
-                SizeOption sizeOption = new SizeOption(
-                        option.saleProductId(),
-                        size,
-                        option.optionExtra()
-                );
+
+                SizeOption sizeOption = option.withSize();
                 fashionClothesOptions.get(color).add(sizeOption);
             }
         }
