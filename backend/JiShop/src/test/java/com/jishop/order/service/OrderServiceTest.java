@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class OrderServiceTest {
 
     @Autowired
-    private OrderService orderService;
+    private OrderCreationService orderService;
 
     private static final int THREAD_COUNT = 10;
     private ExecutorService executorService;
