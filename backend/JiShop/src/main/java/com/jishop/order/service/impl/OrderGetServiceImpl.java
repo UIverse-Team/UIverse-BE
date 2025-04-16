@@ -35,15 +35,42 @@ public class OrderGetServiceImpl implements OrderGetService {
     private final OrderUtilService orderUtilService;
     private final SaleProductRepository saleProductRepository;
 
-    // 주문 상세 조회 (회원/비회원 통합)
+    //비회원 주문 상세 조회
     @Override
-    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
-        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+    public OrderDetailPageResponse getOrder(String orderNumber, String phone){
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber,phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        return createOrderDetailPageResponse(order, null);
+    }
+
+    //비회원 주문 취소 상세 조회
+    @Override
+    public OrderCancelResponse getCancelPage(String orderNumber, String phone){
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber,phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        OrderDetailPageResponse page = createOrderDetailPageResponse(order, null);
+
+        return new OrderCancelResponse(order.getUpdatedAt(), page);
+    }
+
+    //비회원 주문서로 넘어가는 API
+    @Override
+    public CartResponse getCheckout(List<OrderDetailRequest> orderDetailRequests){
+        return getCheckout(null, orderDetailRequests);
+    }
+
+    // 회원 주문 상세 조회
+    @Override
+    public OrderDetailPageResponse getOrder(User user, Long orderId) {
+        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         return createOrderDetailPageResponse(order, user);
     }
 
-    // 주문 전체 조회 페이징 처리
+    // 회원 주문 전체 조회 페이징 처리
     @Override
     public Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size) {
         LocalDateTime today = LocalDateTime.now();
@@ -71,19 +98,20 @@ public class OrderGetServiceImpl implements OrderGetService {
         return new PageImpl<>(orderResponses, pageable, orderIdsPage.getTotalElements());
     }
 
-    // 회원,비회원 주문 취소 상세 페이지
+    // 회원 주문 취소 상세 페이지
     @Override
-    public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
-        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+    public OrderCancelResponse getCancelPage(User user, Long orderId) {
+        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         OrderDetailPageResponse pageResponse = createOrderDetailPageResponse(order, user);
 
         return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
     }
 
-    //회원, 비회원 장바구니에서 주문서로 넘어가는 API
+    //회원 주문서로 넘어가는 API
     @Override
-    public CartResponse getCheckOut(User user, List<OrderDetailRequest> orderDetailRequest) {
+    public CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest) {
         List<Long> saleProductIds = orderDetailRequest.stream()
                 .map(OrderDetailRequest::saleProductId)
                 .toList();
@@ -122,32 +150,8 @@ public class OrderGetServiceImpl implements OrderGetService {
                 .toList();
 
         // CartResponse 생성 및 반환
-        return CartResponse.of(cartDetails);
+        return CartResponse.of(cartDetails);    
     }
-
-    //바로 주문하기에서 주문서로 넘어갈 때 사용하는 API
-    @Override
-    public CartResponse getCheckoutInstant(User user,  Long saleProductId, int quantity) {
-        SaleProduct saleProduct = saleProductRepository.findById(saleProductId)
-                .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
-
-        int paymentPrice = saleProduct.getProduct().getProductInfo().getDiscountPrice();
-        int orderPrice = saleProduct.getProduct().getProductInfo().getOriginPrice();
-        int discountPrice = orderPrice - paymentPrice;
-
-        CartDetailResponse cartDetailResponse = CartDetailResponse.from(
-                null,
-                saleProduct,
-                quantity,
-                paymentPrice,
-                orderPrice,
-                discountPrice,
-                false
-        );
-
-        return CartResponse.of(List.of(cartDetailResponse));
-    }
-
 
     private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {
         boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;

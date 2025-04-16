@@ -1,5 +1,6 @@
 package com.jishop.member.controller;
 
+import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.FindUserResponse;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "유저 서비스 API")
@@ -29,4 +31,8 @@ public interface UserController {
     ResponseEntity<String> updatePhone(User user, UserPhoneRequest request);
     @Operation(summary = "회원 탈퇴")
     ResponseEntity<String> deleteUser(User user);
+    @Operation(summary = "sms 수신 동의")
+    void updateAdSMS( User user, UserAdSMSRequest request);
+    @Operation(summary = "email 수신 동의")
+    void updateAdEmail(User user, UserAdEmailRequest request);
 }
