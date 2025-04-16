@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.function.Consumer;
 
 @Service
 @Transactional
@@ -85,17 +86,11 @@ public class AuthServiceImpl implements AuthService {
 
     // todo: 회원 정보 수정 (이름, 전화번호)
     public void updateUserName(User user, UserNameRequest request) {
-        User persistUser = getPersistUser(user);
-
-        persistUser.updateName(request.name());
-        updateUserCache(persistUser);
+        applyAndCache(user, request::update);
     }
 
     public void updatePhone(User user, UserPhoneRequest request) {
-        User persistUser = getPersistUser(user);
-
-        persistUser.updatePhone(request.phone());
-        updateUserCache(persistUser);
+        applyAndCache(user, request::update);
     }
 
     public void deleteUser(User user) {
@@ -108,21 +103,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void updateAdSMSAgree(User user, UserAdSMSRequest request){
-        User persistUser = getPersistUser(user);
-
-        persistUser.updateAdSMSAgree(request.adSMSAgree());
-        updateUserCache(persistUser);
+        applyAndCache(user, request::update);
     }
 
     public void updateAdEmailAgree(User user, UserAdEmailRequest request){
-        User persistUser = getPersistUser(user);
-
-        persistUser.updateAdEmailAgree(request.adEmailAgree());
-        updateUserCache(persistUser);
+        applyAndCache(user, request::update);
     }
 
     private void updateUserCache(User user) {
         String cacheKey = "user::" + user.getId();
+
         // 캐시 업데이트 (기존 캐시 삭제 후 최신 정보로 재설정)
         redisTemplate.delete(cacheKey);
         redisTemplate.opsForValue().set(cacheKey, user, Duration.ofMinutes(30));
@@ -133,6 +123,12 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
 
         return persistUser;
+    }
+
+    private void applyAndCache(User user, Consumer<User> update) {
+        User persistUser = getPersistUser(user);
+        update.accept(persistUser);
+        updateUserCache(persistUser);
     }
 
     public void logout(User user) {
