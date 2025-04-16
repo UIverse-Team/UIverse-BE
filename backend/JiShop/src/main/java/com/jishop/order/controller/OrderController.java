@@ -1,6 +1,7 @@
 package com.jishop.order.controller;
 
 import com.jishop.cart.dto.CartResponse;
+import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 import java.util.List;
@@ -56,7 +58,12 @@ public interface OrderController {
     // 장바구니에서 주문서로 넘어가는 API
     @Operation(summary = "장바구니에서 주문서로 넘어갈 때 사용하는 API")
     ResponseEntity<CartResponse> getCheckout(User user, List<OrderDetailRequest> orderDetailRequest);
-    //회원 주문 - 결제와 연동
+
+    //리뷰 작성 시 필요한 상품 정보 내려주는 API
+    @Operation(summary = "리뷰 작성 시 필요한 상품 정보 내려주기")
+    ResponseEntity<OrderProductResponse> getItem(Long orderDetailId);
+
+        //회원 주문 - 결제와 연동
 //    @Operation(
 //            summary = "회원 주문 및 결제 API",
 //            description = "회원이 장바구니에서 주문 및 결제 시 사용하는 API"
