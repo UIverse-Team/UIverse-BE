@@ -30,7 +30,21 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final DistributedLockService distributedLockService;
     private final CartRepository cartRepository;
 
-    // 주문 생성 - 통합
+    //비회원 주문 생성
+    @Override
+    @Transactional
+    public OrderResponse createOrder(OrderRequest orderRequest) {
+        return createOrder(null, orderRequest);
+    }
+
+    //비회원 바로 주문 생성
+    @Override
+    @Transactional
+    public OrderResponse createInstantOrder(OrderRequest orderRequest) {
+        return createInstantOrder(null, orderRequest);
+    }
+
+    // 회원 주문 생성
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
@@ -44,6 +58,16 @@ public class OrderCreationServiceImpl implements OrderCreationService {
 
         //분산 락을 사용하여 주문 생성 처리
         return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, orderRequest));
+    }
+
+    // 회원 바로 주문
+    @Override
+    @Transactional
+    public OrderResponse createInstantOrder(User user, OrderRequest instantOrderRequest) {
+        //락키 생성 (상품 ID를 기반으로)
+        String lockKey = "order:instant:" + instantOrderRequest.orderDetailRequestList().get(0).saleProductId();
+
+        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, instantOrderRequest));
     }
 
     public OrderResponse processOrderCreation(User user, OrderRequest orderRequest) {
@@ -92,13 +116,5 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         return OrderResponse.fromOrder(order, orderProductResponses);
     }
 
-    // 바로 주문하기 (회원/비회원 통합)
-    @Override
-    @Transactional
-    public OrderResponse createInstantOrder(User user, OrderRequest instantOrderRequest) {
-        //락키 생성 (상품 ID를 기반으로)
-        String lockKey = "order:instant:" + instantOrderRequest.orderDetailRequestList().get(0).saleProductId();
 
-        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, instantOrderRequest));
-    }
 }

@@ -24,7 +24,7 @@ public class OrderControllerImpl implements OrderController {
     private final OrderGetService orderGetService;
     private final OrderCancelService orderCancelService;
 
-    // 주문 생성
+    // 회원 주문 생성
     @Override
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@CurrentUser User user,
@@ -34,16 +34,16 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderResponse);
     }
     
-    //주문 내역 단건 조회
+    //회원 주문 내역 단건 조회
     @Override
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailPageResponse> getOrder(@CurrentUser User user, @PathVariable Long orderId){
-        OrderDetailPageResponse orderDetailResponse = orderGetService.getOrder(user, orderId, null, null);
+        OrderDetailPageResponse orderDetailResponse = orderGetService.getOrder(user, orderId);
 
         return ResponseEntity.ok(orderDetailResponse);
     }
 
-    //주문 전체 조회 (페이징 처리)
+    //회원 주문 전체 조회 (페이징 처리)
     @Override
     @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrderList(
@@ -57,16 +57,16 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(responseList);
     }
 
-    //주문 취소
+    //회원 주문 취소
     @Override
     @PatchMapping("/{orderId}")
     public ResponseEntity<String> cancelOrder(@CurrentUser User user, @PathVariable Long orderId){
-        orderCancelService.cancelOrder(user, orderId, null, null);
+        orderCancelService.cancelOrder(user, orderId);
 
         return ResponseEntity.ok("주문이 취소되었습니다");
     }
 
-    // 바로 구매하기
+    // 회원 바로 구매하기
     @Override
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid OrderRequest orderRequest) {
@@ -75,11 +75,11 @@ public class OrderControllerImpl implements OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
-    //회원 주문 취소 상세  페이지
+    //회원 주문 취소 상세 페이지
     @Override
     @GetMapping("/getCancel/{orderId}")
     public ResponseEntity<OrderCancelResponse> getOrderCancel(@CurrentUser User user, @PathVariable Long orderId) {
-        OrderCancelResponse orderCancelResponse = orderGetService.getCancelPage(user, orderId, null, null);
+        OrderCancelResponse orderCancelResponse = orderGetService.getCancelPage(user, orderId);
 
         return ResponseEntity.ok(orderCancelResponse);
     }
@@ -91,7 +91,6 @@ public class OrderControllerImpl implements OrderController {
 
         return ResponseEntity.ok(products);
     }
-
     //주문 생성 - 결제 페이지와 연동
 //    @Override
 //    @PostMapping
