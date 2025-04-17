@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -19,6 +20,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 import java.util.Arrays;
 
 @Configuration
+@Profile("!test")
 @EnableRedisHttpSession
 public class RedisConfig {
 
@@ -58,11 +60,10 @@ public class RedisConfig {
 
         // Key는 String으로 직렬화
         redisTemplate .setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+
         // Value는 JSON 형식으로 직렬화 (redisObjectMapper 사용)
         redisTemplate .setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
-
-        // Hash key/value도 동일하게 설정 (필요한 경우)
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
 
         redisTemplate .afterPropertiesSet();

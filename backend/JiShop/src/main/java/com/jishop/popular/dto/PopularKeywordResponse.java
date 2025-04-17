@@ -4,6 +4,6 @@ import java.util.List;
 
 public record PopularKeywordResponse(
         String time,
-        List<PopularReponse> keywords
+        List<PopularResponse> keywords
 ) {
 }

@@ -1,5 +1,8 @@
 package com.jishop.cart.dto;
 
+import com.jishop.cart.domain.Cart;
+import com.jishop.saleproduct.domain.SaleProduct;
+
 public record CartDetailResponse(
         Long cartId,
         Long saleProductId,
@@ -11,6 +14,53 @@ public record CartDetailResponse(
         int quantity,
         int totalPrice, //paymentPrice * quantity
         String image,
-        String brandName
+        String brandName,
+        boolean isExisted //장바구니에 동일상품이 존재하는지
 ) {
+    public static CartDetailResponse from(
+            Long cartId,
+            SaleProduct product,
+            int quantity,
+            int paymentPrice,
+            int orderPrice,
+            int discountPrice,
+            boolean isExisted
+    ) {
+        return new CartDetailResponse(
+                cartId,
+                product.getId(),
+                product.getProduct().getProductInfo().getName(),
+                product.getOption() != null ? product.getOption().getOptionValue() : "기본옵션",
+                paymentPrice,
+                orderPrice,
+                discountPrice,
+                quantity,
+                paymentPrice * quantity,
+                product.getProduct().getImage().getMainImage(),
+                product.getProduct().getProductInfo().getBrand(),
+                isExisted
+        );
+    }
+
+    public static CartDetailResponse of(Cart cart, boolean isExisted) {
+        SaleProduct saleProduct = cart.getSaleProduct();
+        int paymentPrice = saleProduct.getProduct().getProductInfo().getDiscountPrice();
+        int orderPrice = saleProduct.getProduct().getProductInfo().getOriginPrice();
+        int discountPrice = orderPrice - paymentPrice;
+
+        return new CartDetailResponse(
+                cart.getId(),
+                saleProduct.getId(),
+                saleProduct.getProduct().getProductInfo().getName(),
+                saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
+                paymentPrice,
+                orderPrice,
+                discountPrice,
+                cart.getQuantity(),
+                paymentPrice * cart.getQuantity(),
+                saleProduct.getProduct().getImage().getMainImage(),
+                saleProduct.getProduct().getProductInfo().getBrand(),
+                isExisted
+        );
+    }
 }

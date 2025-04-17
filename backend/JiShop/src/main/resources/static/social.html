@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>소셜 로그인</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 300px;
+        }
+        .login-title {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .google-btn {
+            background-color: #4285F4;
+            color: white;
+        }
+        .kakao-btn {
+            background-color: #FEE500;
+            color: #191919;
+        }
+        .naver-btn {
+            background-color: #03C75A;
+            color: white;
+        }
+        .login-btn img {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2 class="login-title">소셜 로그인</h2>
+
+    <button class="login-btn google-btn" onclick="initiateLogin('google')">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google-logo.svg" alt="Google Logo">
+        구글로 로그인
+    </button>
+
+    <button class="login-btn kakao-btn" onclick="initiateLogin('kakao')">
+        <img src="https://developers.kakao.com/assets/img/about/logos/kakao_logo.png" alt="Kakao Logo">
+        카카오로 로그인
+    </button>
+
+    <button class="login-btn naver-btn" onclick="initiateLogin('naver')">
+        <img src="https://static.nid.naver.com/oauth/big_g.PNG" alt="Naver Logo">
+        네이버로 로그인
+    </button>
+</div>
+
+<script>
+    async function initiateLogin(provider) {
+        try {
+            const metaResponse = await fetch(`/oauth/${provider}`);
+            const metaData = await metaResponse.json();
+
+            const state = `${provider}-${generateRandomState()}`;
+            const authUrl = new URL(metaData.authorizationUri);
+            authUrl.searchParams.append('client_id', metaData.clientId);
+            authUrl.searchParams.append('redirect_uri', metaData.redirectUri);
+            authUrl.searchParams.append('response_type', 'code');
+            authUrl.searchParams.append('state', state);
+
+            switch(provider) {
+                case 'google':
+                    authUrl.searchParams.append('scope', 'openid email profile');
+                    break;
+                case 'kakao':
+                    authUrl.searchParams.append('scope', 'profile_nickname profile_image');
+                    break;
+            }
+
+            window.location.href = authUrl.toString();
+        } catch (error) {
+            console.error('OAuth 초기화 실패:', error);
+            alert('로그인에 실패했습니다. 다시 시도해주세요.');
+        }
+    }
+
+    function generateRandomState() {
+        return Math.random().toString(36).substring(2, 15) +
+            Math.random().toString(36).substring(2, 15);
+    }
+
+    function handleCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const provider = state?.split('-')[0]; // state에서 provider 추출
+
+        if (code && provider) {
+            fetch('/oauth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ provider, code })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("로그인 실패");
+                    return response.json();
+                })
+                .then(profile => {
+                    console.log('로그인된 프로필:', profile);
+                    window.location.href = '/dashboard';
+                })
+                .catch(error => {
+                    console.error('로그인 실패:', error);
+                    alert("로그인에 실패했습니다.");
+                });
+        }
+    }
+
+    if (window.location.search.includes('code=')) {
+        handleCallback();
+    }
+</script>
+</body>
+</html>

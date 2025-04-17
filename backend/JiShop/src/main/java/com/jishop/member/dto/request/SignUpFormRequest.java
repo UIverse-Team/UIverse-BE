@@ -33,15 +33,22 @@ public record SignUpFormRequest(
 ){
     // 비밀번호 업데이트
     public SignUpFormRequest withPassword(String password){
-        return new SignUpFormRequest(this.ageAgreement, this.useAgreement, this.picAgreement, this.adAgreement, this.loginId, password, this.name, this.birthDate, this.gender, this.phone, this.provider);
+        return new SignUpFormRequest(this.ageAgreement, this.useAgreement, this.picAgreement,
+                this.adAgreement, this.loginId, password, this.name, this.birthDate, this.gender,
+                this.phone, this.provider);
     }
 
     public User toEntity(){
+        boolean adSMSAgree = this.adAgreement;
+        boolean adEmailAgree = this.adAgreement;
+
         return new User(
                 this.ageAgreement,
                 this.useAgreement,
                 this.picAgreement,
                 this.adAgreement,
+                adSMSAgree,
+                adEmailAgree,
                 this.loginId,
                 this.password,
                 this.name,

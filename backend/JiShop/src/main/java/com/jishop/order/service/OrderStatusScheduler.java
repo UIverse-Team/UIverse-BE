@@ -21,7 +21,7 @@ public class OrderStatusScheduler {
     //@Scheduled(cron = "0 0 0 * * ?")
 
     @Transactional
-    @Scheduled(fixedRate = 3600000) //1분마다 실행
+    @Scheduled(fixedRate = 3600000) //1시간마다 실행
     public void updateOrderStatus(){
         LocalDateTime now = LocalDateTime.now();
 
@@ -36,6 +36,9 @@ public class OrderStatusScheduler {
 
         //SHIPMENT_PROCESSING 상태에서 1일 지난 주문들 -> DELIVERED
         updateStatusForOrders(OrderStatus.SHIPMENT_PROCESSING, OrderStatus.DELIVERED, now.minusDays(1));
+
+        // DELIVERED 상태에서 7일 지난 주문들 -> PURCHASE_CONFIRMED
+        updateStatusForOrders(OrderStatus.DELIVERED, OrderStatus.PURCHASED_CONFIRMED, now.minusDays(7));
     }
 
     private void updateStatusForOrders(OrderStatus currentStatus,

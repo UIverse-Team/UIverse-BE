@@ -6,8 +6,10 @@ import com.jishop.config.OAuthConfig;
 import com.jishop.member.controller.OAuthController;
 import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.OAuthCallbackRequest;
+import com.jishop.member.dto.response.OAuthMetaResponse;
 import com.jishop.member.dto.response.TokenResponse;
 import com.jishop.member.service.OAuthClient;
+import com.jishop.member.service.OAuthMetaService;
 import com.jishop.member.service.OAuthProfile;
 import com.jishop.member.service.UserService;
 import com.jishop.member.service.impl.GoogleClient;
@@ -28,10 +30,13 @@ public class OAuthControllerImpl implements OAuthController {
 
     private final Map<String, OAuthClient> clients;
     private final UserService userService;
+    private final OAuthMetaService metaService;
 
     @Autowired
-    public OAuthControllerImpl(OAuthConfig config, RestClient restClient, UserService userService) {
+    public OAuthControllerImpl(OAuthConfig config, RestClient restClient, UserService userService,
+                               OAuthMetaService metaService) {
         this.userService = userService;
+        this.metaService = metaService;
         clients = Map.of(
                 "google", new GoogleClient(restClient, config.getGoogleDetails()),
                 "naver", new NaverClient(restClient, config.getNaverDetails()),
@@ -39,7 +44,13 @@ public class OAuthControllerImpl implements OAuthController {
         );
     }
 
-    @GetMapping("/callback/{provider}")
+    @GetMapping("/{provider}")
+    public ResponseEntity<OAuthMetaResponse> authorizationUrl(@PathVariable String provider){
+
+        return ResponseEntity.ok(metaService.getMeta(provider));
+    }
+
+    @PostMapping("/login")
     public ResponseEntity<OAuthProfile> login(@RequestBody OAuthCallbackRequest request,
                                               HttpSession session) {
         if (!clients.containsKey(request.provider())) {
@@ -56,22 +67,8 @@ public class OAuthControllerImpl implements OAuthController {
 
         User user = userService.oauthLogin(profile);
         session.setAttribute("userId", user.getId());
-        session.setMaxInactiveInterval(60 * 30);
+        session.setMaxInactiveInterval(60 * 60);
 
         return ResponseEntity.ok(profile);
     }
 }
-
-/* @GetMapping("/login/{provider}")
-    public ResponseEntity<String> login(@PathVariable("provider") String provider,
-            @ModelAttribute Map<String, String> params
-    ) {
-        if (!clients.containsKey(provider)) {
-            throw new DomainException(ErrorType.PROVIDER_NOT_FOUND);
-        }
-        var redirectUri = params.get("redirect_uri");
-
-        String state = UUID.randomUUID().toString();
-
-        return ResponseEntity.ok(clients.get(provider).getAuthorizationUrl(state));
-    }*/

@@ -31,7 +31,7 @@ public class CartServiceImpl implements CartService {
     public CartResponse getCart(User user) {
         List<Cart> carts = cartRepository.findCartsWithProductAndOptionByUser(user);
         List<CartDetailResponse> cartDetailResponses = carts.stream()
-                .map(this::mapToCartDetailResponse)
+                .map(cart -> CartDetailResponse.of(cart, false))
                 .toList();
 
         return CartResponse.of(cartDetailResponses);
@@ -49,26 +49,36 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = cartRepository.findByUserAndSaleProduct(user, saleProduct).orElse(null);
 
-        //기존 장바구니에 있는 수량 확인
-        int existingQuantity = (cart != null) ? cart.getQuantity() : 0;
+        // 이미 장바구니에 상품이 존재하는 경우
+        if (cart != null) {
+            // isForced가 false인 경우, 기존 상품 정보만 반환하고 수량은 업데이트하지 않음
+            if (!addCartRequest.isForced()) {
+                return CartDetailResponse.of(cart, true);
+            }
 
-        // 요청 수량 + 기존 수량이 재고보다 많으면 예외
-        if(!stock.hasStock(existingQuantity + requestQuantity))
-            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+            // isForced가 true인 경우, 기존 수량 + 새로운 수량으로 업데이트
+            int totalQuantity = cart.getQuantity() + requestQuantity;
 
+            // 재고 체크
+            if(!stock.hasStock(totalQuantity))
+                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
 
-        //이미 장바구니에 있으면 수량 업데이트!
-        if(cart != null){
-            cart.updateQuantity(addCartRequest.quantity());
+            cart.updateQuantity(requestQuantity);
         } else {
+            // 장바구니에 상품이 없는 경우
+            // 재고 체크
+            if(!stock.hasStock(requestQuantity))
+                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
             cart = Cart.builder()
                     .user(user)
                     .saleProduct(saleProduct)
-                    .quantity(addCartRequest.quantity())
+                    .quantity(requestQuantity)
                     .build();
             cartRepository.save(cart);
         }
-        return mapToCartDetailResponse(cart);
+
+        return CartDetailResponse.of(cart, false);
     }
 
     // 장바구니 수량 수정
@@ -85,7 +95,7 @@ public class CartServiceImpl implements CartService {
 
         cart.updateQuantity(updateCartRequest.quantity());
 
-        return mapToCartDetailResponse(cart);
+        return CartDetailResponse.of(cart, false);
     }
 
     //장바구니 상품 삭제
@@ -123,35 +133,21 @@ public class CartServiceImpl implements CartService {
                     return new CartDetailResponse(
                             null, //장바구니 ID는 null (비회원이니까)
                             saleProduct.getId(),
-                            saleProduct.getProduct().getName(),
+                            saleProduct.getProduct().getProductInfo().getName(),
                             saleProduct.getOption() != null ? saleProduct.getOption().getOptionValue() : "기본옵션",
-                            saleProduct.getProduct().getDiscountPrice(),
-                            saleProduct.getProduct().getOriginPrice(),
-                            saleProduct.getProduct().getOriginPrice() - saleProduct.getProduct().getDiscountPrice(),
+                            saleProduct.getProduct().getProductInfo().getDiscountPrice(),
+                            saleProduct.getProduct().getProductInfo().getOriginPrice(),
+                            saleProduct.getProduct().getProductInfo().getOriginPrice() -
+                                    saleProduct.getProduct().getProductInfo().getDiscountPrice(),
                             quantity,
-                            saleProduct.getProduct().getDiscountPrice(), //수량 1일 때 판매가격
-                            saleProduct.getProduct().getMainImage(),
-                            saleProduct.getProduct().getBrand()
+                            saleProduct.getProduct().getProductInfo().getDiscountPrice() * quantity,
+                            saleProduct.getProduct().getImage().getMainImage(),
+                            saleProduct.getProduct().getProductInfo().getBrand(),
+                            false
                     );
                 })
                 .toList();
 
         return CartResponse.of(cartDetailResponses);
-    }
-
-    private CartDetailResponse mapToCartDetailResponse(Cart cart) {
-        return new CartDetailResponse(
-                cart.getId(),
-                cart.getSaleProduct().getId(),
-                cart.getSaleProduct().getProduct().getName(),
-                cart.getSaleProduct().getOption() != null ? cart.getSaleProduct().getOption().getOptionValue() : "기본옵션",
-                cart.getSaleProduct().getProduct().getDiscountPrice(),
-                cart.getSaleProduct().getProduct().getOriginPrice(),
-                cart.getSaleProduct().getProduct().getOriginPrice()-cart.getSaleProduct().getProduct().getDiscountPrice(),
-                cart.getQuantity(),
-                cart.getSaleProduct().getProduct().getDiscountPrice() * cart.getQuantity(),
-                cart.getSaleProduct().getProduct().getMainImage(),
-                cart.getSaleProduct().getProduct().getBrand()
-        );
     }
 }

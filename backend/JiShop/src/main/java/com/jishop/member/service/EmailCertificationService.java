@@ -7,6 +7,4 @@ public interface EmailCertificationService {
     String sendCertificationCodeForSignup(EmailRequest request);
     String sendCertificationCodeForPasswordReset(EmailRequest request);
     boolean certifyCode(String token, String code);
-
-    //Long getUserIdByToken(String token);
 }

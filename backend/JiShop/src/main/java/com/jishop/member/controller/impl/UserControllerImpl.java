@@ -26,6 +26,12 @@ public class UserControllerImpl implements UserController {
         return userService.findUser(request);
     }
 
+    @PostMapping("/checkpw")
+    public ResponseEntity<Boolean> checkPW(@RequestBody @Validated RecoveryPWRequest request) {
+        if(!authService.checkPW(request)) return ResponseEntity.ok(false);
+        return ResponseEntity.ok(true);
+    }
+
     @PatchMapping("/recoverypw")
     public ResponseEntity<String> recoveryPW(@RequestBody @Validated RecoveryPWRequest request) {
         authService.recoveryPW(request);
@@ -34,7 +40,8 @@ public class UserControllerImpl implements UserController {
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<String> updatePW(@CurrentUser User user, @RequestBody @Validated UserNewPasswordRequest request) {
+    public ResponseEntity<String> updatePW(@CurrentUser User user,
+                                           @RequestBody @Validated UserNewPasswordRequest request) {
         authService.updatePW(user, request);
 
         return ResponseEntity.ok().body("비밀번호 뱐경완료!");
@@ -54,14 +61,16 @@ public class UserControllerImpl implements UserController {
      * 이름, 전화번호
      */
     @PatchMapping("/name")
-    public ResponseEntity<String> updateUserName(@CurrentUser User user, @RequestBody @Validated UserNameRequest request) {
+    public ResponseEntity<String> updateUserName(@CurrentUser User user,
+                                                 @RequestBody @Validated UserNameRequest request) {
         authService.updateUserName(user, request);
 
         return ResponseEntity.ok("이름 변경 완료!");
     }
 
     @PatchMapping("/phone")
-    public ResponseEntity<String> updatePhone(@CurrentUser User user, @RequestBody @Validated UserPhoneRequest request) {
+    public ResponseEntity<String> updatePhone(@CurrentUser User user,
+                                              @RequestBody @Validated UserPhoneRequest request) {
         authService.updatePhone(user, request);
 
         return ResponseEntity.ok("번호 변경 완료!");
@@ -71,5 +80,17 @@ public class UserControllerImpl implements UserController {
     public ResponseEntity<String> deleteUser(@CurrentUser User user) {
         authService.deleteUser(user);
         return ResponseEntity.ok("탈퇴 처리 완료!");
+    }
+
+    @PatchMapping("/adSMS")
+    public void updateAdSMS(@CurrentUser User user,
+                                            @RequestBody @Validated UserAdSMSRequest request) {
+        authService.updateAdSMSAgree(user, request);
+    }
+
+    @PatchMapping("/adEmail")
+    public void updateAdEmail(@CurrentUser User user,
+                              @RequestBody @Validated UserAdEmailRequest request) {
+        authService.updateAdEmailAgree(user, request);
     }
 }

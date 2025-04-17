@@ -10,10 +10,14 @@ public interface AuthService {
     void signIn(SignInFormRequest form, HttpSession session);
     String loginStr(Long userId);
     void recoveryPW(RecoveryPWRequest request);
+    boolean checkPW(RecoveryPWRequest request);
     void updatePW(User user, UserNewPasswordRequest request);
     UserResponse getUser(User user);
     void updateUserName(User user, UserNameRequest request);
     void updatePhone(User user, UserPhoneRequest request);
     void deleteUser(User user);
     Long checkLogin(User user);
+    void updateAdSMSAgree(User user, UserAdSMSRequest request);
+    void updateAdEmailAgree(User user, UserAdEmailRequest request);
+    void logout(User user);
 }

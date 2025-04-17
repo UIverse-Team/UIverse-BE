@@ -5,6 +5,7 @@ import com.jishop.order.domain.OrderDetail;
 public record OrderProductResponse(
         Long id,
         Long saleProductId,
+        String mainImage,
         String productName,
         String optionValue,
         int paymentPrice, //결제금액 (원래가격 - 할인가격)
@@ -19,6 +20,7 @@ public record OrderProductResponse(
         return new OrderProductResponse(
                 detail.getId(),
                 detail.getSaleProduct().getId(),
+                detail.getSaleProduct().getProduct().getImage().getMainImage(),
                 detail.getSaleProduct().getName(),
                 detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
                 detail.getPaymentPrice(),
@@ -27,7 +29,7 @@ public record OrderProductResponse(
                 detail.getQuantity(),
                 detail.getPaymentPrice() * detail.getQuantity(),
                 canReview,
-                detail.getSaleProduct().getProduct().getBrand()
+                detail.getSaleProduct().getProduct().getProductInfo().getBrand()
         );
     }
 }

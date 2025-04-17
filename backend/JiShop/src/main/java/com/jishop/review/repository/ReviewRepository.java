@@ -62,9 +62,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query(value = """
             SELECT new com.jishop.review.dto.ReviewWriteResponse (
-            p.id, od.id ,p.name, p.labels, p.originPrice, 
-            p.isDiscount, p.discountRate, p.discountPrice, 
-            p.brand, od.createdAt, p.mainImage, od.quantity, ot.optionValue)
+            p.id, od.id ,p.productInfo.name, p.status.labels, p.productInfo.originPrice, 
+            p.status.isDiscount, p.productInfo.discountRate, p.productInfo.discountPrice, 
+            p.productInfo.brand, od.createdAt, p.image.mainImage, od.quantity, ot.optionValue)
             FROM OrderDetail od JOIN od.order o
             LEFT JOIN Review r ON r.orderDetail = od JOIN od.saleProduct sp JOIN sp.product p JOIN sp.option ot
             WHERE o.userId = :userId AND o.status = 'PURCHASED_CONFIRMED' AND r.id IS NULL
@@ -78,4 +78,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("select r from Review r where r.imageUrls.image1 is not null")
     Slice<Review> findByAllWithImage(Pageable pageable);
+
+    @Query("SELECT r.orderDetail.id FROM Review r " +
+            "WHERE r.orderDetail.id IN :orderDetailIds " +
+            "AND r.deleteStatus = false")
+    List<Long> findOrderDetailIdsWithNonDeletedReviews(@Param("orderDetailIds") List<Long> orderDetailIds);
 }

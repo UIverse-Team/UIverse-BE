@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * 인기 검색어 조회 API
- * Redis ZSet에서 Top10 검색어를 조회해 반환
+ * Redis ZSet에서 Top5, Top10 검색어를 조회해 반환
  */
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +27,13 @@ public class PopularControllerImpl implements PopularController {
 
     @Override
     @GetMapping
-    public PopularKeywordResponse getPopularKeywordAndProduct() {
-        return popularService.getPopularKeywordAndProduct();
+    public PopularKeywordResponse getTop5PopularKeywordsAndProducts() {
+        return popularService.getTop5PopularKeywordsAndProducts();
+    }
+
+    @Override
+    @GetMapping("/detail")
+    public PopularKeywordResponse getTop10PopularKeywordsAndProducts() {
+        return popularService.getTop10PopularKeywordsAndProducts();
     }
 }

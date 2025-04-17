@@ -5,10 +5,14 @@ import com.jishop.member.domain.User;
 public record UserResponse(
         String name,
         String phone,
-        String email
+        String email,
+        boolean adAgreement,
+        boolean adSMSAgree,
+        boolean adEmailAgree
 ) {
     // todo: 나중에 로컬회원과 소셜회원 구별해서 로그인 아이디 내려주기
     public static UserResponse from(User user) {
-        return new UserResponse(user.getName(), user.getPhone(), user.getLoginId());
+        return new UserResponse(user.getName(), user.getPhone(), user.getLoginId(), user.isAdAgreement(),
+                user.isAdSMSAgree(), user.isAdEmailAgree());
     }
 }
