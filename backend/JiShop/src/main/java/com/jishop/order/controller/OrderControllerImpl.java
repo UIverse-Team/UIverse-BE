@@ -91,6 +91,16 @@ public class OrderControllerImpl implements OrderController {
 
         return ResponseEntity.ok(products);
     }
+
+    //리뷰 작성 시 필요한 상품 정보 내려주기
+    @GetMapping("/{orderDetailId}/item")
+    public ResponseEntity<OrderProductResponse> getItem(@PathVariable Long orderDetailId) {
+        OrderProductResponse response = orderGetService.getItem(orderDetailId);
+
+        return ResponseEntity.ok(response);
+    }
+
+
     //주문 생성 - 결제 페이지와 연동
 //    @Override
 //    @PostMapping

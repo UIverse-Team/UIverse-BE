@@ -16,7 +16,7 @@ public interface AuthController {
     ResponseEntity<String> signIn(SignInFormRequest request, HttpServletRequest httpRequest,
                                   HttpServletResponse response);
     @Operation(summary = "회원 로그아웃")
-    ResponseEntity<Void> logout(HttpServletRequest request);
+    ResponseEntity<Void> logout(User user,HttpServletRequest request);
     @Operation(summary = "로그인 상태 체크")
     ResponseEntity<String> checkLogin(User user);
 }
