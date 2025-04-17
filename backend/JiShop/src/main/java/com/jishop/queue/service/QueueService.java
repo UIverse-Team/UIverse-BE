@@ -11,9 +11,7 @@ public interface QueueService {
     void completeTask(Task task);
     void failTask(Task task);
     Long getQueueSize();
-    List<Task> getDeadLetterTasks();
     Task getTaskById(String taskId);
-    Task requeueDeadLetter(String taskId);
     void incrementActiveRequests();
     void decrementActiveRequests();
     int getCurrentActiveRequests();

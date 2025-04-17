@@ -30,8 +30,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInFormRequest request,
                                          HttpServletRequest httpRequest,
                                          HttpServletResponse httpServletResponse) throws ExecutionException, InterruptedException {
-        // todo: IP 주소 로깅을 해야할까?? -> 해결책 다른 나라, 일단 다른 ip인 경우 해당 하면 알림 보내기?
-        // String clientIp = getClientIp(httpRequest);
+        // todo: IP 주소 로깅을 해야할까?? -> 해결책 다른 나라, 일단 다른 ip인 경우 해당 하면 알림 보내기?(4/17)
 
         try {
             // 요청 처리 시작 시 카운터 증가
@@ -71,7 +70,7 @@ public class AuthControllerImpl implements AuthController {
     @GetMapping()
     public ResponseEntity<String> checkLogin(@CurrentUser User user) {
         Long id = service.checkLogin(user);
-        if(id == null) return ResponseEntity.badRequest().body("로그인 타임 종료!");
+        if(id == null) return ResponseEntity.badRequest().body("로그아웃!");
         return ResponseEntity.ok("로그인 중!");
     }
 }

@@ -54,13 +54,13 @@ public class TaskConsumerImpl implements TaskConsumer {
         }
     }
 
-    // 결제 처리
+    // todo: 결제 처리 추가 예정 (4/17)
     private void handlePayment(Task task) {
         // todo: 결제 로직 대기열 붙이기
         String email = (String) task.getPayload().get("email");
     }
 
-    // 다음 작업 하나를 처리
+    // 작업 하나를 처리
     @Scheduled(fixedRate = 1000)
     public void processNextTask() {
         Task task = queueService.dequeueTask();

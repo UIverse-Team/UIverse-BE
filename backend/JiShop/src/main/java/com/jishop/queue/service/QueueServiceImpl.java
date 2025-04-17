@@ -41,6 +41,7 @@ public class QueueServiceImpl implements QueueService {
             redisTemplate.opsForSet().add(PROCESSING_SET, task);
             return task;
         }
+
         return null;
     }
 
@@ -67,11 +68,6 @@ public class QueueServiceImpl implements QueueService {
         return redisTemplate.opsForList().size(TASK_QUEUE);
     }
 
-    // 재시도 했지만 실패시 Dead 큐에 반환
-    public List<Task> getDeadLetterTasks(){
-        return redisTemplate.opsForList().range(DEAD_LETTER_QUEUE, 0, -1)
-                .stream().map(obj -> (Task) obj).toList();
-    }
 
     public Task getTaskById(String taskId){
         // 1. 처리 중 작업 조회
@@ -92,29 +88,6 @@ public class QueueServiceImpl implements QueueService {
             }
         }
 
-        // 3. 실패한 작업 (Dead Letter Queue)
-        List<Object> deadTasks = redisTemplate.opsForList().range(DEAD_LETTER_QUEUE, 0, -1);
-        if (deadTasks != null) {
-            for (Object obj : deadTasks) {
-                Task task = (Task) obj;
-                if (task.getId().equals(taskId)) return task;
-            }
-        }
-        return null;
-    }
-
-    public Task requeueDeadLetter(String taskId){
-        List<Object> deadTasks = redisTemplate.opsForList().range(DEAD_LETTER_QUEUE, 0, -1);
-
-        for(Object obj : deadTasks) {
-            Task task = (Task) obj;
-            if(task.getId().equals(taskId)) {
-                redisTemplate.opsForList().remove(DEAD_LETTER_QUEUE, 1, task);
-                task.markAsRetry();
-                enqueueTask(task);
-                return task;
-            }
-        }
         return null;
     }
 
@@ -135,8 +108,6 @@ public class QueueServiceImpl implements QueueService {
 
     // 부하에 따른 로직 결정
     public boolean useQueue(){
-        /*Long queueSize = redisTemplate.opsForList().size(TASK_QUEUE);
-        return queueSize != null && queueSize > 2;*/
         return getCurrentActiveRequests() > 50;
     }
 }

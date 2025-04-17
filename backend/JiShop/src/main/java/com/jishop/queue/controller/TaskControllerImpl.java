@@ -26,16 +26,15 @@ public class TaskControllerImpl {
     public ResponseEntity<?> addTask(@RequestBody TaskRequest request) {
         try{
             CompletableFuture<String> future = taskProducer.submitTask(
-                    request.type(), request.payload()/*, request.priority()*/);
+                    request.type(), request.payload());
 
-            if(queueService.getQueueSize()> 50) {
+            if(queueService.getQueueSize()> 300) {
                 return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                        .header("Retry-After", "30")
                         .body(Map.of("taskId", future.get(), "status", "queued",
                                 "message", "잠시 후 다시 시도해주세요!"));
             }
             return ResponseEntity.accepted()
-                    .body(Map.of("taskId", future.get(), "status", "queued"));
+                    .body(Map.of("taskId", future.get(), "status", "대기열 등록 완료"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
@@ -47,7 +46,8 @@ public class TaskControllerImpl {
     public ResponseEntity<?> getTaskStatus(@PathVariable String taskId) {
         Task task = queueService.getTaskById(taskId);
         if(task == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "해당 작업을 찾을 수 없습니다!"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "해당 작업을 찾을 수 없습니다!"));
         }
         return ResponseEntity.ok(Map.of("taskId", taskId, "status", task.getStatus()));
     }
