@@ -119,8 +119,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private User getPersistUser(User user){
-        User persistUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new DomainException(ErrorType.USER_NOT_FOUND));
+        User persistUser = userRepository.findPersistUser(user);
 
         return persistUser;
     }
