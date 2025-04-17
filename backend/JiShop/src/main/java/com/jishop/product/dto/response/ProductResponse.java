@@ -16,13 +16,13 @@ public record ProductResponse(
     public static ProductResponse from(final Product product) {
         return new ProductResponse(
                 product.getId(),
-                product.getName(),
-                product.getLabels(),
-                product.getOriginPrice(),
-                product.getDiscountPrice(),
-                product.getBrand(),
-                product.getDiscountRate(),
-                product.getMainImage()
+                product.getProductInfo().getName(),
+                product.getStatus().getLabels(),
+                product.getProductInfo().getOriginPrice(),
+                product.getProductInfo().getDiscountPrice(),
+                product.getProductInfo().getBrand(),
+                product.getProductInfo().getDiscountRate(),
+                product.getImage().getMainImage()
         );
     }
 }

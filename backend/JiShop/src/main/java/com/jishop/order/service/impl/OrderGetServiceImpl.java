@@ -146,8 +146,8 @@ public class OrderGetServiceImpl implements OrderGetService {
                             .map(OrderDetailRequest::quantity)
                             .orElseThrow(() -> new DomainException(ErrorType.INVALID_QUANTITY)); // 기본값은 1로 설정
 
-                    int paymentPrice = product.getProduct().getDiscountPrice();
-                    int orderPrice = product.getProduct().getOriginPrice();
+                    int paymentPrice = product.getProduct().getProductInfo().getDiscountPrice();
+                    int orderPrice = product.getProduct().getProductInfo().getOriginPrice();
                     int discountPrice = orderPrice - paymentPrice;
 
                     return CartDetailResponse.from(

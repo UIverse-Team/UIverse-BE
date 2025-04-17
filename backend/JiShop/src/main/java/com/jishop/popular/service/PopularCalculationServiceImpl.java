@@ -96,8 +96,8 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
         List<Product> products;
 
         // 브랜드 이름과 정확히 일치하는 경우
-        if(productRepository.existsByBrand(keyword)){
-            products = productRepository.findAllByBrand(keyword);
+        if(productRepository.existsByProductInfo_Brand(keyword)){
+            products = productRepository.findAllByProductInfo_Brand(keyword);
         }
         // 그 외에는 Fulltext 검색으로 통합 처리
         else {
@@ -140,12 +140,12 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
         Product product = productScore.getProduct();
         return new PopularProductResponse(
                 product.getId(),
-                product.getMainImage(),
-                product.getBrand(),
-                product.getName(),
-                product.getOriginPrice(),
-                product.getDiscountPrice(),
-                productScore.getProduct().getDiscountRate(),
+                product.getImage().getMainImage(),
+                product.getProductInfo().getBrand(),
+                product.getProductInfo().getName(),
+                product.getProductInfo().getOriginPrice(),
+                product.getProductInfo().getDiscountPrice(),
+                productScore.getProduct().getProductInfo().getDiscountRate(),
                 productScore.getTotalOrderCount(),
                 productScore.getReviewRating().doubleValue()
         );
@@ -160,12 +160,12 @@ public class PopularCalculationServiceImpl implements PopularCalculationService 
     public PopularProductResponse convertToPopularProductResponseFromProduct(Product product){
         return new PopularProductResponse(
                 product.getId(),
-                product.getMainImage(),
-                product.getBrand(),
-                product.getName(),
-                product.getOriginPrice(),
-                product.getDiscountPrice(),
-                product.getDiscountRate(),
+                product.getImage().getMainImage(),
+                product.getProductInfo().getBrand(),
+                product.getProductInfo().getName(),
+                product.getProductInfo().getOriginPrice(),
+                product.getProductInfo().getDiscountPrice(),
+                product.getProductInfo().getDiscountRate(),
                 0,
                 0.0
         );

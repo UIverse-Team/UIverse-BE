@@ -26,15 +26,15 @@ public interface ProductWishListRepository extends JpaRepository<ProductWishList
     @Query(value = "SELECT p, COUNT(w) as wishCount " +
             "FROM Product p JOIN ProductWishList w ON p.id = w.product.id " +
             "WHERE w.productWishStatus = true " +
-            "AND p.saleStatus = 'SELLING' " +
-            "AND p.secret = false " +
+            "AND p.status.saleStatus = 'SELLING' " +
+            "AND p.status.secret = false " +
             "GROUP BY p " +
             "ORDER BY wishCount DESC",
             countQuery = "SELECT COUNT(DISTINCT p) " +
                     "FROM Product p JOIN ProductWishList w ON p.id = w.product.id " +
                     "WHERE w.productWishStatus = true " +
-                    "AND p.saleStatus = 'SELLING' " +
-                    "AND p.secret = false")
+                    "AND p.status.saleStatus = 'SELLING' " +
+                    "AND p.status.secret = false")
     Page<Product> getPopularProductsByWishList(Pageable pageable);
 
     @Query("SELECT CASE WHEN COUNT(pw) > 0 THEN true ELSE false END FROM ProductWishList pw " +

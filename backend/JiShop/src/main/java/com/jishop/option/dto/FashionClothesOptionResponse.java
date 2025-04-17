@@ -8,29 +8,22 @@ import java.util.Map;
 public record FashionClothesOptionResponse(
         List<ColorSizeOption> option
 ) {
-    public static FashionClothesOptionResponse from(List<Map<String, Object>> productOptions) {
+    public static FashionClothesOptionResponse from(List<SizeOption> productOptions) {
         if (productOptions == null || productOptions.isEmpty()) {
             return new FashionClothesOptionResponse(List.of());
         }
 
         Map<String, List<SizeOption>> fashionClothesOptions = new HashMap<>();
 
-        for (Map<String, Object> option : productOptions) {
-            String optionValue = (String) option.get("optionValue");
-            String[] colorAndSize = optionValue.split("/");
-
-            if (colorAndSize.length == 2) {
-                String color = colorAndSize[0];
-                String size = colorAndSize[1];
+        for (SizeOption option : productOptions) {
+            if (option.isValidOption()) {
+                String color = option.extractColor();
 
                 if (!fashionClothesOptions.containsKey(color)) {
                     fashionClothesOptions.put(color, new ArrayList<>());
                 }
-                SizeOption sizeOption = new SizeOption(
-                        (Long) option.get("saleProductId"),
-                        size,
-                        (int) option.get("optionExtra")
-                );
+
+                SizeOption sizeOption = option.withSize();
                 fashionClothesOptions.get(color).add(sizeOption);
             }
         }

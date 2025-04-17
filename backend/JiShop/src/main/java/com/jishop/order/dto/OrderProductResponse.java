@@ -20,7 +20,7 @@ public record OrderProductResponse(
         return new OrderProductResponse(
                 detail.getId(),
                 detail.getSaleProduct().getId(),
-                detail.getSaleProduct().getProduct().getMainImage(),
+                detail.getSaleProduct().getProduct().getImage().getMainImage(),
                 detail.getSaleProduct().getName(),
                 detail.getSaleProduct().getOption() != null ? detail.getSaleProduct().getOption().getOptionValue() : null,
                 detail.getPaymentPrice(),
@@ -29,7 +29,7 @@ public record OrderProductResponse(
                 detail.getQuantity(),
                 detail.getPaymentPrice() * detail.getQuantity(),
                 canReview,
-                detail.getSaleProduct().getProduct().getBrand()
+                detail.getSaleProduct().getProduct().getProductInfo().getBrand()
         );
     }
 }
