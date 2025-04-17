@@ -44,14 +44,6 @@ public class RedisConfig {
         return mapper;
     }
 
-    @Bean
-    public FilterRegistrationBean<SessionRepositoryFilter<?>> redisSessionFilterRegistration(SessionRepositoryFilter<?> sessionRepositoryFilter) {
-        FilterRegistrationBean<SessionRepositoryFilter<?>> registrationBean = new FilterRegistrationBean<>(sessionRepositoryFilter);
-        // /auth/* 패턴에만 Redis 세션 저장소 적용 (즉, 로그인 관련 요청에만)
-        registrationBean.setUrlPatterns(Arrays.asList("/auth/*"));
-        return registrationBean;
-    }
-
     // 인기 검색어,  RedisTemplate 빈 등록
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {

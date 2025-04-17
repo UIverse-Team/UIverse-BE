@@ -5,6 +5,8 @@ import com.jishop.member.dto.request.*;
 import com.jishop.member.dto.response.UserResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface AuthService {
 
     void signIn(SignInFormRequest form, HttpSession session);
@@ -20,4 +22,6 @@ public interface AuthService {
     void updateAdSMSAgree(User user, UserAdSMSRequest request);
     void updateAdEmailAgree(User user, UserAdEmailRequest request);
     void logout(User user);
+    CompletableFuture<String> signInType(SignInFormRequest request, HttpSession session);
+    User attemptLogin(SignInFormRequest form);
 }

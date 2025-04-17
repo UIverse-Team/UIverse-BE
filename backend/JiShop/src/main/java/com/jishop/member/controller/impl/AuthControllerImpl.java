@@ -5,16 +5,18 @@ import com.jishop.member.controller.AuthController;
 import com.jishop.member.domain.User;
 import com.jishop.member.dto.request.SignInFormRequest;
 import com.jishop.member.service.AuthService;
+import com.jishop.queue.service.QueueService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,26 +24,36 @@ import java.util.UUID;
 public class AuthControllerImpl implements AuthController {
 
     private final AuthService service;
+    private final QueueService queueService;
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signIn(@RequestBody @Valid SignInFormRequest request,
+    public ResponseEntity<?> signIn(@RequestBody @Valid SignInFormRequest request,
                                          HttpServletRequest httpRequest,
-                                         HttpServletResponse httpServletResponse) {
-        // todo: IP 주소 로깅을 해야할까??
-        // String clientIp = getClientIp(httpRequest);
+                                         HttpServletResponse httpServletResponse) throws ExecutionException, InterruptedException {
+        // todo: IP 주소 로깅을 해야할까?? -> 해결책 다른 나라, 일단 다른 ip인 경우 해당 하면 알림 보내기?(4/17)
 
-        HttpSession session = httpRequest.getSession();
-        service.signIn(request, session);
+        try {
+            // 요청 처리 시작 시 카운터 증가
+            queueService.incrementActiveRequests();
 
-        Long userId = (Long) session.getAttribute("userId");
-        String welcomeMessage = service.loginStr(userId);
+            HttpSession session = httpRequest.getSession();
+            CompletableFuture<String> future = service.signInType(request, session);
+            String taskId = future.get();
 
-        // CSRF 토큰 생성 및 응답 헤더에 포함
-        String csrfToken = UUID.randomUUID().toString();
-        session.setAttribute("CSRF_TOKEN", csrfToken);
-        httpServletResponse.setHeader("X-CSRF-TOKEN", csrfToken);
+            if(taskId.startsWith("immediate-login-")){
+                Long userId =(Long) session.getAttribute("userId");
+                String welcome = service.loginStr(userId);
+                return ResponseEntity.ok(welcome);
+            }
 
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(welcomeMessage);
+            return ResponseEntity.accepted().body(Map.of(
+                    "taskId", taskId,
+                    "message", "로그인 요청이 대기열에 등록되었습니다."
+            ));
+        } finally {
+            // 요청 처리 완료 시 카운터 감소 (예외 발생해도 실행됨)
+            queueService.decrementActiveRequests();
+        }
     }
 
     @GetMapping("/logout")
@@ -58,7 +70,7 @@ public class AuthControllerImpl implements AuthController {
     @GetMapping()
     public ResponseEntity<String> checkLogin(@CurrentUser User user) {
         Long id = service.checkLogin(user);
-        if(id == null) return ResponseEntity.badRequest().body("로그인 타임 종료!");
+        if(id == null) return ResponseEntity.badRequest().body("로그아웃!");
         return ResponseEntity.ok("로그인 중!");
     }
 }

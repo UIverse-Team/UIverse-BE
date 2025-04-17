@@ -64,23 +64,13 @@ public class WebConfig implements WebMvcConfigurer {
         return serializer;
     }
 
-        // todo: 추후 반영 결정해야할 사항 (3/23)
-        /* @Bean
-        public FilterRegistrationBean<SecurityHeadersFilter> securityHeadersFilter() {
-            FilterRegistrationBean<SecurityHeadersFilter> registrationBean = new FilterRegistrationBean<>();
-            registrationBean.setFilter(new SecurityHeadersFilter());
-            registrationBean.addUrlPatterns("/*");
-            registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-            return registrationBean;
-        }*/
-
-        // todo: 추후 반영 결정해야할 사항 (3/23)
-        /*@Bean
-        public FilterRegistrationBean<CsrfFilter> csrfFilter() {
-            FilterRegistrationBean<CsrfFilter> registrationBean = new FilterRegistrationBean<>();
-            registrationBean.setFilter(new CsrfFilter());
-            registrationBean.addUrlPatterns("/*");
-            registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
-            return registrationBean;
-        }*/
-    }
+    // todo: 추후 반영 결정해야할 사항 (3/23)
+    /*@Bean
+    public FilterRegistrationBean<CsrfFilter> csrfFilter() {
+        FilterRegistrationBean<CsrfFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new CsrfFilter());
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
+        return registrationBean;
+    }*/
+}
