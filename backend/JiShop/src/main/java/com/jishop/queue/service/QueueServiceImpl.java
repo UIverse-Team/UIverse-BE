@@ -33,7 +33,7 @@ public class QueueServiceImpl implements QueueService {
         }
     }
 
-    // 우선순위 가장 높은 작업 꺼내오기
+    // 가장 오래된 작업부터 추가 진행
     public Task dequeueTask(){
         Object obj = redisTemplate.opsForList().leftPop(TASK_QUEUE);
         if (obj != null) {
