@@ -2,10 +2,7 @@ package com.jishop.order.service;
 
 import com.jishop.cart.dto.CartResponse;
 import com.jishop.member.domain.User;
-import com.jishop.order.dto.OrderCancelResponse;
-import com.jishop.order.dto.OrderDetailPageResponse;
-import com.jishop.order.dto.OrderDetailRequest;
-import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -19,6 +16,8 @@ public interface OrderGetService {
     Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size);
     //회원 장바구니에서 주문서로 넘어가는 API
     CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest);
+    //리뷰 작성 시 필요한 상품 정보 내려주는 API
+    OrderProductResponse getItem(Long orderDetailId);
 
     //비회원 주문 상세 페이지
     OrderDetailPageResponse getOrder(String orderNumber, String phone);
@@ -26,5 +25,4 @@ public interface OrderGetService {
     OrderCancelResponse getCancelPage(String orderNumber, String phone);
     //비회원 장바구니에서 주문서로 넘어가는 API
     CartResponse getCheckout(List<OrderDetailRequest> orderDetailRequest);
-
 }

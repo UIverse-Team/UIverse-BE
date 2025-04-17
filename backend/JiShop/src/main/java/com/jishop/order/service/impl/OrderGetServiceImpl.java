@@ -6,8 +6,10 @@ import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
+import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
 import com.jishop.order.dto.*;
+import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.OrderGetService;
 import com.jishop.order.service.OrderUtilService;
@@ -34,6 +36,7 @@ public class OrderGetServiceImpl implements OrderGetService {
     private final ReviewRepository reviewRepository;
     private final OrderUtilService orderUtilService;
     private final SaleProductRepository saleProductRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     //비회원 주문 상세 조회
     @Override
@@ -109,6 +112,17 @@ public class OrderGetServiceImpl implements OrderGetService {
         return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
     }
 
+    //리뷰 작성 시 필요한 상품 정보 내려주기 API
+    @Override
+    public OrderProductResponse getItem(Long orderDetailId) {
+        OrderDetail orderDetail = orderDetailRepository.findOrderDetailForReviewById(orderDetailId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_DETAIL_NOT_FOUND));
+        
+        OrderProductResponse response = OrderProductResponse.from(orderDetail, true);
+
+        return response;
+    }
+
     //회원 주문서로 넘어가는 API
     @Override
     public CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest) {
@@ -150,7 +164,8 @@ public class OrderGetServiceImpl implements OrderGetService {
                 .toList();
 
         // CartResponse 생성 및 반환
-        return CartResponse.of(cartDetails);    }
+        return CartResponse.of(cartDetails);
+    }
 
     private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {
         boolean isPurchasedConfirmed = order.getStatus() == OrderStatus.PURCHASED_CONFIRMED;
