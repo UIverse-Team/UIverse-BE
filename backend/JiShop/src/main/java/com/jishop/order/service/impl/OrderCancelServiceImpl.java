@@ -24,11 +24,22 @@ public class OrderCancelServiceImpl implements OrderCancelService {
 
     private final StockService stockService;
     private final OrderUtilService orderUtilService;
+    private final OrderRepository orderRepository;
 
-    // 주문 취소 - (회원/비회원 통합)
+    //비회원 주문 취소
     @Override
-    public void cancelOrder(User user, Long orderId, String orderNumber, String phone) {
-        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+    public void cancelOrder(String orderNumber, String phone) {
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        processCancellation(order);
+    }
+
+    // 회원 주문 취소
+    @Override
+    public void cancelOrder(User user, Long orderId) {
+        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         processCancellation(order);
     }

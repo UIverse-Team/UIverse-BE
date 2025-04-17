@@ -1,41 +1,37 @@
 package com.jishop.option.dto;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.jishop.common.exception.DomainException;
-import com.jishop.common.exception.ErrorType;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public record FashionClothesOptionResponse(
-        @JsonValue Map<String, List<SizeOption>> option
+        List<ColorSizeOption> option
 ) {
-    public static FashionClothesOptionResponse from(List<Map<String, Object>> productOptions) {
+    public static FashionClothesOptionResponse from(List<SizeOption> productOptions) {
         if (productOptions == null || productOptions.isEmpty()) {
-            throw new DomainException(ErrorType.OPTION_NOT_FOUND);
+            return new FashionClothesOptionResponse(List.of());
         }
 
         Map<String, List<SizeOption>> fashionClothesOptions = new HashMap<>();
 
-        for (Map<String, Object> option : productOptions) {
-            String optionValue = (String) option.get("optionValue");
-            String[] colorAndSize = optionValue.split("/");
-
-            if (colorAndSize.length == 2) {
-                String color = colorAndSize[0];
-                String size = colorAndSize[1];
+        for (SizeOption option : productOptions) {
+            if (option.isValidOption()) {
+                String color = option.extractColor();
 
                 if (!fashionClothesOptions.containsKey(color)) {
                     fashionClothesOptions.put(color, new ArrayList<>());
                 }
-                SizeOption sizeOption = new SizeOption(
-                        (Long) option.get("saleProductId"),
-                        size,
-                        (int) option.get("optionExtra")
-                );
+
+                SizeOption sizeOption = option.withSize();
                 fashionClothesOptions.get(color).add(sizeOption);
             }
         }
 
-        return new FashionClothesOptionResponse(fashionClothesOptions);
+        List<ColorSizeOption> colorSizeOptions = fashionClothesOptions.entrySet().stream()
+                .map(entry -> new ColorSizeOption(entry.getKey(), entry.getValue()))
+                .toList();
+
+        return new FashionClothesOptionResponse(colorSizeOptions);
     }
 }

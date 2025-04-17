@@ -53,8 +53,8 @@ public class OrderDetail extends BaseEntity {
     }
 
     public static OrderDetail from(Order order, SaleProduct saleProduct, int quantity){
-        int orderPrice = saleProduct.getProduct().getOriginPrice();
-        int paymentPrice = saleProduct.getProduct().getDiscountPrice();
+        int orderPrice = saleProduct.getProduct().getProductInfo().getOriginPrice();
+        int paymentPrice = saleProduct.getProduct().getProductInfo().getDiscountPrice();
         int discountPrice = orderPrice - paymentPrice;
 
         if(saleProduct.getOption() != null){

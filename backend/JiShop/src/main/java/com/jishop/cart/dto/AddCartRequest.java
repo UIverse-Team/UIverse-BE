@@ -7,6 +7,7 @@ public record AddCartRequest(
         @NotNull
         Long saleProductId,
         @Positive
-        int quantity
+        int quantity,
+        boolean isForced
 ) {
 }

@@ -11,8 +11,6 @@ public class JiShopApplication {
     public static void main(String[] args) {
         SpringApplication.run(JiShopApplication.class, args);
     }
-
-
 }
 
 

@@ -7,42 +7,22 @@ public record ProductResponse(
         Long id,
         String name,
         Labels labels,
-        String description,
         Integer originPrice,
         Integer discountPrice,
-        Boolean isDiscount,
         String brand,
-        Object option,
         int discountRate,
-        int reviewCount,
-        double reviewRate,
-        String[] images,
-        String detailImage,
-        // true 또는 빈배열 반환
-        Object isWished
+        String mainImage
 ) {
-    public static ProductResponse from(final Product product, final Boolean isWished, final int reviewCount,
-                                       final double reviewRate, final Object option) {
-        final Object wishStatus = isWished != null && isWished ? true : new String[0];
-
+    public static ProductResponse from(final Product product) {
         return new ProductResponse(
                 product.getId(),
-                product.getName(),
-                product.getLabels(),
-                product.getDescription(),
-                product.getOriginPrice(),
-                product.getDiscountPrice(),
-                product.getIsDiscount(),
-                product.getBrand(),
-                option,
-                product.getDiscountRate(),
-                reviewCount,
-                reviewRate,
-                new String[]{
-                        product.getMainImage(), product.getImage1(), product.getImage2(), product.getImage3(), product.getImage4()
-                },
-                product.getDetailImage(),
-                wishStatus
+                product.getProductInfo().getName(),
+                product.getStatus().getLabels(),
+                product.getProductInfo().getOriginPrice(),
+                product.getProductInfo().getDiscountPrice(),
+                product.getProductInfo().getBrand(),
+                product.getProductInfo().getDiscountRate(),
+                product.getImage().getMainImage()
         );
     }
 }

@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface OrderUtilService {
 
-    Order findOrder(User user, Long orderId, String orderNumber, String phone);
     String generateOrderNumber();
     List<OrderDetail> processOrderDetails(Order order, List<OrderDetailRequest> orderDetailRequestList);
     List<OrderProductResponse> convertToOrderDetailResponses(List<OrderDetail> details, User user);

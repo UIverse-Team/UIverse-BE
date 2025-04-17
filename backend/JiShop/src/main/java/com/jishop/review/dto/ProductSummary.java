@@ -16,13 +16,13 @@ public record ProductSummary(
     public static ProductSummary from(Product product) {
         return new ProductSummary(
                 product.getId(),
-                product.getName(),
-                product.getLabels(),
-                product.getOriginPrice(),
-                product.getDiscountPrice(),
-                product.getIsDiscount(),
-                product.getBrand(),
-                product.getMainImage()
+                product.getProductInfo().getName(),
+                product.getStatus().getLabels(),
+                product.getProductInfo().getOriginPrice(),
+                product.getProductInfo().getDiscountPrice(),
+                product.getStatus().getIsDiscount(),
+                product.getProductInfo().getBrand(),
+                product.getImage().getMainImage()
         );
     }
 }

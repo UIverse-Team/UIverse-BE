@@ -3,6 +3,7 @@ package com.jishop.order.domain;
 import com.jishop.common.util.BaseEntity;
 import com.jishop.member.domain.User;
 import com.jishop.order.dto.OrderRequest;
+import com.jishop.payment.domain.Payment;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,9 +24,6 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-
-    // todo: 결제수단 매핑
-    private Long paymentId;
 
     private Long userId;
 
@@ -84,7 +82,7 @@ public class Order extends BaseEntity {
     public Order(Long userId, String recipient, String phone,
                  String zonecode, String address, String detailAddress, String orderNumber) {
         this.userId = userId;
-        this.status = OrderStatus.ORDER_RECEIVED;
+        this.status = OrderStatus.PAYMENT_PENDING;
         this.totalOrderPrice = 0;
         this.totalDiscountPrice = 0;
         this.totalPaymentPrice = 0;

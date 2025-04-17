@@ -1,16 +1,21 @@
 package com.jishop.order.service.impl;
 
+import com.jishop.cart.dto.CartDetailResponse;
+import com.jishop.cart.dto.CartResponse;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
+import com.jishop.order.domain.OrderDetail;
 import com.jishop.order.domain.OrderStatus;
-import com.jishop.order.dto.OrderCancelResponse;
-import com.jishop.order.dto.OrderDetailPageResponse;
-import com.jishop.order.dto.OrderProductResponse;
-import com.jishop.order.dto.OrderResponse;
+import com.jishop.order.dto.*;
+import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.OrderGetService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.review.repository.ReviewRepository;
+import com.jishop.saleproduct.domain.SaleProduct;
+import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -30,16 +35,45 @@ public class OrderGetServiceImpl implements OrderGetService {
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
     private final OrderUtilService orderUtilService;
+    private final SaleProductRepository saleProductRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
-    // 주문 상세 조회 (회원/비회원 통합)
+    //비회원 주문 상세 조회
     @Override
-    public OrderDetailPageResponse getOrder(User user, Long orderId, String orderNumber, String phone) {
-        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+    public OrderDetailPageResponse getOrder(String orderNumber, String phone){
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber,phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        return createOrderDetailPageResponse(order, null);
+    }
+
+    //비회원 주문 취소 상세 조회
+    @Override
+    public OrderCancelResponse getCancelPage(String orderNumber, String phone){
+        Order order = orderRepository.findByOrderNumberAndPhone(orderNumber,phone)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
+
+        OrderDetailPageResponse page = createOrderDetailPageResponse(order, null);
+
+        return new OrderCancelResponse(order.getUpdatedAt(), page);
+    }
+
+    //비회원 주문서로 넘어가는 API
+    @Override
+    public CartResponse getCheckout(List<OrderDetailRequest> orderDetailRequests){
+        return getCheckout(null, orderDetailRequests);
+    }
+
+    // 회원 주문 상세 조회
+    @Override
+    public OrderDetailPageResponse getOrder(User user, Long orderId) {
+        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         return createOrderDetailPageResponse(order, user);
     }
 
-    // 주문 전체 조회 페이징 처리
+    // 회원 주문 전체 조회 페이징 처리
     @Override
     public Page<OrderResponse> getPaginatedOrders(User user, String period, int page, int size) {
         LocalDateTime today = LocalDateTime.now();
@@ -67,14 +101,70 @@ public class OrderGetServiceImpl implements OrderGetService {
         return new PageImpl<>(orderResponses, pageable, orderIdsPage.getTotalElements());
     }
 
-    // 회원,비회원 주문 취소 상세 페이지
+    // 회원 주문 취소 상세 페이지
     @Override
-    public OrderCancelResponse getCancelPage(User user, Long orderId, String orderNumber, String phone) {
-        Order order = orderUtilService.findOrder(user, orderId, orderNumber, phone);
+    public OrderCancelResponse getCancelPage(User user, Long orderId) {
+        Order order = orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
 
         OrderDetailPageResponse pageResponse = createOrderDetailPageResponse(order, user);
 
         return new OrderCancelResponse(order.getUpdatedAt(), pageResponse);
+    }
+
+    //리뷰 작성 시 필요한 상품 정보 내려주기 API
+    @Override
+    public OrderProductResponse getItem(Long orderDetailId) {
+        OrderDetail orderDetail = orderDetailRepository.findOrderDetailForReviewById(orderDetailId)
+                .orElseThrow(() -> new DomainException(ErrorType.ORDER_DETAIL_NOT_FOUND));
+        
+        OrderProductResponse response = OrderProductResponse.from(orderDetail, true);
+
+        return response;
+    }
+
+    //회원 주문서로 넘어가는 API
+    @Override
+    public CartResponse getCheckout(User user, List<OrderDetailRequest> orderDetailRequest) {
+        List<Long> saleProductIds = orderDetailRequest.stream()
+                .map(OrderDetailRequest::saleProductId)
+                .toList();
+
+        List<SaleProduct> saleProducts = saleProductRepository.findAllById(saleProductIds);
+
+        List<CartDetailResponse> cartDetails = saleProducts.stream()
+                .map(product -> {
+                    var matchingRequest = orderDetailRequest.stream()
+                            .filter(request -> request.saleProductId().equals(product.getId()))
+                            .findFirst()
+                            .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+
+                    // 해당 상품의 수량을 찾음
+                    int quantity = orderDetailRequest.stream()
+                            .filter(request -> request.saleProductId().equals(product.getId()))
+                            .findFirst()
+                            .map(OrderDetailRequest::quantity)
+                            .orElseThrow(() -> new DomainException(ErrorType.INVALID_QUANTITY)); // 기본값은 1로 설정
+
+                    int paymentPrice = product.getProduct().getProductInfo().getDiscountPrice();
+                    int orderPrice = product.getProduct().getProductInfo().getOriginPrice();
+                    int discountPrice = orderPrice - paymentPrice;
+
+                    return CartDetailResponse.from(
+                            // 장바구니에서 넘어온 것이므로 cartId는 null
+                            matchingRequest.cartId(),
+                            product,
+                            quantity,
+                            paymentPrice,
+                            orderPrice,
+                            discountPrice,
+                            false
+                    );
+                })
+                .toList();
+
+        // CartResponse 생성 및 반환
+        return CartResponse.of(cartDetails);
     }
 
     private OrderDetailPageResponse createOrderDetailPageResponse(Order order, User user) {

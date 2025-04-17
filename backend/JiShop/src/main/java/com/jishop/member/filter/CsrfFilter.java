@@ -2,6 +2,7 @@ package com.jishop.member.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -75,6 +76,13 @@ public class CsrfFilter extends OncePerRequestFilter {
         String token = UUID.randomUUID().toString();
         session.setAttribute("CSRF_TOKEN", token);
         response.setHeader("X-CSRF-TOKEN", token);
+
+        Cookie cookie = new Cookie("XSRF-TOKEN", token);
+        cookie.setPath("/");
+        cookie.setHttpOnly(false);
+        cookie.setSecure(false);
+        cookie.setMaxAge(60 * 10);
+        response.addCookie(cookie);
         return token;
     }
 }

@@ -5,6 +5,7 @@ import com.jishop.address.dto.AddressResponse;
 import com.jishop.member.domain.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AddressService {
 
@@ -13,5 +14,5 @@ public interface AddressService {
     AddressResponse getAddress(Long addressId);
     void deleteAddress(Long addressId);
     void updateAddress(User user, Long addressId, AddressRequest request);
-    AddressResponse getDefaultAddress(User user);
+    Optional<AddressResponse> getDefaultAddress(User user);
 }

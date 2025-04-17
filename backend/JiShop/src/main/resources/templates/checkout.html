@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+    <title>결제위젯 샘플</title>
+    <link rel="stylesheet" th:href="@{/css/payment.css}" />
+</head>
+<body>
+
+<!--&lt;!&ndash; 결제 UI &ndash;&gt;-->
+<!--<div id="payment-method"></div>-->
+<!--&lt;!&ndash; 이용약관 UI &ndash;&gt;-->
+<!--<div id="agreement"></div>-->
+<!--&lt;!&ndash; 결제하기 버튼 &ndash;&gt;-->
+<!--<button class="button" id="payment-button" style="margin-top: 30px">결제하기-->
+
+<div class="wrapper w-100">
+    <div class="max-w-540 w-100">
+        <div id="payment-method" class="w-100"></div>
+        <div id="agreement" class="w-100"></div>
+        <div class="btn-wrapper w-100">
+            <button id="payment-button" class="btn primary w-100">결제하기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    main();
+
+    async function main() {
+        const button = document.getElementById("payment-button");
+
+        // Thymeleaf로부터 동적으로 주입된 값들
+        const clientKey = '[[${clientKey}]]';
+        const orderId = '[[${orderId}]]';
+        const successUrl = window.location.origin + '[[${successUrl}]]';
+        const failUrl = window.location.origin + '[[${failUrl}]]';
+        // 동적으로 주문의 금액을 설정 (서버에서 내려온 값을 정수로 파싱)
+        const amountValue = parseInt('[[${amount}]]');
+
+        const tossPayments = TossPayments(clientKey);
+        // 회원 결제: 고객 키를 사용 (비회원인 경우 TossPayments.ANONYMOUS 사용 가능)
+        const customerKey = "dCKrXTPra7OihnMyu0nHv";
+        const widgets = tossPayments.widgets({ customerKey });
+
+        // 주문의 결제 금액을 동적으로 설정
+        await widgets.setAmount({
+            currency: "KRW",
+            value: amountValue,
+        });
+
+        await Promise.all([
+            widgets.renderPaymentMethods({
+                selector: "#payment-method",
+                variantKey: "DEFAULT",
+            }),
+            widgets.renderAgreement({
+                selector: "#agreement",
+                variantKey: "AGREEMENT",
+            }),
+        ]);
+
+        // '결제하기' 버튼 클릭 시 결제 요청
+        button.addEventListener("click", async () => {
+            try {
+                await widgets.requestPayment({
+                    orderId: orderId,
+                    orderName: "Ora 상품 결제",
+                    successUrl: successUrl,
+                    failUrl: failUrl,
+                });
+            } catch (err) {
+                console.error("결제 요청 중 에러 발생:", err);
+            }
+        });
+    }
+</script>
+</body>
+</html>

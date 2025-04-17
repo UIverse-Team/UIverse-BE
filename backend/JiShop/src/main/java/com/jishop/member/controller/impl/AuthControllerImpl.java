@@ -58,12 +58,13 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    public ResponseEntity<Void> logout(@CurrentUser User user, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             // redis의 세션도 삭제
             session.invalidate();
         }
+        service.logout(user);
         return ResponseEntity.ok().build();
     }
 

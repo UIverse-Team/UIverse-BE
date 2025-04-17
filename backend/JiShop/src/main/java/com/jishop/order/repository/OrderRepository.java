@@ -29,7 +29,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "LEFT JOIN FETCH sp.product " +
             "LEFT JOIN FETCH sp.stock " +
             "WHERE o.id = :orderId AND o.userId = :userId")
-    Optional<Order> findByIdWithDetailsAndProducts(@Param("userId") Long userId, @Param("orderId") Long orderId);
+    Optional<Order> findByIdWithDetailsAndProducts(@Param("userId") Long userId, @Param("orderId") Long orderNumber);
 
     // 페이징을 위한 첫 번째 쿼리: 페이징된 ID 목록 가져오기
     @Query("SELECT o.id FROM Order o " +
@@ -54,19 +54,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     boolean existsByOrderNumber(String orderNumber);
 
-    //주문 취소를 위한 쿼리
-    @Query("SELECT o FROM Order o " +
-            "LEFT JOIN FETCH o.orderDetails od " +
-            "LEFT JOIN FETCH od.saleProduct sp " +
-            "LEFT JOIN FETCH sp.stock " +
-            "WHERE o.id = :orderId AND o.userId = :userId")
-    Optional<Order> findForCancellation(@Param("userId") Long userId, @Param("orderId") Long orderId);
-
     Optional<Order> findById(Long orderId);
 
     Optional<Order> findByOrderNumberAndPhone(String orderNumber, String phone);
 
-    // 문의사항 작성에 필요한 메서드 정의
     Optional<Order> findByOrderNumber(String orderNumber);
 
     //스케쥴러를 위한 쿼리

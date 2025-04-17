@@ -31,17 +31,6 @@ public class OrderUtilServiceImpl implements OrderUtilService {
     private final StockService stockService;
     private final ReviewRepository reviewRepository;
 
-    // 주문 조회 공통 로직
-    public Order findOrder(User user, Long orderId, String orderNumber, String phone) {
-        if (user != null) {
-            return orderRepository.findByIdWithDetailsAndProducts(user.getId(), orderId)
-                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
-        } else {
-            return orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
-                    .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
-        }
-    }
-
     // 주문 번호 생성
     public String generateOrderNumber() {
         String orderTypeCode = "O"; // Order

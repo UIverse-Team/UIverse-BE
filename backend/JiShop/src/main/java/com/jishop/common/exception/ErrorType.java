@@ -89,7 +89,17 @@ public enum ErrorType {
     // QUESTION
     QUESTION_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
     QUESTION_ORDER_NUMBER_REQUIRED(HttpStatus.BAD_REQUEST, "주문번호가 필수인 문의유형입니다."),
-    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 문의사항입니다.");
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 문의사항입니다."),
+
+    // Payment
+    ORDER_NUMBER_MISMATCH(HttpStatus.BAD_REQUEST, "주문번호가 일치하지 않습니다."),
+    ORDER_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "주문 결제 금액이 일치하지 않습니다."),
+    ORDER_STATUS_INVAILD(HttpStatus.CONFLICT, "결제 가능한 주문 상태가 아닙니다."),
+    CONFIRM_REQUEST_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "결제 승인 요청을 JSON으로 변환하는 데 실패했습니다."),
+    TOSS_CONFIRM_REQEUST_FAILED(HttpStatus.BAD_GATEWAY, "토스페이먼츠 결제 승인 요청 호출에 실패했습니다."),
+    TOSS_CONFIRM_FAILED(HttpStatus.BAD_REQUEST, "토스페이먼츠 결제 승인이 실패했습니다."),
+    TOSS_RESPONSE_PARSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "토스페이먼츠 응답 파싱에 실패했습니다."),
+    TOSS_RESPONSE_NO_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, "토스페이먼츠 응답에 payment 정보가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

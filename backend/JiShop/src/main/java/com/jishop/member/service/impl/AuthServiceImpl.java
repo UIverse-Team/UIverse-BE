@@ -12,6 +12,7 @@ import com.jishop.queue.service.QueueService;
 import com.jishop.queue.service.TaskProducer;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import java.time.Duration;
+import java.util.function.Consumer;
 
 @Service
 @Transactional
@@ -29,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TaskProducer taskProducer;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void signIn(SignInFormRequest form, HttpSession session) {
@@ -72,12 +77,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public void updatePW(User user, UserNewPasswordRequest request){
-        if(passwordEncoder.matches(request.password(), user.getPassword())){
+        User persistUser = getPersistUser(user);
+
+        if(passwordEncoder.matches(request.password(), persistUser.getPassword())){
             throw new DomainException(ErrorType.PASSWORD_EXISTS);
         }
 
         String password = passwordEncoder.encode(request.password());
-        user.updatePassword(password);
+        persistUser.updatePassword(password);
+        updateUserCache(persistUser);
     }
 
     // todo: 회원 정보 조회
@@ -87,19 +95,53 @@ public class AuthServiceImpl implements AuthService {
 
     // todo: 회원 정보 수정 (이름, 전화번호)
     public void updateUserName(User user, UserNameRequest request) {
-        user.updateName(request.name());
+        applyAndCache(user, request::update);
     }
 
     public void updatePhone(User user, UserPhoneRequest request) {
-        user.updatePhone(request.phone());
+        applyAndCache(user, request::update);
     }
 
     public void deleteUser(User user) {
-        user.delete();
+        User persistUser = getPersistUser(user);
+        persistUser.delete();
     }
 
     public Long checkLogin(User user) {
         return user.getId();
+    }
+
+    public void updateAdSMSAgree(User user, UserAdSMSRequest request){
+        applyAndCache(user, request::update);
+    }
+
+    public void updateAdEmailAgree(User user, UserAdEmailRequest request){
+        applyAndCache(user, request::update);
+    }
+
+    private void updateUserCache(User user) {
+        String cacheKey = "user::" + user.getId();
+
+        // 캐시 업데이트 (기존 캐시 삭제 후 최신 정보로 재설정)
+        redisTemplate.delete(cacheKey);
+        redisTemplate.opsForValue().set(cacheKey, user, Duration.ofMinutes(30));
+    }
+
+    private User getPersistUser(User user){
+        User persistUser = userRepository.findPersistUser(user);
+
+        return persistUser;
+    }
+
+    private void applyAndCache(User user, Consumer<User> update) {
+        User persistUser = getPersistUser(user);
+        update.accept(persistUser);
+        updateUserCache(persistUser);
+    }
+
+    public void logout(User user) {
+        String cacheKey = "user::" + user.getId();
+        redisTemplate.delete(cacheKey);
     }
 
     public CompletableFuture<String> signInType(SignInFormRequest request, HttpSession session) {

@@ -15,5 +15,5 @@ public interface LogService {
 
     void addProductClick(ProductClickRequest request);
 
-    void addReviewLog(ReviewRequest request);
+    void addReviewLog(ReviewRequest requestm);
 }

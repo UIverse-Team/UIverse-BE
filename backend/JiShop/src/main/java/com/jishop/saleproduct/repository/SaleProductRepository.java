@@ -1,5 +1,6 @@
 package com.jishop.saleproduct.repository;
 
+import com.jishop.option.dto.SizeOption;
 import com.jishop.saleproduct.domain.SaleProduct;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> {
@@ -25,15 +25,17 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
             "WHERE sp.id IN :ids")
     List<SaleProduct> findAllByIdsForOrder(@Param("ids") List<Long> ids);
 
-    @Query("SELECT sp.id as saleProductId, o.optionValue as optionValue, o.optionExtra as optionExtra FROM SaleProduct sp " +
-           "LEFT JOIN sp.option o ON o.categoryType = 'FASHION_CLOTHES' " +
-           "WHERE sp.product.id = :productId AND o.id IS NOT NULL")
-    List<Map<String, Object>> findFashionClothesOptionsByProductId(@Param("productId") Long productId);
+    @Query("SELECT new com.jishop.option.dto.SizeOption(sp.id, o.optionValue, o.optionExtra) " +
+            "FROM SaleProduct sp " +
+            "LEFT JOIN sp.option o ON o.categoryType = 'FASHION_CLOTHES' " +
+            "WHERE sp.product.id = :productId AND o.id IS NOT NULL")
+    List<SizeOption> findFashionClothesOptionsByProductId(@Param("productId") Long productId);
 
-    @Query("SELECT sp.id as saleProductId, o.optionValue as optionValue, o.optionExtra as optionExtra FROM SaleProduct sp " +
-           "LEFT JOIN sp.option o ON o.categoryType <> 'FASHION_CLOTHES' " +
-           "WHERE sp.product.id = :productId AND o.id IS NOT NULL")
-    List<Map<String, Object>> findGeneralOptionsByProductId(@Param("productId") Long productId);
+    @Query("SELECT new com.jishop.option.dto.SizeOption(sp.id, o.optionValue, o.optionExtra) " +
+            "FROM SaleProduct sp " +
+            "LEFT JOIN sp.option o ON o.categoryType <> 'FASHION_CLOTHES' " +
+            "WHERE sp.product.id = :productId AND o.id IS NOT NULL")
+    List<SizeOption> findGeneralOptionsByProductId(@Param("productId") Long productId);
 
 
     @Query("SELECT sp FROM SaleProduct sp " +

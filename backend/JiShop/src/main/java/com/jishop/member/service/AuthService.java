@@ -9,8 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface AuthService {
 
-    void
-    signIn(SignInFormRequest form, HttpSession session);
+    void signIn(SignInFormRequest form, HttpSession session);
     String loginStr(Long userId);
     void recoveryPW(RecoveryPWRequest request);
     boolean checkPW(RecoveryPWRequest request);
@@ -20,6 +19,9 @@ public interface AuthService {
     void updatePhone(User user, UserPhoneRequest request);
     void deleteUser(User user);
     Long checkLogin(User user);
+    void updateAdSMSAgree(User user, UserAdSMSRequest request);
+    void updateAdEmailAgree(User user, UserAdEmailRequest request);
+    void logout(User user);
     CompletableFuture<String> signInType(SignInFormRequest request, HttpSession session);
     User attemptLogin(SignInFormRequest form);
 }
