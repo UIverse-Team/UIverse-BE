@@ -29,6 +29,7 @@ public enum ErrorType {
     REVIEW_DUPLICATE(HttpStatus.CONFLICT, "이미 리뷰를 작성했습니다."),
     RATING_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "별점은 1~5점을 해야한다."),
     REVIEW_NOT_FOUND(HttpStatus.BAD_REQUEST, "작성하신 리뷰가 없습니다."),
+    ALLREADY_LIVIEW_LIKED(HttpStatus.CONFLICT, "이미 리뷰 좋아요를 했습니다."),
 
     // NOTICE
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "공지사항이 존재하지 않습니다."),

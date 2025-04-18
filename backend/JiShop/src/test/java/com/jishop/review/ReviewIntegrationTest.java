@@ -21,13 +21,22 @@ import com.jishop.product.domain.DiscountStatus;
 import com.jishop.product.domain.Labels;
 import com.jishop.product.domain.Product;
 import com.jishop.product.domain.SaleStatus;
+import com.jishop.product.domain.embed.CategoryInfo;
+import com.jishop.product.domain.embed.ImageUrl;
+import com.jishop.product.domain.embed.ProductInfo;
+import com.jishop.product.domain.embed.Status;
 import com.jishop.product.repository.ProductRepository;
 import com.jishop.review.domain.tag.Tag;
+import com.jishop.review.dto.LikerIdRequest;
 import com.jishop.review.dto.ReviewRequest;
-import com.jishop.review.service.ReviewService;
+import com.jishop.review.dto.ReviewWithUserResponse;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import org.junit.jupiter.api.*;
+import org.junit.Assert;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +46,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -46,6 +54,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -60,13 +70,13 @@ public class ReviewIntegrationTest {
     private SaleProductRepository saleProductRepository;
 
     @Autowired
-    private OptionRepository optionRepository;
-
-    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private OptionRepository optionRepository;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -92,9 +102,11 @@ public class ReviewIntegrationTest {
         categoryRepository.save(category1);
         categoryRepository.save(category2);
 
-        Product product = new Product(category, 5000L, 5010L, 5100L, "MALL-001", "테스트 상품", "테스트 상품 설명", 10000, 8000, 20, LocalDateTime.now()
-                , false, SaleStatus.SELLING, DiscountStatus.NONE, true, "테스트 브랜드", 0, Labels.SPECIAL_PRICE,
-                "main.jpg", "image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg", "detail.jpg", 0);
+        ProductInfo productInfo = new ProductInfo("테스트 상품", "14154", LocalDateTime.now(), "테스트 브랜드", "설명", 1000, 0, 0);
+        CategoryInfo categoryInfo = new CategoryInfo(5000L, 5010L, 5100L);
+        Status status = new Status(false, SaleStatus.SELLING, Labels.SPECIAL_PRICE, false, DiscountStatus.NONE);
+        ImageUrl imageUrl = new ImageUrl("main.jpg", "image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg", "detail.jpg");
+        Product product = new Product(productInfo, categoryInfo, status, imageUrl, category, 0, 0);
 
         productRepository.save(product);
 
@@ -103,7 +115,6 @@ public class ReviewIntegrationTest {
 
         SaleProduct saleProduct = new SaleProduct(product, option, "화이트 점퍼");
         saleProductRepository.save(saleProduct);
-
 
         OrderRequest sampleOrderRequest = createSampleOrderRequest();
 
@@ -121,7 +132,22 @@ public class ReviewIntegrationTest {
                 .adAgreement(false)                  // 광고 수신 동의
                 .build();
 
+        User user1 = User.builder()
+                .loginId("testuser@example.com")     // 로그인 아이디 (이메일 또는 소셜 ID)
+                .password("testPassword123!")        // 비밀번호 (소셜 로그인은 null 가능)
+                .name("홍순이")                       // 이름
+                .birthDate("1995-05-01")             // 생년월일
+                .gender("M")                         // 성별 (M/F)
+                .phone("010-1234-5678")              // 휴대폰 번호
+                .provider(LoginType.LOCAL)           // 로그인 타입 (enum 값)
+                .ageAgreement(true)                  // 만 14세 이상 동의
+                .useAgreement(true)                  // 서비스 이용 약관 동의
+                .picAgreement(true)                  // 개인정보 처리 방침 동의
+                .adAgreement(false)                  // 광고 수신 동의
+                .build();
+
         userRepository.save(user);
+        userRepository.save(user1);
 
         Order order = Order.from(sampleOrderRequest, user, "1");
         OrderDetail orderDetail = OrderDetail.from(order, saleProduct, 3);
@@ -134,18 +160,27 @@ public class ReviewIntegrationTest {
     }
 
     @Test
-    @DisplayName("리뷰 작성")
+    @DisplayName("리뷰 작성 하고 리뷰 확인")
     void createReview() throws Exception {
         // given
-        ReviewRequest request = new ReviewRequest(1L, "굳굳", null, Tag.RECOMMENDED, 3);
+        ReviewRequest request = reviewFixture();
         User user = userRepository.findById(1L).orElseThrow(IllegalStateException::new);
         loginResolver(user);
 
         // when
         Long result = 리뷰작성(request);
-
         // then
-        Assertions.assertNotNull(result);
+        MvcResult mvcResult = mvc.perform(get("/reviews/{reviewId}/detail", result)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        ReviewWithUserResponse response = objectMapper.readValue(content, ReviewWithUserResponse.class);
+
+        Assert.assertEquals(response.name(), user.getName());
+        Assert.assertEquals(response.content(), request.content());
+        Assert.assertEquals(response.option(), "화이트/FREE");
     }
 
 
@@ -153,16 +188,41 @@ public class ReviewIntegrationTest {
     @DisplayName("한번한 리뷰 작성 또 작성할때 에러 발생.")
     void duplicate_review() throws Exception {
         // given
-        ReviewRequest request = new ReviewRequest(1L, "굳굳", null, Tag.RECOMMENDED, 3);
+        ReviewRequest request = reviewFixture();
         User user = userRepository.findById(1L).orElseThrow(IllegalStateException::new);
         loginResolver(user);
         리뷰작성(request);
 
         //when
-        mvc.perform(MockMvcRequestBuilders.post("/reviews")
+        mvc.perform(post("/reviews")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("리뷰 좋아요 2번이상 하기")
+    void likeReview_Throw_error() throws Exception {
+        // given
+        User user = userRepository.findById(1L).orElseThrow(IllegalStateException::new);
+        loginResolver(user);
+        ReviewRequest request = reviewFixture();
+        Long reviewId = 리뷰작성(request);
+        User liker = userRepository.findById(2L).orElseThrow(IllegalStateException::new);
+        LikerIdRequest likerid = new LikerIdRequest(liker.getId());
+
+        //when
+        mvc.perform(post("/reviews/{reviewId}/likes", reviewId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(likerid)))
+                .andExpect(status().isOk());
+
+        //then
+        mvc.perform(post("/reviews/{reviewId}/likes", reviewId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(likerid)))
+                .andExpect(status().isConflict());
+
     }
 
 
@@ -186,6 +246,10 @@ public class ReviewIntegrationTest {
         return new OrderRequest(addressRequest, orderDetailRequestList);
     }
 
+    private ReviewRequest reviewFixture() {
+        return new ReviewRequest(1L, "굳굳", null, Tag.RECOMMENDED, 3);
+    }
+
     private void loginResolver(User user) throws Exception {
         given(currentUserResolver.supportsParameter(any()))
                 .willReturn(true);
@@ -195,7 +259,7 @@ public class ReviewIntegrationTest {
 
 
     private Long 리뷰작성(ReviewRequest request) throws Exception {
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post("/reviews")
+        MvcResult mvcResult = mvc.perform(post("/reviews")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

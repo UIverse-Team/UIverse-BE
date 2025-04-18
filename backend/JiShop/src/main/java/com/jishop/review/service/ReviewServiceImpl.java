@@ -64,7 +64,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewProduct.increaseRating(reviewRequest.rating());
 
-        String productSummary = makeProductSummar(saleProduct, orderDetail);
+        String productSummary = orderDetail.getProductSummary();
 
         try {
             Review review = reviewRepository.save(reviewRequest.toEntity(reviewRequest.images(), product, orderDetail, user, productSummary));
@@ -72,19 +72,6 @@ public class ReviewServiceImpl implements ReviewService {
         } catch (DataIntegrityViolationException e) {
             throw new DomainException(ErrorType.REVIEW_DUPLICATE);
         }
-    }
-
-    private String makeProductSummar(SaleProduct saleProduct, OrderDetail orderDetail) {
-        if (saleProduct.getOption() == null) {
-            return String.format("%s;%s",
-                    saleProduct.getName(),
-                    orderDetail.getQuantity());
-        }
-
-        return String.format("%s;%s;%s",
-                saleProduct.getName(),
-                saleProduct.getOption().getOptionValue(),
-                orderDetail.getQuantity());
     }
 
     @Override
@@ -116,7 +103,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewWithOutUserResponse getDetailReview(Long reviewId) {
-
         return reviewRepository.findByReviewIdWithUser(reviewId)
                 .map(ReviewWithOutUserResponse::from)
                 .orElseThrow(() -> new DomainException(ErrorType.REVIEW_NOT_FOUND));
@@ -124,7 +110,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewWithUserResponse getDetailReview(Long reviewId, User user) {
-
         return reviewRepository.findReviewsWithUserLike(reviewId, user.getId())
                 .map(object -> {
                     Object[] result = (Object[]) object;
@@ -136,16 +121,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public PagedModel<ReviewWriteResponse> getMyPageReviewWrite(User user, Pageable pageable) {
-
         return new PagedModel<>(reviewRepository
                 .findByMyPageReviewWrite(user.getId(), pageable));
     }
 
     @Override
     public Slice<ReviewImageResponse> getReviewImages(Pageable pageable) {
-        Slice<ReviewImageResponse> reviews = reviewRepository.findByAllWithImage(pageable)
+        return reviewRepository.findByAllWithImage(pageable)
                 .map(ReviewImageResponse::from);
-        return reviews;
     }
 
 
@@ -159,6 +142,10 @@ public class ReviewServiceImpl implements ReviewService {
         User liker = userRepository.findById(likerIdRequest.likerId()).orElseThrow(
                 () -> new DomainException(ErrorType.USER_NOT_FOUND)
         );
+
+        if(likeReviewRepository.existsLikeReviewByUserAndReview(liker, review)) {
+            throw new DomainException(ErrorType.ALLREADY_LIVIEW_LIKED);
+        }
 
         LikeReview likeReview = LikeReview.builder()
                 .user(liker)

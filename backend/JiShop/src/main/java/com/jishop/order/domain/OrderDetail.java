@@ -74,4 +74,7 @@ public class OrderDetail extends BaseEntity {
                 .build();
     }
 
+    public String getProductSummary() {
+        return saleProduct.getProductSummary(quantity);
+    }
 }
