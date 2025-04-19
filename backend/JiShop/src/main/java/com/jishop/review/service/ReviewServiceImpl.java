@@ -19,14 +19,11 @@ import com.jishop.saleproduct.domain.SaleProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -144,7 +141,7 @@ public class ReviewServiceImpl implements ReviewService {
         );
 
         if(likeReviewRepository.existsLikeReviewByUserAndReview(liker, review)) {
-            throw new DomainException(ErrorType.ALLREADY_LIVIEW_LIKED);
+            throw new DomainException(ErrorType.ALREADY_LIVIEW_LIKED);
         }
 
         LikeReview likeReview = LikeReview.builder()
