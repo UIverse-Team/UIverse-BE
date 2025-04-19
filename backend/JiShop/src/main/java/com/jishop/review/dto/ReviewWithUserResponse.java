@@ -21,19 +21,15 @@ public record ReviewWithUserResponse(
 ) {
     public static ReviewWithUserResponse from(Review review, Boolean isLike) {
         User user = review.getUser();
-        String[] split = review.getProductSummary().split(";");
-        String option = null;
-        if (split.length == 3) {
-            option = split[1];
-        }
+
         return new ReviewWithUserResponse(
                 review.getTag(),
                 review.getRating(),
                 review.getContent(),
                 review.getLikeCount(),
-                review.getImageUrls().getImages(),
+                review.getImageUrls(),
                 review.getCreatedAt().toLocalDate(),
-                option,
+                review.getOptionString(),
                 isLike,
                 user.getName()
         );

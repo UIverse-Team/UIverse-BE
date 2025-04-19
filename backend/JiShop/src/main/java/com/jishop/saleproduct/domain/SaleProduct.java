@@ -19,13 +19,6 @@ public class SaleProduct extends BaseEntity {
 
     private String name;
 
-//    private String image;
-//
-//    private int quantity;
-//
-//    @ColumnDefault("0")
-//    private Double productRating;
-
     @JoinColumn(name = "product_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
@@ -42,5 +35,18 @@ public class SaleProduct extends BaseEntity {
         this.product = product;
         this.option = option;
         this.name = name;
+    }
+
+    public String getProductSummary(int quantity) {
+        if (option == null) {
+            return String.format("%s;%s",
+                    name,
+                    quantity);
+        }
+
+        return String.format("%s;%s;%s",
+                name,
+                quantity,
+                option.getOptionValue());
     }
 }

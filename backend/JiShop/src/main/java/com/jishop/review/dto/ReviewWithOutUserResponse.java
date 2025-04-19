@@ -31,7 +31,7 @@ public record ReviewWithOutUserResponse(
                 review.getRating(),
                 review.getContent(),
                 review.getLikeCount(),
-                review.getImageUrls().getImages(),
+                review.getImageUrls(),
                 review.getCreatedAt().toLocalDate(),
                 option,
                 user.getName()

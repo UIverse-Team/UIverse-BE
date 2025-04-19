@@ -9,7 +9,7 @@ public record ReviewImageResponse(
     public static ReviewImageResponse from(Review review) {
         return new ReviewImageResponse(
                 review.getId(),
-                review.getImageUrls().getImages().get(0)
+                review.getImageUrls().get(0)
         );
     }
 }

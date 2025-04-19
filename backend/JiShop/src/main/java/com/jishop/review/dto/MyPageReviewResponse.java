@@ -32,8 +32,7 @@ public record MyPageReviewResponse(
                 review.getContent(),
                 review.getLikeCount(),
                 review.getProduct().getId(),
-                review.getImageUrls().getImages()
-                        .stream().findFirst().orElse(null),
+                review.getImageUrls().stream().findFirst().orElse(null),
                 review.getOrderDetail().getCreatedAt(),
                 ProductSummary.from(review.getProduct()),
                 option

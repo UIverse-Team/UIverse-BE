@@ -18,7 +18,7 @@ public class CategoryInfo {
     @Column(name = "s_cat_id")
     private Long sCatId;
 
-    public CategoryInfo(Category category, Long lCatId, Long mCatId, Long sCatId) {
+    public CategoryInfo(Long lCatId, Long mCatId, Long sCatId) {
         this.lCatId = lCatId;
         this.mCatId = mCatId;
         this.sCatId = sCatId;

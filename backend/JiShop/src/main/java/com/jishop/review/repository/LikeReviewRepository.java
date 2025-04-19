@@ -13,4 +13,6 @@ public interface LikeReviewRepository extends JpaRepository<LikeReview, Long> {
     @Modifying
     @Query("delete from LikeReview lr where lr.review = :review and lr.user = :user")
     int deleteByReviewAndUser(@Param(value = "review") Review review, @Param(value = "user") User user);
+
+    boolean existsLikeReviewByUserAndReview(User user, Review review);
 }
