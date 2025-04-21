@@ -2,6 +2,8 @@ package com.jishop.order.service.impl;
 
 import com.jishop.address.repository.AddressRepository;
 import com.jishop.cart.repository.CartRepository;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
@@ -13,12 +15,14 @@ import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.DistributedLockService;
 import com.jishop.order.service.OrderCreationService;
 import com.jishop.order.service.OrderUtilService;
+import com.jishop.stock.service.RedisStockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final OrderUtilService orderUtilService;
     private final DistributedLockService distributedLockService;
     private final CartRepository cartRepository;
+    private final RedisStockService redisStockService;
 
     //비회원 주문 생성
     @Override
@@ -37,37 +42,34 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         return createOrder(null, orderRequest);
     }
 
-    //비회원 바로 주문 생성
-    @Override
-    @Transactional
-    public OrderResponse createInstantOrder(OrderRequest orderRequest) {
-        return createInstantOrder(null, orderRequest);
-    }
-
     // 회원 주문 생성
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
-        //상품 Id 목록 가져오기
+
+        //재고 확인부터 시작
+        validateStockAvailability(orderRequest.orderDetailRequestList());
+
+        //상품 Id 목록 가져오기 (재고 처리용 락키)
         List<Long> productIds = orderRequest.orderDetailRequestList().stream()
                 .map(OrderDetailRequest::saleProductId)
                 .toList();
 
-        //락 키 생성(상품 ID 목록을 기반으로)
-        String lockKey = "order:creation:" + String.join("-", productIds.stream().map(String::valueOf).toList());
+        //재고 처리를 위한 락 키 생성
+        String lockKey = "order:stock:" + String.join("-", productIds.stream().map(String::valueOf).toList());
 
         //분산 락을 사용하여 주문 생성 처리
-        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, orderRequest));
-    }
+        return distributedLockService.executeWithLock(lockKey, () -> {
+            if(!decreaseStocks(orderRequest.orderDetailRequestList())){
+                throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
+            }
+            OrderResponse response = processOrderCreation(user, orderRequest);
 
-    // 회원 바로 주문
-    @Override
-    @Transactional
-    public OrderResponse createInstantOrder(User user, OrderRequest instantOrderRequest) {
-        //락키 생성 (상품 ID를 기반으로)
-        String lockKey = "order:instant:" + instantOrderRequest.orderDetailRequestList().get(0).saleProductId();
+            //비동기로 재고 동기화 처리
+            syncStocksAsync(orderRequest.orderDetailRequestList());
 
-        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, instantOrderRequest));
+            return response;
+        });
     }
 
     public OrderResponse processOrderCreation(User user, OrderRequest orderRequest) {
@@ -116,5 +118,29 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         return OrderResponse.fromOrder(order, orderProductResponses);
     }
 
+    //주문 전 재고 유효성 검증
+    private void validateStockAvailability(List<OrderDetailRequest> orderDetails){
+        for(OrderDetailRequest detail : orderDetails){
+            if(!redisStockService.checkStock(detail.saleProductId(), detail.quantity()))
+                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+        }
+    }
+
+    //Redis에서 재고 감소 처리
+    private boolean decreaseStocks(List<OrderDetailRequest> orderDetails){
+        for(OrderDetailRequest detail : orderDetails){
+            if(!redisStockService.decreaseStock(detail.saleProductId(), detail.quantity()))
+                return false;
+        }
+        return true;
+    }
+
+    //DB와 Redis 재고 동기화
+    private void syncStocksAsync(List<OrderDetailRequest> orderDetails){
+        for(OrderDetailRequest detail : orderDetails){
+            CompletableFuture.runAsync( () ->
+                    redisStockService.syncStockDecrease(detail.saleProductId(), detail.quantity()));
+        }
+    }
 
 }

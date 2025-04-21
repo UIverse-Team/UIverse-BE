@@ -17,7 +17,6 @@ public interface SaleProductRepository extends JpaRepository<SaleProduct, Long> 
     boolean existsByNameContaining(String keyword);
 
     // 주문 생성에 필요한 최소한의 데이터만 조회하는 메서드
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT sp FROM SaleProduct sp " +
             "LEFT JOIN FETCH sp.product p " +
             "LEFT JOIN FETCH sp.option o " +

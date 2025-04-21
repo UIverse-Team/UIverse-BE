@@ -10,6 +10,7 @@ import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.OrderCancelService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.saleproduct.domain.SaleProduct;
+import com.jishop.stock.service.RedisStockService;
 import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,11 @@ public class OrderCancelServiceImpl implements OrderCancelService {
     private final StockService stockService;
     private final OrderUtilService orderUtilService;
     private final OrderRepository orderRepository;
+    private final RedisStockService redisStockService;
 
     //비회원 주문 취소
     @Override
+    @Transactional
     public void cancelOrder(String orderNumber, String phone) {
         Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));
@@ -52,7 +55,8 @@ public class OrderCancelServiceImpl implements OrderCancelService {
             for (OrderDetail orderDetail : order.getOrderDetails()) {
                 SaleProduct saleProduct = orderDetail.getSaleProduct();
                 int quantity = orderDetail.getQuantity();
-                stockService.increaseStock(saleProduct.getStock(), quantity);
+
+                redisStockService.syncStockIncrease(saleProduct.getId(), quantity);
             }
 
             // 주문 상태 변경
