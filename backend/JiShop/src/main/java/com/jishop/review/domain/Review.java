@@ -76,7 +76,7 @@ public class Review extends BaseEntity {
     }
 
     public void decreaseLikeCount() {
-       likeCount--;
+        likeCount--;
     }
 
     public void updateReview(UpdateReviewRequest updateReviewRequest) {
@@ -85,7 +85,23 @@ public class Review extends BaseEntity {
         this.tag = updateReviewRequest.tag();
     }
 
-    public ImageUrls getImageUrls() {
-        return Optional.ofNullable(imageUrls).orElse(new ImageUrls());
+    public List<String> getImageUrls() {
+        return Optional.ofNullable(imageUrls)
+                .orElse(new ImageUrls())
+                .getImages();
+    }
+
+    private String[] splitProductSummary() {
+        return productSummary.split(";");
+    }
+
+    public String getOptionString() {
+        String[] split = splitProductSummary();
+
+        if (split.length == 3) {
+            return split[2];
+        }
+
+        return null;
     }
 }
