@@ -17,6 +17,7 @@ import com.jishop.order.service.OrderCreationService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.stock.service.RedisStockService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final DistributedLockService distributedLockService;
     private final CartRepository cartRepository;
     private final RedisStockService redisStockService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     //비회원 주문 생성
     @Override
@@ -46,10 +48,6 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
-
-        //재고 확인부터 시작
-        validateStockAvailability(orderRequest.orderDetailRequestList());
-
         //상품 Id 목록 가져오기 (재고 처리용 락키)
         List<Long> productIds = orderRequest.orderDetailRequestList().stream()
                 .map(OrderDetailRequest::saleProductId)
@@ -61,14 +59,19 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         //분산 락을 사용하여 주문 생성 처리
         return distributedLockService.executeWithLock(lockKey, () -> {
             if(!decreaseStocks(orderRequest.orderDetailRequestList())){
-                throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
+                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
             }
-            OrderResponse response = processOrderCreation(user, orderRequest);
+            try {
+                OrderResponse response = processOrderCreation(user, orderRequest);
 
-            //비동기로 재고 동기화 처리
-            syncStocksAsync(orderRequest.orderDetailRequestList());
+                //비동기로 재고 동기화 처리
+                syncStocksAsync(orderRequest.orderDetailRequestList());
 
-            return response;
+                return response;
+            } catch (Exception e) {
+                rollbackStocks(orderRequest.orderDetailRequestList());
+                throw e;
+            }
         });
     }
 
@@ -118,14 +121,6 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         return OrderResponse.fromOrder(order, orderProductResponses);
     }
 
-    //주문 전 재고 유효성 검증
-    private void validateStockAvailability(List<OrderDetailRequest> orderDetails){
-        for(OrderDetailRequest detail : orderDetails){
-            if(!redisStockService.checkStock(detail.saleProductId(), detail.quantity()))
-                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-        }
-    }
-
     //Redis에서 재고 감소 처리
     private boolean decreaseStocks(List<OrderDetailRequest> orderDetails){
         for(OrderDetailRequest detail : orderDetails){
@@ -133,6 +128,14 @@ public class OrderCreationServiceImpl implements OrderCreationService {
                 return false;
         }
         return true;
+    }
+
+    //오류 발생 시 재고 롤백
+    private void rollbackStocks(List<OrderDetailRequest> orderDetails){
+        for(OrderDetailRequest detail : orderDetails){
+            String key = "stock:" + detail.saleProductId();
+            redisTemplate.opsForValue().increment(key, detail.quantity());
+        }
     }
 
     //DB와 Redis 재고 동기화

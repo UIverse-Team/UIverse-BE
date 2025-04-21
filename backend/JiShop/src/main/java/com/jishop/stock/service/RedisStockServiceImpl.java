@@ -95,6 +95,7 @@ public class RedisStockServiceImpl implements RedisStockService{
         if(stockOpt.isPresent()){
             int stockQuantity = stockOpt.get().getQuantity();
             redisTemplate.opsForValue().set(key, String.valueOf(stockQuantity), CACHE_TTL_HOURS, TimeUnit.HOURS);
+
             return stockQuantity;
         }
 

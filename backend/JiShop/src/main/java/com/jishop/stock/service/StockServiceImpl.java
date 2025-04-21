@@ -12,31 +12,23 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StockServiceImpl implements StockService {
 
-    private final StockRepository stockRepository;
     private final RedisStockService redisStockService;
 
     @Override
     @Transactional
     public void decreaseStock(Stock stock, int quantity) {
-        stock.decreaseStock(quantity);
-
-        redisStockService.syncCacheWithDb(stock.getSaleProduct().getId(), stock.getQuantity());
+        redisStockService.syncStockDecrease(stock.getSaleProduct().getId(), quantity);
     }
 
     @Override
     @Transactional
     public void increaseStock(Stock stock, int quantity) {
-        stock.increaseStock(quantity);
-
-        redisStockService.syncCacheWithDb(stock.getSaleProduct().getId(), stock.getQuantity());
+        redisStockService.syncStockIncrease(stock.getSaleProduct().getId(), quantity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean checkStock(Stock stock, int quantity) {
-        if(redisStockService.checkStock(stock.getSaleProduct().getId(), quantity))
-            return true;
-
-        return stock.hasStock(quantity);
+        return redisStockService.checkStock(stock.getSaleProduct().getId(), quantity);
     }
 }
