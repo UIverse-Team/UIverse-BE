@@ -17,14 +17,17 @@ import com.jishop.order.service.OrderCreationService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.stock.service.RedisStockService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderCreationServiceImpl implements OrderCreationService {
@@ -51,26 +54,51 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         //상품 Id 목록 가져오기 (재고 처리용 락키)
         List<Long> productIds = orderRequest.orderDetailRequestList().stream()
                 .map(OrderDetailRequest::saleProductId)
+                .sorted() //정렬하여 교착상태 방지
                 .toList();
 
         //재고 처리를 위한 락 키 생성
-        String lockKey = "order:stock:" + String.join("-", productIds.stream().map(String::valueOf).toList());
+        List<String> lockKeys = productIds.stream()
+                .map(id -> "order:stock:" + id)
+                .toList();
 
         //분산 락을 사용하여 주문 생성 처리
-        return distributedLockService.executeWithLock(lockKey, () -> {
-            if(!decreaseStocks(orderRequest.orderDetailRequestList())){
-                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-            }
+        return distributedLockService.executeWithMultipleLocks(lockKeys, () -> {
             try {
+                //재고 확인을 위한 맵 생성
+                Map<Long, Integer> productQuantityMap = orderRequest.orderDetailRequestList().stream()
+                        .collect(Collectors.toMap(
+                                OrderDetailRequest::saleProductId,
+                                OrderDetailRequest::quantity
+                        ));
+
+                //모든 상품에 대한 재고 확인을 한번에 수행
+                Map<Long, Boolean> stockResults = productQuantityMap.entrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> redisStockService.checkStock(entry.getKey(), entry.getValue())
+                        ));
+
+                //재고 부족한 상품이 있는지 확인
+                if (stockResults.containsValue(false))
+                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                //주문 생성 처리를 먼저 수행
                 OrderResponse response = processOrderCreation(user, orderRequest);
 
-                //비동기로 재고 동기화 처리
-                syncStocksAsync(orderRequest.orderDetailRequestList());
+                for (Map.Entry<Long, Integer> entry : productQuantityMap.entrySet()) {
+                    if (!redisStockService.decreaseStock(entry.getKey(), entry.getValue()))
+                        throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+                }
+
+                for (OrderDetailRequest detail : orderRequest.orderDetailRequestList()) {
+                    redisStockService.syncStockDecrease(detail.saleProductId(), detail.quantity());
+                }
 
                 return response;
             } catch (Exception e) {
-                rollbackStocks(orderRequest.orderDetailRequestList());
-                throw e;
+                log.error("주문 처리 중 오류 발생: {}", e.getMessage());
+                throw e; //트랜잭션 롤백을 위해 예외 다시 던지기
             }
         });
     }
@@ -120,30 +148,4 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         List<OrderProductResponse> orderProductResponses = orderUtilService.convertToOrderDetailResponses(order.getOrderDetails(), user);
         return OrderResponse.fromOrder(order, orderProductResponses);
     }
-
-    //Redis에서 재고 감소 처리
-    private boolean decreaseStocks(List<OrderDetailRequest> orderDetails){
-        for(OrderDetailRequest detail : orderDetails){
-            if(!redisStockService.decreaseStock(detail.saleProductId(), detail.quantity()))
-                return false;
-        }
-        return true;
-    }
-
-    //오류 발생 시 재고 롤백
-    private void rollbackStocks(List<OrderDetailRequest> orderDetails){
-        for(OrderDetailRequest detail : orderDetails){
-            String key = "stock:" + detail.saleProductId();
-            redisTemplate.opsForValue().increment(key, detail.quantity());
-        }
-    }
-
-    //DB와 Redis 재고 동기화
-    private void syncStocksAsync(List<OrderDetailRequest> orderDetails){
-        for(OrderDetailRequest detail : orderDetails){
-            CompletableFuture.runAsync( () ->
-                    redisStockService.syncStockDecrease(detail.saleProductId(), detail.quantity()));
-        }
-    }
-
 }

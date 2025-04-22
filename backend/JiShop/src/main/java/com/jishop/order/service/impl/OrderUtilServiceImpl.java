@@ -28,7 +28,6 @@ public class OrderUtilServiceImpl implements OrderUtilService {
 
     private final OrderRepository orderRepository;
     private final SaleProductRepository saleProductRepository;
-    private final StockService stockService;
     private final ReviewRepository reviewRepository;
 
     // 주문 번호 생성
@@ -58,6 +57,7 @@ public class OrderUtilServiceImpl implements OrderUtilService {
     }
 
     // OrderDetail 처리 공통 로직
+    // OrderDetail 처리 공통 로직
     public List<OrderDetail> processOrderDetails(Order order, List<OrderDetailRequest> orderDetailRequestList) {
         List<Long> saleProductIds = orderDetailRequestList.stream()
                 .map(OrderDetailRequest::saleProductId)
@@ -73,12 +73,7 @@ public class OrderUtilServiceImpl implements OrderUtilService {
             SaleProduct saleProduct = Optional.ofNullable(saleProductMap.get(orderDetailRequest.saleProductId()))
                     .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-            try {
-                // 수량 줄이기
-                stockService.decreaseStock(saleProduct.getStock(), orderDetailRequest.quantity());
-            } catch (Exception e) {
-                throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
-            }
+            // Remove the stock decrease operation as it's handled in OrderCreationServiceImpl
             OrderDetail orderDetail = OrderDetail.from(order, saleProduct, orderDetailRequest.quantity());
             orderDetails.add(orderDetail);
         }
