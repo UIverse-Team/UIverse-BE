@@ -17,5 +17,6 @@ public record ProductRequest(
 ){
         public ProductRequest {
                 if (keyword == null) { keyword = ""; }
+                if (sort == null) { sort = "wish"; }
         }
 }
