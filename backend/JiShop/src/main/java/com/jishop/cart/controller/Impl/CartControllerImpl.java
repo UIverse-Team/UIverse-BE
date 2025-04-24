@@ -36,10 +36,10 @@ public class CartControllerImpl implements CartController {
     //장바구니 상품 추가
     @Override
     @PostMapping
-    public ResponseEntity<CartDetailResponse> addCartItem(@CurrentUser User user, @RequestBody @Valid AddCartRequest request) {
-        CartDetailResponse cartDetailResponse = cartService.addCartItem(user, request);
+    public ResponseEntity<CartResponse> addCartItem(@CurrentUser User user, @RequestBody List<AddCartRequest> request) {
+        CartResponse cartResponse = cartService.addCartItem(user, request);
 
-        return ResponseEntity.ok(cartDetailResponse);
+        return ResponseEntity.ok(cartResponse);
     }
 
     //장바구니 상품 업데이트

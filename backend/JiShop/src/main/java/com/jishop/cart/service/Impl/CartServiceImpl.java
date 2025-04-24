@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,45 +41,53 @@ public class CartServiceImpl implements CartService {
     //장바구니 상품 추가
     @Override
     @Transactional
-    public CartDetailResponse addCartItem(User user, AddCartRequest addCartRequest) {
-        SaleProduct saleProduct = saleProductRepository.findById(addCartRequest.saleProductId())
-                .orElseThrow(()->new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+    public CartResponse addCartItem(User user, List<AddCartRequest> addCartRequests) {
+        for (AddCartRequest request : addCartRequests) {
+            SaleProduct saleProduct = saleProductRepository.findById(request.saleProductId())
+                    .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-        int requestQuantity = addCartRequest.quantity();
-        Stock stock = saleProduct.getStock();
+            int requestQuantity = request.quantity();
+            Stock stock = saleProduct.getStock();
 
-        Cart cart = cartRepository.findByUserAndSaleProduct(user, saleProduct).orElse(null);
+            Cart cart = cartRepository.findByUserAndSaleProduct(user, saleProduct).orElse(null);
 
-        // 이미 장바구니에 상품이 존재하는 경우
-        if (cart != null) {
-            // isForced가 false인 경우, 기존 상품 정보만 반환하고 수량은 업데이트하지 않음
-            if (!addCartRequest.isForced()) {
-                return CartDetailResponse.of(cart, true);
+            // 이미 장바구니에 상품이 존재하는 경우
+            if (cart != null) {
+                // isForced가 false인 경우, 수량을 업데이트하지 않음
+                if (!request.isForced()) {
+                    continue;
+                }
+
+                // isForced가 true인 경우, 기존 수량 + 새로운 수량으로 업데이트
+                int totalQuantity = cart.getQuantity() + requestQuantity;
+
+                // 재고 체크
+                if (!stock.hasStock(totalQuantity))
+                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                cart.updateQuantity(totalQuantity);
+            } else {
+                // 장바구니에 상품이 없는 경우
+                // 재고 체크
+                if (!stock.hasStock(requestQuantity))
+                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                cart = Cart.builder()
+                        .user(user)
+                        .saleProduct(saleProduct)
+                        .quantity(requestQuantity)
+                        .build();
+                cartRepository.save(cart);
             }
-
-            // isForced가 true인 경우, 기존 수량 + 새로운 수량으로 업데이트
-            int totalQuantity = cart.getQuantity() + requestQuantity;
-
-            // 재고 체크
-            if(!stock.hasStock(totalQuantity))
-                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-
-            cart.updateQuantity(requestQuantity);
-        } else {
-            // 장바구니에 상품이 없는 경우
-            // 재고 체크
-            if(!stock.hasStock(requestQuantity))
-                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-
-            cart = Cart.builder()
-                    .user(user)
-                    .saleProduct(saleProduct)
-                    .quantity(requestQuantity)
-                    .build();
-            cartRepository.save(cart);
         }
 
-        return CartDetailResponse.of(cart, false);
+        // 모든 상품을 추가/업데이트한 후 전체 장바구니 정보를 반환
+        List<Cart> updatedCarts = cartRepository.findCartsWithProductAndOptionByUser(user);
+        List<CartDetailResponse> cartDetailResponses = updatedCarts.stream()
+                .map(cart -> CartDetailResponse.of(cart, false))
+                .toList();
+
+        return CartResponse.of(cartDetailResponses);
     }
 
     // 장바구니 수량 수정
