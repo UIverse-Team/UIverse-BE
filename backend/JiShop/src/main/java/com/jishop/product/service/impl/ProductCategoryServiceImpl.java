@@ -23,7 +23,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public PagedModel<ProductResponse> getProductsByCategory(final Long categoryId, final int page, final int size) {
 
         final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "wishListCount"));
-        final Page<Product> productPage = categoryRepository.findProductsByCategoryWithAllDescendants(categoryId, pageable);
+        final Page<Product> productPage = categoryRepository
+                .findProductsByCategoryWithAllDescendants(categoryId, pageable);
 
         final List<ProductResponse> productsResponse = productPage.getContent().stream()
                 .map(ProductResponse::from)
@@ -42,9 +43,9 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         return categoryRepository.findById(categoryId)
                 .map(category -> {
-                    final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(
-                            categoryRepository.findAllSubCategoryIds(categoryId)
-                    );
+                    final List<Long> allSubCategoryIds = categoryRepository.findAllSubCategoryIds(categoryId);
+                    final List<Long> subCategoryPKs = categoryRepository.findIdsByCurrentIds(allSubCategoryIds);
+
                     return subCategoryPKs.isEmpty()
                             ? List.of(category.getId())
                             : subCategoryPKs;

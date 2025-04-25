@@ -41,11 +41,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductCategoryService productCategoryService;
 
     @Override
-    public PagedModel<ProductResponse> getProductList(final ProductRequest productRequest,
-                                                      final int page, final int size) {
-        final List<Long> categoryIds = productCategoryService.getCategoryIdsWithSubcategories(productRequest.categoryId());
+    public PagedModel<ProductResponse> getProductList(
+            final ProductRequest productRequest, final int page, final int size) {
+        final List<Long> categoryIds = productCategoryService
+                .getCategoryIdsWithSubcategories(productRequest.categoryId());
 
-        final List<Product> selectedProducts = productRepository.findProductsByCondition(productRequest, page, size, categoryIds);
+        final List<Product> selectedProducts = productRepository
+                .findProductsByCondition(productRequest, page, size, categoryIds);
         final List<ProductResponse> productListResponse = selectedProducts.stream()
                 .map(ProductResponse::from).toList();
 
@@ -69,13 +71,13 @@ public class ProductServiceImpl implements ProductService {
         if (categoryType == 50000000L) {
             final List<SizeOption> fashionClothesOptions = saleProductRepository
                     .findFashionClothesOptionsByProductId(productId);
-                    productsOptions = fashionClothesOptions.isEmpty() ?
-                              List.of() :
-                              FashionClothesOptionResponse.from(fashionClothesOptions);
+            productsOptions = fashionClothesOptions.isEmpty() ?
+                    List.of() :
+                    FashionClothesOptionResponse.from(fashionClothesOptions);
         } else {
             final List<SizeOption> generalOptions = saleProductRepository
                     .findGeneralOptionsByProductId(productId);
-                    productsOptions = GeneralOptionResponse.from(generalOptions);
+            productsOptions = GeneralOptionResponse.from(generalOptions);
         }
 
         final List<ReviewProduct> productsReviews = reviewProductRepository.findAllByProduct(product);
