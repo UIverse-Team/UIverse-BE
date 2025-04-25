@@ -1,5 +1,6 @@
 package com.jishop.product.service.impl;
 
+import com.jishop.common.response.PageResponse;
 import com.jishop.order.repository.OrderDetailRepository;
 import com.jishop.product.domain.DiscountStatus;
 import com.jishop.product.domain.Product;
@@ -12,9 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -26,17 +28,30 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     @Override
     @Transactional(readOnly = true)
-    public PagedModel<TodaySpecialListResponse> getProductsByDailyDeal(final int page, final int size) {
+    public PageResponse<TodaySpecialListResponse> getProductsByDailyDeal(final int page, final int size) {
         final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         final Page<Product> productPage = productRepository.findDailyDealProducts(DiscountStatus.DAILY_DEAL, pageable);
 
-        final Page<TodaySpecialListResponse> responsePage = productPage.map(product -> {
-            final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());
+//        final Page<TodaySpecialListResponse> responsePage = productPage.map(product -> {
+//            final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());
+//
+//            return TodaySpecialListResponse.from(product, totalSales);
+//        });
+//
+//        return new PagedModel<>(responsePage);
+        final List<TodaySpecialListResponse> responseList = productPage.getContent().stream()
+                .map(product -> {
+                    final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());
+                    return TodaySpecialListResponse.from(product, totalSales);
+                })
+                .toList();
 
-            return TodaySpecialListResponse.from(product, totalSales);
-        });
-
-        return new PagedModel<>(responsePage);
+        return PageResponse.from(
+                responseList,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements()
+        );
     }
 
     @Transactional

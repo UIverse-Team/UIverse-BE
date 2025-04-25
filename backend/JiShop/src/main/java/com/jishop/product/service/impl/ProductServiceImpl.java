@@ -2,6 +2,7 @@ package com.jishop.product.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
+import com.jishop.common.response.PageResponse;
 import com.jishop.member.domain.User;
 import com.jishop.option.dto.FashionClothesOptionResponse;
 import com.jishop.option.dto.GeneralOptionResponse;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductCategoryService productCategoryService;
 
     @Override
-    public PagedModel<ProductResponse> getProductList(
+    public PageResponse<ProductResponse> getProductList(
             final ProductRequest productRequest, final int page, final int size) {
         final List<Long> categoryIds = productCategoryService
                 .getCategoryIdsWithSubcategories(productRequest.categoryId());
@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
         final Pageable pageable = PageRequest.of(page, size);
         final Page<ProductResponse> pagedProductsResponse = new PageImpl<>(productListResponse, pageable, totalCount);
 
-        return new PagedModel<>(pagedProductsResponse);
+        return PageResponse.from(productListResponse, page, size, totalCount);
     }
 
     @Override
