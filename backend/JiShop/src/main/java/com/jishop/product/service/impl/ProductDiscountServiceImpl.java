@@ -32,13 +32,6 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         final Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         final Page<Product> productPage = productRepository.findDailyDealProducts(DiscountStatus.DAILY_DEAL, pageable);
 
-//        final Page<TodaySpecialListResponse> responsePage = productPage.map(product -> {
-//            final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());
-//
-//            return TodaySpecialListResponse.from(product, totalSales);
-//        });
-//
-//        return new PagedModel<>(responsePage);
         final List<TodaySpecialListResponse> responseList = productPage.getContent().stream()
                 .map(product -> {
                     final long totalSales = orderDetailRepository.countTotalOrdersByProductId(product.getId());

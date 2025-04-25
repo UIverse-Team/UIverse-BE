@@ -19,10 +19,6 @@ import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,8 +48,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductResponse::from).toList();
 
         final long totalCount = productRepository.countProductsByCondition(productRequest, categoryIds);
-        final Pageable pageable = PageRequest.of(page, size);
-        final Page<ProductResponse> pagedProductsResponse = new PageImpl<>(productListResponse, pageable, totalCount);
 
         return PageResponse.from(productListResponse, page, size, totalCount);
     }
