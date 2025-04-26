@@ -47,7 +47,7 @@ public class Product extends BaseEntity {
             orphanRemoval = true)
     private ProductScore productScore;
 
-    public Product(ProductInfo productInfo,  CategoryInfo categoryInfo, Status status, ImageUrl image,
+    public Product(ProductInfo productInfo, CategoryInfo categoryInfo, Status status, ImageUrl image,
             Category category, int wishListCount, int productViewCount
     ) {
         this.productInfo = productInfo;
@@ -64,14 +64,12 @@ public class Product extends BaseEntity {
     }
 
     public void decrementWishCount() {
-        if (this.wishListCount > 0) { this.wishListCount--;}
+        if (this.wishListCount > 0) { this.wishListCount--; }
     }
 
     public void setProductScore(ProductScore productScore) {
         this.productScore = productScore;
-        if(productScore != null && productScore.getProduct() != this){
-            productScore.setProduct(this);
-        }
+        if (productScore != null && productScore.getProduct() != this) { productScore.setProduct(this); }
     }
 }
 

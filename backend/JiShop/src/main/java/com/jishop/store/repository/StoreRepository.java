@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
-    Optional<Store> findByMallSeq(String mallSeq);
+    Optional<Store> findByMallSeq(Long mallSeq);
 }
