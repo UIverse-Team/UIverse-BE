@@ -22,7 +22,7 @@ public class Status {
     @Column(name = "sale_status", nullable = false)
     private SaleStatus saleStatus;
     @Enumerated(EnumType.STRING)
-    @Column(name = "labels", length = 50)
+    @Column(name = "labels", length = 50, nullable = false)
     private Labels labels;
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_status", nullable = false)
