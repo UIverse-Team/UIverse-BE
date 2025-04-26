@@ -11,6 +11,7 @@ import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import com.jishop.stock.domain.Stock;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,42 +43,61 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse addCartItem(User user, List<AddCartRequest> addCartRequests) {
-        for (AddCartRequest request : addCartRequests) {
-            SaleProduct saleProduct = saleProductRepository.findById(request.saleProductId())
-                    .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
+        int maxRetries = 3;
+        int attempt = 0;
 
-            int requestQuantity = request.quantity();
-            Stock stock = saleProduct.getStock();
+        while(true){
+            try{
+                List<Cart> cartsToSave = new ArrayList<>();
 
-            Cart cart = cartRepository.findByUserAndSaleProduct(user, saleProduct).orElse(null);
+                for (AddCartRequest request : addCartRequests) {
+                    SaleProduct saleProduct = saleProductRepository.findById(request.saleProductId())
+                            .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-            // 이미 장바구니에 상품이 존재하는 경우
-            if (cart != null) {
-                // isForced가 false인 경우, 수량을 업데이트하지 않음
-                if (!request.isForced()) {
-                    continue;
+                    int requestQuantity = request.quantity();
+                    Stock stock = saleProduct.getStock();
+
+                    Cart cart = cartRepository.findByUserAndSaleProduct(user, saleProduct).orElse(null);
+
+                    // 이미 장바구니에 상품이 존재하는 경우
+                    if (cart != null) {
+                        // isForced가 false인 경우, 수량을 업데이트하지 않음
+                        if (!request.isForced()) {
+                            continue;
+                        }
+
+                        // isForced가 true인 경우, 기존 수량 + 새로운 수량으로 업데이트
+                        int totalQuantity = cart.getQuantity() + requestQuantity;
+
+                        // 재고 체크
+                        if (!stock.hasStock(totalQuantity))
+                            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                        cart.updateQuantity(totalQuantity);
+                        cartsToSave.add(cart);
+                    } else {
+                        // 장바구니에 상품이 없는 경우
+                        // 재고 체크
+                        if (!stock.hasStock(requestQuantity))
+                            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                        cart = Cart.builder()
+                                .user(user)
+                                .saleProduct(saleProduct)
+                                .quantity(requestQuantity)
+                                .build();
+                        cartsToSave.add(cart);
+                    }
                 }
+                if(!cartsToSave.isEmpty())
+                    cartRepository.saveAll(cartsToSave);
 
-                // isForced가 true인 경우, 기존 수량 + 새로운 수량으로 업데이트
-                int totalQuantity = cart.getQuantity() + requestQuantity;
-
-                // 재고 체크
-                if (!stock.hasStock(totalQuantity))
-                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-
-                cart.updateQuantity(totalQuantity);
-            } else {
-                // 장바구니에 상품이 없는 경우
-                // 재고 체크
-                if (!stock.hasStock(requestQuantity))
-                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-
-                cart = Cart.builder()
-                        .user(user)
-                        .saleProduct(saleProduct)
-                        .quantity(requestQuantity)
-                        .build();
-                cartRepository.save(cart);
+                //성공적으로 끝났으면 while문 탈출
+                break;
+            } catch(ObjectOptimisticLockingFailureException e){
+                //충돌 났을 때
+                if(++attempt >= maxRetries)
+                    throw new DomainException(ErrorType.CART_OPERATION_FAILED);
             }
         }
 
