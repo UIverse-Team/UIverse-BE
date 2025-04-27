@@ -32,7 +32,7 @@ public class Status {
     @Column(name = "is_discount", nullable = false)
     private Boolean isDiscount;
 
-    public Status(Boolean secret, SaleStatus saleStatus, Labels labels, Boolean isDiscount, DiscountStatus discountStatus
+    public Status(Boolean secret, SaleStatus saleStatus, Labels labels, DiscountStatus discountStatus, Boolean isDiscount
     ) {
         this.secret = secret;
         this.saleStatus = saleStatus;
