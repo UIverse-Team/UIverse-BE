@@ -106,7 +106,7 @@ public class ReviewIntegrationTest {
         CategoryInfo categoryInfo = new CategoryInfo(5000L, 5010L, 5100L);
         Status status = new Status(false, SaleStatus.SELLING, Labels.SPECIAL_PRICE, DiscountStatus.NONE, false);
         ImageUrl imageUrl = new ImageUrl("main.jpg", "image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg", "detail.jpg");
-        Product product = new Product(productInfo, categoryInfo, status, imageUrl, category, 0, 0);
+        Product product = new Product(productInfo, categoryInfo, status, imageUrl, 0, 0);
 
         productRepository.save(product);
 

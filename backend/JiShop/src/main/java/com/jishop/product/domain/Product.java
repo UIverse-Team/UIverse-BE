@@ -48,13 +48,12 @@ public class Product extends BaseEntity {
     private ProductScore productScore;
 
     public Product(ProductInfo productInfo, CategoryInfo categoryInfo, Status status, ImageUrl image,
-            Category category, int wishListCount, int productViewCount
+            int wishListCount, int productViewCount
     ) {
         this.productInfo = productInfo;
         this.categoryInfo = categoryInfo;
         this.status = status;
         this.image = image;
-        this.category = category;
         this.wishListCount = wishListCount;
         this.productViewCount = productViewCount;
     }
