@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Tag(name = "장바구니 API")
 public interface CartController {
 
@@ -15,7 +17,7 @@ public interface CartController {
     ResponseEntity<CartResponse> getCartItems(User user);
 
     @Operation(summary = "회원 장바구니 추가", description = "회원이 장바구니에 물건을 담을 때 사용되는 API")
-    ResponseEntity<CartDetailResponse> addCartItem(User user, AddCartRequest request);
+    ResponseEntity<CartResponse> addCartItem(User user, List<AddCartRequest> request);
 
     @Operation(summary = "회원 장바구니 수량 변경", description = "회원이 장바구니 내에서 수량 변경을 할 때 사용되는 API")
     ResponseEntity<CartDetailResponse> updateCartItem(User user, UpdateCartRequest request);

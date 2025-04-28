@@ -25,6 +25,9 @@ public class Cart extends BaseEntity {
 
     private int quantity;
 
+    @Version
+    private Long version;
+
     @Builder
     public Cart(User user, SaleProduct saleProduct, int quantity) {
         this.user = user;
