@@ -9,9 +9,7 @@ import com.jiseller.product.domain.embed.ImageUrl;
 import com.jiseller.product.domain.embed.ProductInfo;
 import com.jiseller.product.domain.embed.Status;
 import com.jiseller.store.domain.Store;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -50,8 +48,8 @@ public record RegisterProductRequest(
         @NotBlank(message = "할인상태는 필수입니다")
         DiscountStatus discountStatus,
 
-        @NotBlank(message = "최소 하나 이상의 옵션을 선택해야 합니다")
-        List<Long> optionIds,
+        @NotEmpty(message = "최소 하나 이상의 옵션을 선택해야 합니다.")
+        List<@NotNull Long> optionIds,
 
         @Max(value = 9999, message = "재고 수량은 9999개 이하여야 합니다")
         @Min(value = 0, message = "재고 수량은 0개 이상이어야 합니다")
