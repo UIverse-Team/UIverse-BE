@@ -6,7 +6,6 @@ import com.jiseller.product.domain.Product;
 import com.jiseller.stock.domain.Stock;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,10 +24,9 @@ public class SaleProduct extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Option option;
 
-    @OneToOne(mappedBy = "saleProduct")
+    @OneToOne(mappedBy = "saleProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private Stock stock;
 
-    @Builder
     public SaleProduct(String name, Product product, Option option) {
         this.name = name;
         this.product = product;

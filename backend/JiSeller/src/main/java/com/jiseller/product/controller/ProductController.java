@@ -1,10 +1,7 @@
 package com.jiseller.product.controller;
 
-import com.jiseller.product.dto.CategoryInfoRequest;
-import com.jiseller.product.dto.ImageUrlRequest;
-import com.jiseller.product.dto.ProductRegistrationRequest;
-import com.jiseller.product.dto.StatusRequest;
-import com.jiseller.product.service.SellerProductService;
+import com.jiseller.product.dto.RegisterProductRequest;
+import com.jiseller.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/seller/products")
-public class SellerProductController {
+public class ProductController {
 
-    private final SellerProductService sellerProductService;
+    private final ProductService productService;
 
     @PostMapping("/create")
-    public Long createProduct(@RequestBody @Valid final ProductRegistrationRequest productRegistrationRequest) {
-        return sellerProductService.registerProduct(productRegistrationRequest);
+    public void createProduct(@RequestBody @Valid final RegisterProductRequest registerProductRequest) {
+        productService.registerProduct(registerProductRequest);
     }
 
     // Todo:

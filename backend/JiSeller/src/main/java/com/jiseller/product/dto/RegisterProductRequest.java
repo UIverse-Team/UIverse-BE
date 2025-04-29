@@ -9,6 +9,7 @@ import com.jiseller.product.domain.embed.ImageUrl;
 import com.jiseller.product.domain.embed.ProductInfo;
 import com.jiseller.product.domain.embed.Status;
 import com.jiseller.store.domain.Store;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ProductRegistrationRequest(
+public record RegisterProductRequest(
         @NotBlank(message = "상품명은 필수입니다")
         String name,
         @NotBlank(message = "StoreSeq는 필수입니다")
@@ -49,6 +50,10 @@ public record ProductRegistrationRequest(
         @NotBlank(message = "할인상태는 필수입니다")
         DiscountStatus discountStatus,
 
+        @NotBlank(message = "최소 하나 이상의 옵션을 선택해야 합니다")
+        List<Long> optionIds,
+
+        @Max(value = 9999, message = "재고 수량은 9999개 이하여야 합니다")
         @Min(value = 0, message = "재고 수량은 0개 이상이어야 합니다")
         int stockQuantity
 ) {
@@ -81,7 +86,7 @@ public record ProductRegistrationRequest(
     }
 
     private ImageUrl createImageUrl() {
-        // 추후에 파일 업로드 기능 추가 후 변경 예정
+        // 추후에 파일 업로드 기능 추가 후 리펙토링 예정
         return new ImageUrl(
                 "https://main_test.jpg", // 임시 URL
                 null,
