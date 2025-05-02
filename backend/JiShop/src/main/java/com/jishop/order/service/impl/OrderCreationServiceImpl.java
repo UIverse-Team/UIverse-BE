@@ -51,8 +51,10 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
+
+        List<OrderDetailRequest> orderDetails = orderRequest.orderDetailRequestList();
         //상품 Id 목록 가져오기 (재고 처리용 락키)
-        List<Long> productIds = orderRequest.orderDetailRequestList().stream()
+        List<Long> productIds = orderDetails.stream()
                 .map(OrderDetailRequest::saleProductId)
                 .sorted() //정렬하여 교착상태 방지
                 .toList();
@@ -66,7 +68,7 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         return distributedLockService.executeWithMultipleLocks(lockKeys, () -> {
             try {
                 //재고 확인을 위한 맵 생성
-                Map<Long, Integer> productQuantityMap = orderRequest.orderDetailRequestList().stream()
+                Map<Long, Integer> productQuantityMap = orderDetails.stream()
                         .collect(Collectors.toMap(
                                 OrderDetailRequest::saleProductId,
                                 OrderDetailRequest::quantity
@@ -89,10 +91,7 @@ public class OrderCreationServiceImpl implements OrderCreationService {
                 for (Map.Entry<Long, Integer> entry : productQuantityMap.entrySet()) {
                     if (!redisStockService.decreaseStock(entry.getKey(), entry.getValue()))
                         throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-                }
-
-                for (OrderDetailRequest detail : orderRequest.orderDetailRequestList()) {
-                    redisStockService.syncStockDecrease(detail.saleProductId(), detail.quantity());
+                    redisStockService.syncStockDecrease(entry.getKey(), entry.getValue());
                 }
 
                 return response;

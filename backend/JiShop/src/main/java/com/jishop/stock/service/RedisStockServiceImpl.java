@@ -159,18 +159,4 @@ public class RedisStockServiceImpl implements RedisStockService {
         int ttl = productTTLMap.getOrDefault(saleProductId, CACHE_TTL_HOURS);
         redisson.getKeys().expire(key, ttl, TimeUnit.HOURS);
     }
-
-    // 상품별 캐시 TTL 설정
-    public void setProductCacheTtl(Long productId, int hours) {
-        if (hours > 0) {
-            productTTLMap.put(productId, hours);
-        }
-    }
-
-    // 캐시 강제 갱신
-    public void refreshStockCache(Long saleProductId) {
-        stockRepository.findBySaleProduct_Id(saleProductId).ifPresent(stock -> {
-            syncCacheWithDb(saleProductId, stock.getQuantity());
-        });
-    }
 }
