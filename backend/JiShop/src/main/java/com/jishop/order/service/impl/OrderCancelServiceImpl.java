@@ -11,7 +11,6 @@ import com.jishop.order.service.OrderCancelService;
 import com.jishop.order.service.OrderUtilService;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.stock.service.RedisStockService;
-import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class OrderCancelServiceImpl implements OrderCancelService {
 
-    private final StockService stockService;
     private final OrderUtilService orderUtilService;
     private final OrderRepository orderRepository;
     private final RedisStockService redisStockService;

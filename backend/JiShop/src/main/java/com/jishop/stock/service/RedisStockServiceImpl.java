@@ -83,7 +83,7 @@ public class RedisStockServiceImpl implements RedisStockService {
     // Redis 캐시와 DB를 동기화하여 재고 감소 처리
     @Override
     @Async("stockTaskExecutor")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     public void syncStockDecrease(Long saleProductId, int quantity) {
         try {
             Stock stock = stockRepository.findBySaleProduct_IdWithPessimisticLock(saleProductId)
@@ -103,7 +103,7 @@ public class RedisStockServiceImpl implements RedisStockService {
 
     @Override
     @Async("stockTaskExecutor")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     public void syncStockIncrease(Long saleProductId, int quantity) {
         try {
             Stock stock = stockRepository.findBySaleProduct_IdWithPessimisticLock(saleProductId)

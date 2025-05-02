@@ -26,6 +26,10 @@ public class DistributedLockService {
         return executeWithLock(lockName, DEFAULT_WAIT_TIME, DEFAULT_LEASE_TIME, DEFAULT_RETRY_COUNT, supplier);
     }
 
+    public <T> T executeWithMultipleLocks(List<String> lockNames, Supplier<T> supplier){
+        return executeWithMultipleLocks(lockNames, DEFAULT_WAIT_TIME, DEFAULT_LEASE_TIME, DEFAULT_RETRY_COUNT, supplier);
+    }
+
     public <T> T executeWithLock(String lockName, long waitTime, long leaseTime, int retryCount, Supplier<T> supplier) {
         RLock lock = redisson.getLock(lockName);
         boolean isLocked = false;
@@ -70,55 +74,62 @@ public class DistributedLockService {
     }
 
     // 여러 락을 필요한 순서대로 획득
-    public <T> T executeWithMultipleLocks(List<String> lockNames, Supplier<T> supplier) {
-        // 락 이름을 정렬하여 교착 상태 방지
+    public <T> T executeWithMultipleLocks(List<String> lockNames, long waitTime, long leaseTime, int retryCount, Supplier<T> supplier) {
         List<String> sortedLockNames = lockNames.stream().sorted().toList();
-
         List<RLock> locks = sortedLockNames.stream()
                 .map(redisson::getLock)
                 .toList();
 
-        boolean allLocked = false;
+        int attempts = 0;
 
-        try {
-            // 모든 락 획득 시도
-            for (RLock lock : locks) {
-                boolean acquired = lock.tryLock(DEFAULT_WAIT_TIME, DEFAULT_LEASE_TIME, TimeUnit.SECONDS);
-                if (!acquired) {
-                    // 실패 시 이미 획득한 락 해제
-                    for (int i = 0; i < locks.indexOf(lock); i++) {
-                        try {
-                            if (locks.get(i).isHeldByCurrentThread()) {
-                                locks.get(i).unlock();
-                            }
-                        } catch (Exception e) {
-                            log.error("락 해제 중 에러: {}", e.getMessage());
-                        }
+        while (attempts < retryCount) {
+            boolean allLocked = true;
+
+            try {
+                for (RLock lock : locks) {
+                    boolean acquired = lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS);
+                    if (!acquired) {
+                        allLocked = false;
+                        log.warn("락 획득 실패 ({}/{}): {}", attempts + 1, retryCount, lock.getName());
+                        break;
                     }
-                    throw new DomainException(ErrorType.LOCK_ACQUISITION_FAILED);
                 }
-            }
 
-            allLocked = true;
-            return supplier.get();
+                if (allLocked) {
+                    return supplier.get();
+                }
 
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("락 처리 중단됨", e);
-            throw new DomainException(ErrorType.CONCURRENT_ORDER_PROCESSING);
-        } finally {
-            if (allLocked) {
-                // 모든 락 해제
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("락 처리 중단됨", e);
+                throw new DomainException(ErrorType.CONCURRENT_ORDER_PROCESSING);
+            } catch (Exception e) {
+                log.error("락 처리 중 예외 발생: {}", e.getMessage(), e);
+                throw e;
+            } finally {
+                // 시도 실패 또는 성공 모두 락 해제
                 for (RLock lock : locks) {
                     try {
                         if (lock.isHeldByCurrentThread()) {
                             lock.unlock();
+                            log.debug("락 해제: {}", lock.getName());
                         }
                     } catch (Exception e) {
                         log.error("락 해제 중 에러: {}", e.getMessage());
                     }
                 }
             }
+
+            attempts++;
+            try {
+                Thread.sleep(100 * (long)Math.pow(2, attempts));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new DomainException(ErrorType.CONCURRENT_ORDER_PROCESSING);
+            }
         }
+
+        throw new DomainException(ErrorType.LOCK_ACQUISITION_FAILED);
     }
+
 }

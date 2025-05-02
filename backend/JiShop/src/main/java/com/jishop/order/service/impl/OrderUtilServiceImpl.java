@@ -13,7 +13,6 @@ import com.jishop.order.service.OrderUtilService;
 import com.jishop.review.repository.ReviewRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
