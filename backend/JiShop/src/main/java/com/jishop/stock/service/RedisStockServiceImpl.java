@@ -32,27 +32,6 @@ public class RedisStockServiceImpl implements RedisStockService {
     // 개별 상품 캐시 TTL 설정(상품ID에 따라 다른 TTL 적용 가능)
     private final Map<Long, Integer> productTTLMap = new HashMap<>();
 
-    public Map<Long, Boolean> batchCheckStock(Map<Long, Integer> productQuantityMap) {
-        Map<Long, Boolean> results = new HashMap<>();
-
-        for (Map.Entry<Long, Integer> entry : productQuantityMap.entrySet()) {
-            results.put(entry.getKey(), checkStock(entry.getKey(), entry.getValue()));
-        }
-
-        return results;
-    }
-
-    // 여러 상품의 재고 한번에 감소
-    public Map<Long, Boolean> batchDecreaseStock(Map<Long, Integer> productQuantityMap) {
-        Map<Long, Boolean> results = new HashMap<>();
-
-        for (Map.Entry<Long, Integer> entry : productQuantityMap.entrySet()) {
-            results.put(entry.getKey(), decreaseStock(entry.getKey(), entry.getValue()));
-        }
-
-        return results;
-    }
-
     // Redis에서 재고 확인, 없으면 DB에서 조회하여 캐싱
     @Override
     public boolean checkStock(Long saleProductId, int quantity) {
@@ -92,7 +71,7 @@ public class RedisStockServiceImpl implements RedisStockService {
             log.error("재고 감소 중 인터럽트 발생: {}", e.getMessage());
             return false;
         } catch (Exception e) {
-            log.error("Redis stock decrease operation failed: {}", e.getMessage());
+            log.error("레디스 재고 감소 실패: {}", e.getMessage());
             return false;
         } finally {
             if (locked && lock.isHeldByCurrentThread()) {
@@ -100,7 +79,6 @@ public class RedisStockServiceImpl implements RedisStockService {
             }
         }
     }
-
 
     // Redis 캐시와 DB를 동기화하여 재고 감소 처리
     @Override

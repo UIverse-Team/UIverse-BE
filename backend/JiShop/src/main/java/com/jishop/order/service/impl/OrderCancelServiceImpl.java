@@ -30,7 +30,6 @@ public class OrderCancelServiceImpl implements OrderCancelService {
 
     //비회원 주문 취소
     @Override
-    @Transactional
     public void cancelOrder(String orderNumber, String phone) {
         Order order = orderRepository.findByOrderNumberAndPhone(orderNumber, phone)
                 .orElseThrow(() -> new DomainException(ErrorType.ORDER_NOT_FOUND));

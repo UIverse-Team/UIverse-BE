@@ -57,7 +57,6 @@ public class OrderUtilServiceImpl implements OrderUtilService {
     }
 
     // OrderDetail 처리 공통 로직
-    // OrderDetail 처리 공통 로직
     public List<OrderDetail> processOrderDetails(Order order, List<OrderDetailRequest> orderDetailRequestList) {
         List<Long> saleProductIds = orderDetailRequestList.stream()
                 .map(OrderDetailRequest::saleProductId)
@@ -73,7 +72,6 @@ public class OrderUtilServiceImpl implements OrderUtilService {
             SaleProduct saleProduct = Optional.ofNullable(saleProductMap.get(orderDetailRequest.saleProductId()))
                     .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-            // Remove the stock decrease operation as it's handled in OrderCreationServiceImpl
             OrderDetail orderDetail = OrderDetail.from(order, saleProduct, orderDetailRequest.quantity());
             orderDetails.add(orderDetail);
         }

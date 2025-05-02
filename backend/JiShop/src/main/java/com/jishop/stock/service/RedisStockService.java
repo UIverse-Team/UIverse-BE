@@ -1,5 +1,7 @@
 package com.jishop.stock.service;
 
+import java.util.Map;
+
 public interface RedisStockService{
     boolean checkStock(Long saleProductId, int quantity);
     boolean decreaseStock(Long saleProductId, int quantity);
