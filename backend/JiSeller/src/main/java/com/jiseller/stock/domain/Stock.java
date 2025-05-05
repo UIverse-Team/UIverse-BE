@@ -14,10 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock extends BaseEntity {
 
+    @Column(nullable = false)
     int quantity;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sale_product_id")
+    @JoinColumn(name = "sale_product_id", nullable = false)
     SaleProduct saleProduct;
 
     public Stock(int quantity, SaleProduct saleProduct) {

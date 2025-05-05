@@ -14,13 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaleProduct extends BaseEntity {
 
+    @Column(nullable = false)
     private String name;
 
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 
-    @JoinColumn(name = "option_id")
+    @JoinColumn(name = "option_id", nullable = false)
     @OneToOne(fetch = FetchType.LAZY)
     private Option option;
 

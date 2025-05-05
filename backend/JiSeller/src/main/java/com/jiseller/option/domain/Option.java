@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class Option extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OptionCategory categoryType;
 
     @Column(name = "option_value", nullable = false)
