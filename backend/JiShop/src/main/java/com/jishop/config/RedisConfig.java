@@ -71,10 +71,4 @@ public class RedisConfig {
 
         return redisTemplate;
     }
-
-    @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return new StringRedisTemplate(redisConnectionFactory);
-    }
-
 }
