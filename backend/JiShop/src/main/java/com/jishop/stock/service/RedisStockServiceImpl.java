@@ -29,9 +29,6 @@ public class RedisStockServiceImpl implements RedisStockService {
     private static final String STOCK_KEY_PREFIX = "stock:";
     private static final int CACHE_TTL_HOURS = 24;
 
-    // 개별 상품 캐시 TTL 설정(상품ID에 따라 다른 TTL 적용 가능)
-    private final Map<Long, Integer> productTTLMap = new HashMap<>();
-
     // Redis에서 재고 확인, 없으면 DB에서 조회하여 캐싱
     @Override
     public boolean checkStock(Long saleProductId, int quantity) {
@@ -39,45 +36,20 @@ public class RedisStockServiceImpl implements RedisStockService {
         return stock != null && stock >= quantity;
     }
 
-    // Redisson을 사용한 재고 감소 처리
     @Override
     public boolean decreaseStock(Long saleProductId, int quantity) {
         String key = STOCK_KEY_PREFIX + saleProductId;
         RAtomicLong atomicStock = redisson.getAtomicLong(key);
-        String lockKey = "lock:" + key;
 
-        var lock = redisson.getLock(lockKey);
-        boolean locked = false;
+        long newValue = atomicStock.addAndGet(-quantity);
 
-        try {
-            // 0.5초 대기 후 1초 동안 락 소유
-            locked = lock.tryLock(500, 1000, TimeUnit.MILLISECONDS);
-            if (!locked) {
-                return false;
-            }
-
-            long currentStock = atomicStock.get();
-            if (currentStock < quantity) {
-                return false;
-            }
-
-            atomicStock.addAndGet(-quantity);
-            int ttl = productTTLMap.getOrDefault(saleProductId, CACHE_TTL_HOURS);
-            redisson.getKeys().expire(key, ttl, TimeUnit.HOURS);
-
-            return true;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // 인터럽트 상태 복구
-            log.error("재고 감소 중 인터럽트 발생: {}", e.getMessage());
+        if(newValue < 0){
+            atomicStock.addAndGet(quantity);
             return false;
-        } catch (Exception e) {
-            log.error("레디스 재고 감소 실패: {}", e.getMessage());
-            return false;
-        } finally {
-            if (locked && lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
         }
+
+        redisson.getKeys().expire(key, CACHE_TTL_HOURS, TimeUnit.HOURS);
+        return true;
     }
 
     // Redis 캐시와 DB를 동기화하여 재고 감소 처리
@@ -131,19 +103,14 @@ public class RedisStockServiceImpl implements RedisStockService {
         // 값이 0이고 키가 존재하지 않는 경우 (기본값)
         if (stockValue == 0 && redisson.getKeys().countExists(key) == 0) {
             // 캐시에 없으면 DB에서 조회 후 캐싱
-            Optional<Stock> stockOpt = stockRepository.findBySaleProduct_Id(saleProductId);
-
-            if (stockOpt.isPresent()) {
-                int stockQuantity = stockOpt.get().getQuantity();
-
-                // 상품별 TTL 적용
-                int ttl = productTTLMap.getOrDefault(saleProductId, CACHE_TTL_HOURS);
-                atomicStock.set(stockQuantity);
-                redisson.getKeys().expire(key, ttl, TimeUnit.HOURS);
-
-                return stockQuantity;
-            }
-            return null;
+           return stockRepository.findBySaleProduct_Id(saleProductId)
+                   .map(stock -> {
+                       int stockQuantity = stock.getQuantity();
+                       atomicStock.set(stockQuantity);
+                       redisson.getKeys().expire(key, CACHE_TTL_HOURS, TimeUnit.HOURS);
+                       return stockQuantity;
+                   })
+                   .orElse(null);
         }
         return (int) stockValue;
     }
@@ -154,7 +121,6 @@ public class RedisStockServiceImpl implements RedisStockService {
         RAtomicLong atomicStock = redisson.getAtomicLong(key);
         atomicStock.set(quantity);
 
-        int ttl = productTTLMap.getOrDefault(saleProductId, CACHE_TTL_HOURS);
-        redisson.getKeys().expire(key, ttl, TimeUnit.HOURS);
+        redisson.getKeys().expire(key, CACHE_TTL_HOURS, TimeUnit.HOURS);
     }
 }
