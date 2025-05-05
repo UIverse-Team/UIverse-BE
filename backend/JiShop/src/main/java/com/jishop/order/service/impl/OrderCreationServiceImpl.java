@@ -18,7 +18,6 @@ import com.jishop.order.service.OrderUtilService;
 import com.jishop.stock.service.RedisStockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +37,6 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final DistributedLockService distributedLockService;
     private final CartRepository cartRepository;
     private final RedisStockService redisStockService;
-    private final RedisTemplate<String, Object> redisTemplate;
 
     //비회원 주문 생성
     @Override
@@ -67,27 +65,24 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         //분산 락을 사용하여 주문 생성 처리
         return distributedLockService.executeWithMultipleLocks(lockKeys, () -> {
             try {
-                //재고 확인을 위한 맵 생성
+                // 1. 상품별 수량 맵 생성
                 Map<Long, Integer> productQuantityMap = orderDetails.stream()
                         .collect(Collectors.toMap(
                                 OrderDetailRequest::saleProductId,
                                 OrderDetailRequest::quantity
                         ));
 
-                //모든 상품에 대한 재고 확인을 한번에 수행
-                Map<Long, Boolean> stockResults = productQuantityMap.entrySet().stream()
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                entry -> redisStockService.checkStock(entry.getKey(), entry.getValue())
-                        ));
+                // 2. 재고 확인 (하나라도 부족하면 예외)
+                boolean hasInsufficientStock = productQuantityMap.entrySet().stream()
+                        .anyMatch(entry -> !redisStockService.checkStock(entry.getKey(), entry.getValue()));
 
-                //재고 부족한 상품이 있는지 확인
-                if (stockResults.containsValue(false))
+                if (hasInsufficientStock)
                     throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
 
-                //주문 생성 처리를 먼저 수행
+                // 3. 주문 생성
                 OrderResponse response = processOrderCreation(user, orderRequest);
 
+                // 4. 재고 차감 (실패 시 예외)
                 for (Map.Entry<Long, Integer> entry : productQuantityMap.entrySet()) {
                     if (!redisStockService.decreaseStock(entry.getKey(), entry.getValue()))
                         throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
@@ -95,6 +90,7 @@ public class OrderCreationServiceImpl implements OrderCreationService {
                 }
 
                 return response;
+
             } catch (Exception e) {
                 log.error("주문 처리 중 오류 발생: {}", e.getMessage());
                 throw e; //트랜잭션 롤백을 위해 예외 다시 던지기

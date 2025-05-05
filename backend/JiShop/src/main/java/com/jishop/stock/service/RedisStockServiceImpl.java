@@ -123,9 +123,7 @@ public class RedisStockServiceImpl implements RedisStockService {
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Integer getStockFromCache(Long saleProductId) {
+    private Integer getStockFromCache(Long saleProductId) {
         String key = STOCK_KEY_PREFIX + saleProductId;
         RAtomicLong atomicStock = redisson.getAtomicLong(key);
         long stockValue = atomicStock.get();

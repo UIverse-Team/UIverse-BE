@@ -5,6 +5,5 @@ public interface RedisStockService{
     boolean decreaseStock(Long saleProductId, int quantity);
     void syncStockDecrease(Long saleProductId, int quantity);
     void syncStockIncrease(Long saleProductId, int quantity);
-    Integer getStockFromCache(Long saleProductId);
     void syncCacheWithDb(Long saleProductId, int quantity);
 }

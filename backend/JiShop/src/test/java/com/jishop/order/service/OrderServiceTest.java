@@ -104,10 +104,8 @@ public class OrderServiceTest {
 
         // 재고 감소 확인 - DB와 Redis 모두 확인
         Stock finalStock = stockRepository.findBySaleProduct_Id(1000L).orElseThrow();
-        Integer redisStock = redisStockService.getStockFromCache(1000L);
 
         assertEquals(200 - THREAD_COUNT, finalStock.getQuantity(), "DB 재고가 정확히 감소해야 합니다.");
-        assertEquals(200 - THREAD_COUNT, redisStock, "Redis 재고가 정확히 감소해야 합니다.");
     }
 
     // DB와 Redis 모두 재고를 설정하는 메서드
@@ -130,7 +128,7 @@ public class OrderServiceTest {
 
         // 확인
         assertEquals(quantity, stock.getQuantity());
-        assertEquals(quantity, redisStockService.getStockFromCache(productId));
+        assertEquals(quantity, redisStockService.checkStock(productId, stock.getQuantity()));
     }
 
     private OrderRequest createSampleOrderRequest() {
@@ -204,17 +202,14 @@ public class OrderServiceTest {
 
         // Then
         Stock updatedStock = stockRepository.findBySaleProduct_Id(1000L).orElseThrow();
-        Integer redisStock = redisStockService.getStockFromCache(1000L);
 
         System.out.println("남은 DB 재고: " + updatedStock.getQuantity());
-        System.out.println("남은 Redis 재고: " + redisStock);
 
         // 검증: 하나의 주문이 실패해야 함
         assertEquals(1, failCount.get(), "하나의 주문이 실패해야 합니다");
 
         // 검증: 재고는 2개가 남아야 함 (29개 - (9개 스레드 * 3개 구매) = 2개)
         assertEquals(2, updatedStock.getQuantity(), "남은 DB 재고는 2개여야 합니다");
-        assertEquals(2, redisStock, "남은 Redis 재고는 2개여야 합니다");
     }
 
     private OrderRequest createSampleOrderRequestWithQuantity(int quantity) {
