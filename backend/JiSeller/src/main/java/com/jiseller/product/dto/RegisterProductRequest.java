@@ -55,7 +55,7 @@ public record RegisterProductRequest(
         @NotEmpty(message = "최소 하나 이상의 옵션 및 재고 정보가 필요합니다.")
         List<@Valid SaleProductSpec> saleProductSpecs
 ) {
-    public Product toEntity(Store store) {
+    public Product toEntity(final Store store) {
         return Product.builder()
                 .productInfo(createProductInfo(store))
                 .categoryInfo(createCategoryInfo())
@@ -66,7 +66,7 @@ public record RegisterProductRequest(
                 .build();
     }
 
-    private ProductInfo createProductInfo(Store store) {
+    private ProductInfo createProductInfo(final Store store) {
         return ProductInfo.builder()
                 .name(this.name)
                 .mallSeq(store.getMallSeq())

@@ -1,9 +1,9 @@
 package com.jiseller.stock.service;
 
-import com.jiseller.stock.dto.SaleProductSpec;
 import com.jiseller.saleproduct.domain.SaleProduct;
 import com.jiseller.stock.domain.Stock;
-import com.jiseller.stock.dto.RegisterStockRequest;
+import com.jiseller.stock.dto.SaleProductSpec;
+import com.jiseller.stock.util.StockMapper;
 import com.jiseller.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +21,9 @@ public class StockServiceImpl implements StockService {
     @Override
     @Transactional
     public void registerStocks(final List<SaleProduct> saleProducts, final List<SaleProductSpec> optionStockSpecs) {
-        List<Stock> stocks = IntStream.range(0, saleProducts.size())
-                .mapToObj(i -> new RegisterStockRequest(
-                        optionStockSpecs.get(i).stockQuantity(), saleProducts.get(i)).toEntity()).toList();
+        final List<Stock> stocks = IntStream.range(0, saleProducts.size())
+                .mapToObj(i -> StockMapper.toEntity(
+                        optionStockSpecs.get(i).stockQuantity(), saleProducts.get(i))).toList();
 
         stockRepository.saveAll(stocks);
     }
