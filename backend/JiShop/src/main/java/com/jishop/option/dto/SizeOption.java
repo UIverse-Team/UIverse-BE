@@ -20,10 +20,6 @@ public record SizeOption(
     }
 
     public SizeOption withSize() {
-        return new SizeOption(
-                saleProductId(),
-                extractSize(),
-                optionExtra()
-        );
+        return new SizeOption(saleProductId, extractSize(), optionExtra);
     }
 }

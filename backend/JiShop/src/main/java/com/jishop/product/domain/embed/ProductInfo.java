@@ -16,7 +16,7 @@ public class ProductInfo {
     @Column(name = "name", nullable = false)
     private String name;
     @Column(name = "mall_seq", nullable = false)
-    private String mallSeq;
+    private Long mallSeq;
     @Column(name = "manufacture_date", nullable = false)
     private LocalDateTime manufactureDate;
     @Column(name = "brand", nullable = false)
@@ -31,7 +31,7 @@ public class ProductInfo {
     @Column(name = "discount_rate", nullable = false)
     private int discountRate;
 
-    public ProductInfo(String name, String mallSeq, LocalDateTime manufactureDate,
+    public ProductInfo(String name, Long mallSeq, LocalDateTime manufactureDate,
             String brand, String description, int originPrice, int discountPrice, int discountRate
     ) {
         this.name = name;
