@@ -1,7 +1,7 @@
 package com.jiseller.productscore.domain;
 
 import com.jiseller.common.util.BaseEntity;
-import com.jishop.product.domain.Product;
+import com.jiseller.product.domain.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

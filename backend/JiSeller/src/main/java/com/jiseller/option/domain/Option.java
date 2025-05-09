@@ -1,7 +1,6 @@
 package com.jiseller.option.domain;
 
 import com.jiseller.common.util.BaseEntity;
-import com.jishop.option.domain.OptionCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

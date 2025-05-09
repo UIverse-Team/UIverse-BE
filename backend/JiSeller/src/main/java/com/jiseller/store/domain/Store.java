@@ -1,6 +1,6 @@
 package com.jiseller.store.domain;
 
-import com.jishop.common.util.BaseEntity;
+import com.jiseller.common.util.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
