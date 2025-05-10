@@ -21,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,70 +49,57 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
         List<OrderDetailRequest> orderDetails = orderRequest.orderDetailRequestList();
 
-        //1. 락 획득 전 재고 확인
+        //1. 주문 상품 ID와 수량 매핑
         Map<Long, Integer> productQuantityMap = orderDetails.stream()
                 .collect(Collectors.toMap(
                         OrderDetailRequest::saleProductId,
                         OrderDetailRequest::quantity
                 ));
 
-        //락 없이 재고 확인 (빠른 실패)
-        boolean preStockCheck = productQuantityMap.entrySet().stream()
-                .allMatch(entry -> redisStockService.checkStock(entry.getKey(), entry.getValue()));
-
-        if (!preStockCheck)
+        //2. 락 없이 재고 확인 (빠른 실패)
+        if (!redisStockService.checkMultipleStocks(productQuantityMap))
             throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
 
-        //2. 필요한 상품 Id 목록 가져오기 (재고 처리용 락키)
-        List<Long> productIds = orderDetails.stream()
-                .map(OrderDetailRequest::saleProductId)
-                .sorted() //정렬하여 교착상태 방지
-                .toList();
+        //3. 필요한 상품 Id 목록 불러오기 (락을 위해 정렬)
+        List<Long> productIds = new ArrayList<>(productQuantityMap.keySet());
+        Collections.sort(productIds);
 
-        //3. 주문 처리 및 재고 감소
+        //4. 주문 생성에 필요한 준비 작업
+        String lockKey = "order:stock:" + String.join(":", productIds.stream()
+                .map(String::valueOf)
+                .toList());
+
         try {
-            //상품별로 개별 락 처리하여 전체 로직 성능 개선
-            OrderResponse response = processOrderCreation(user, orderRequest);
+            //5. 복합 락을 사용하여 원자적 주문 처리
+            return distributedLockService.executeWithLock(lockKey, () -> {
+                //6. 락 획득 후 다시 재고 확인
+                if (!redisStockService.checkMultipleStocks(productQuantityMap))
+                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
 
-            //재고 차감 (한번에 여러 락 획득 대신 상품별 락 획득)
-            List<String> failedProducts = new ArrayList<>();
+                //7. 주문 처리 및 DB 저장
+                OrderResponse response = processOrderCreation(user, orderRequest);
 
-            for (Long productId : productIds) {
-                Integer quantity = productQuantityMap.get(productId);
-                String lockKey = "order:stock:" + productId;
-
+                //8. 재고 차감 - 일괄 처리
                 try {
-                    //상품별로 개별적으로 락 획득
-                    boolean stockDecreased = distributedLockService.executeWithLock(lockKey, () -> {
-                        //락 획득 후 다시 한번 재고 확인
-                        if (!redisStockService.checkStock(productId, quantity))
-                            return false;
-
-                        // 재고 감소 처리
-                        if (!redisStockService.decreaseStock(productId, quantity))
-                            return false;
-
-                        //비동기로 DB 동기화 처리
-                        redisStockService.syncStockDecrease(productId, quantity);
-                        return true;
-                    });
+                    boolean stockDecreased = redisStockService.decreaseMultipleStocks(productQuantityMap);
 
                     if (!stockDecreased)
-                        failedProducts.add(productId.toString());
+                        throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                    //9. 비동기로 DB 동기화 처리
+                    productQuantityMap.forEach(redisStockService::syncStockDecrease);
+
+                    return response;
                 } catch (Exception e) {
-                    log.error("상품 ID {} 재고 처리 중 오류: {} ", productId, e.getMessage());
-                    failedProducts.add(productId.toString());
+                    log.error("주문 재고 처리 중 오류 발생: {}", e.getMessage(), e);
+                    throw new DomainException(ErrorType.ORDER_CREATION_FAILED);
                 }
-            }
-
-            if (!failedProducts.isEmpty()) {
-                throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
-            }
-
-            return response;
+            });
         } catch (Exception e) {
-            log.error("주문 처리 중 오류 발생: {} ", e.getMessage());
-            throw e;
+            if (e instanceof DomainException)
+                throw (DomainException) e;
+            log.error("주문 재고 처리 중 오류 발생: {}", e.getMessage(), e);
+            throw new DomainException(ErrorType.ORDER_CREATION_FAILED);
         }
     }
 
