@@ -14,9 +14,9 @@ public class AsyncConfig {
     @Bean(name = "stockTaskExecutor")
     public Executor stockTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5); //기본 스레드 수
-        executor.setMaxPoolSize(10); //최대 스레드 수
-        executor.setQueueCapacity(25); //큐 용량
+        executor.setCorePoolSize(7); //기본 스레드 수
+        executor.setMaxPoolSize(15); //최대 스레드 수
+        executor.setQueueCapacity(100); //큐 용량
         executor.setThreadNamePrefix("stock-async-");
         executor.initialize();
 

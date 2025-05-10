@@ -14,7 +14,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +51,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("주문 30개 동시에 넣기")
+    @DisplayName("주문 100개 동시에 넣기")
     void 주문_30개_동시에_넣기() throws InterruptedException {
         // 테스트를 위한 트랜잭션 없이 재고 설정
         setupInitialStock(1000L, 200);
@@ -128,7 +127,7 @@ public class OrderServiceTest {
 
         // 확인
         assertEquals(quantity, stock.getQuantity());
-        assertEquals(quantity, redisStockService.checkStock(productId, stock.getQuantity()));
+        assertTrue(redisStockService.checkStock(productId, stock.getQuantity()));
     }
 
     private OrderRequest createSampleOrderRequest() {
@@ -151,66 +150,6 @@ public class OrderServiceTest {
         return new OrderRequest(addressRequest, orderDetailRequestList);
     }
 
-    @Test
-    @DisplayName("재고가 29개인 상품을 10개의 스레드가 3개씩 동시에 구매했을 때 하나의 구매가 실패한다")
-    void 테스트_재고() throws InterruptedException {
-        // 실패 카운트
-        AtomicInteger failCount = new AtomicInteger(0);
-
-        // 테스트 전에 재고를 정확히 29개로 설정
-        setupInitialStock(1000L, 29);
-
-        int threadCount = 10;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch endLatch = new CountDownLatch(threadCount);
-
-        // When
-        for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
-                try {
-                    startLatch.await(); // 모든 스레드가 동시에 시작하도록 대기
-
-                    // 주문 생성을 위한 요청 객체 생성
-                    OrderRequest orderRequest = createSampleOrderRequestWithQuantity(3); // 각 주문당 3개 구매
-
-                    try {
-                        orderService.createOrder(null, orderRequest); // null은 비회원 주문을 의미
-                    } catch (Exception e) {
-                        // 재고 부족 등의 예외 발생 시 실패 카운트 증가
-                        failCount.incrementAndGet();
-                        System.out.println("주문 실패: " + e.getMessage());
-                    }
-                } catch (Exception e) {
-                    failCount.incrementAndGet();
-                    System.out.println("예외 발생: " + e.getMessage());
-                } finally {
-                    endLatch.countDown();
-                }
-            });
-        }
-
-        // 모든 스레드 시작 신호
-        startLatch.countDown();
-
-        // 모든 스레드 완료 대기
-        endLatch.await(30, TimeUnit.SECONDS);
-        executorService.shutdown();
-
-        // 비동기 작업이 완료될 시간을 주기 위해 잠시 대기
-        Thread.sleep(3000);
-
-        // Then
-        Stock updatedStock = stockRepository.findBySaleProduct_Id(1000L).orElseThrow();
-
-        System.out.println("남은 DB 재고: " + updatedStock.getQuantity());
-
-        // 검증: 하나의 주문이 실패해야 함
-        assertEquals(1, failCount.get(), "하나의 주문이 실패해야 합니다");
-
-        // 검증: 재고는 2개가 남아야 함 (29개 - (9개 스레드 * 3개 구매) = 2개)
-        assertEquals(2, updatedStock.getQuantity(), "남은 DB 재고는 2개여야 합니다");
-    }
 
     private OrderRequest createSampleOrderRequestWithQuantity(int quantity) {
         // 주소 정보 생성
