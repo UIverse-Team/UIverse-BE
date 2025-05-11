@@ -1,6 +1,7 @@
 package com.jishop.order.service;
 
 import com.jishop.address.dto.AddressRequest;
+import com.jishop.common.exception.DomainException;
 import com.jishop.order.dto.OrderDetailRequest;
 import com.jishop.order.dto.OrderRequest;
 import com.jishop.order.dto.OrderResponse;
@@ -15,9 +16,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,28 +50,45 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("주문 100개 동시에 넣기")
-    void 주문_30개_동시에_넣기() throws InterruptedException {
+    @DisplayName("주문 100개 동시에 넣기 - 개선된 테스트")
+    void 개선된_동시성_테스트() throws InterruptedException {
         // 테스트를 위한 트랜잭션 없이 재고 설정
-        setupInitialStock(1000L, 200);
+        final int INITIAL_STOCK = 200;
+        final Long PRODUCT_ID = 1000L;
+        setupInitialStock(PRODUCT_ID, INITIAL_STOCK);
 
         // 스레드 안전한 컬렉션 사용
         List<OrderResponse> orderResponses = Collections.synchronizedList(new ArrayList<>());
+
+        // 오류 세부 정보 수집
+        List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
+
         CountDownLatch startLatch = new CountDownLatch(1); // 모든 스레드가 동시에 시작하도록 설정
+        AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
 
+        // 랜덤 지연 생성기 - 더 극단적인 경쟁 조건 생성
+        Random random = new Random();
+
         for (int i = 0; i < THREAD_COUNT; i++) {
+            final int threadNumber = i;
             executorService.submit(() -> {
                 try {
                     // 모든 스레드가 준비될 때까지 대기
                     startLatch.await();
 
+                    // 더 무작위적인 실행 패턴을 위해 약간의 지연 적용 (0-50ms)
+                    if (threadNumber % 3 == 0) { // 1/3의 스레드만 지연
+                        Thread.sleep(random.nextInt(50));
+                    }
+
                     OrderRequest orderRequest = createSampleOrderRequest();
                     // 실제 orderService 메서드 호출하여 주문 생성
                     OrderResponse response = orderService.createOrder(null, orderRequest);
                     orderResponses.add(response);
+                    successCount.incrementAndGet();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    exceptions.add(e);
                     failCount.incrementAndGet();
                 } finally {
                     latch.countDown();
@@ -90,9 +106,21 @@ public class OrderServiceTest {
         // 비동기 작업이 완료될 시간을 주기 위해 잠시 대기
         Thread.sleep(2000);
 
+        // 예외 요약 출력
+        if (!exceptions.isEmpty()) {
+            Map<String, Integer> exceptionCounts = new HashMap<>();
+            for (Exception e : exceptions) {
+                String key = e.getClass().getSimpleName() + ": " + e.getMessage();
+                exceptionCounts.put(key, exceptionCounts.getOrDefault(key, 0) + 1);
+            }
+            System.out.println("발생한 예외 요약:");
+            exceptionCounts.forEach((key, count) -> System.out.println(key + " - " + count + "회 발생"));
+        }
+
         assertTrue(completed, "모든 스레드가 시간 내에 완료되어야 합니다.");
         assertEquals(0, failCount.get(), "모든 주문이 성공해야 합니다.");
-        assertEquals(THREAD_COUNT, orderResponses.size(), "모든 주문이 성공적으로 생성되어야 합니다.");
+        assertEquals(THREAD_COUNT, successCount.get(), "모든 주문이 성공적으로 생성되어야 합니다.");
+        assertEquals(THREAD_COUNT, orderResponses.size(), "모든 주문이 응답을 반환해야 합니다.");
 
         // 주문 번호의 유일성 검증
         long uniqueOrderNumbers = orderResponses.stream()
@@ -101,10 +129,76 @@ public class OrderServiceTest {
                 .count();
         assertEquals(THREAD_COUNT, uniqueOrderNumbers, "모든 주문 번호는 유일해야 합니다.");
 
-        // 재고 감소 확인 - DB와 Redis 모두 확인
-        Stock finalStock = stockRepository.findBySaleProduct_Id(1000L).orElseThrow();
+        // 재고 감소 확인 - DB 확인
+        Stock finalStock = stockRepository.findBySaleProduct_Id(PRODUCT_ID).orElseThrow();
+        assertEquals(INITIAL_STOCK - THREAD_COUNT, finalStock.getQuantity(),
+                "DB 재고가 정확히 감소해야 합니다.");
 
-        assertEquals(200 - THREAD_COUNT, finalStock.getQuantity(), "DB 재고가 정확히 감소해야 합니다.");
+        // Redis 재고 확인 - Redis와 DB의 동기화 검증
+        int redisStock = redisStockService.getStockFromCache(PRODUCT_ID);
+        assertEquals(finalStock.getQuantity(), redisStock,
+                "Redis 재고가 DB와 동일해야 합니다.");
+    }
+
+
+    @Test
+    @DisplayName("재고 부족 상황에서 동시 주문 처리")
+    void 재고_부족_상황_동시_주문_테스트() throws InterruptedException {
+        // 재고를 의도적으로 주문 수보다 적게 설정 (50개)
+        final int INITIAL_STOCK = 50;
+        final Long PRODUCT_ID = 1000L;
+        setupInitialStock(PRODUCT_ID, INITIAL_STOCK);
+
+        List<OrderResponse> orderResponses = Collections.synchronizedList(new ArrayList<>());
+        List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>());
+        CountDownLatch startLatch = new CountDownLatch(1);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            executorService.submit(() -> {
+                try {
+                    startLatch.await();
+                    OrderRequest orderRequest = createSampleOrderRequest();
+                    OrderResponse response = orderService.createOrder(null, orderRequest);
+                    orderResponses.add(response);
+                    successCount.incrementAndGet();
+                } catch (Exception e) {
+                    exceptions.add(e);
+                    failCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        startLatch.countDown();
+        latch.await(60, TimeUnit.SECONDS);
+        executorService.shutdown();
+        Thread.sleep(2000);
+
+        // 재고만큼만 주문이 성공해야 함
+        assertEquals(INITIAL_STOCK, successCount.get(),
+                "재고만큼만 주문이 성공해야 합니다.");
+        assertEquals(THREAD_COUNT - INITIAL_STOCK, failCount.get(),
+                "나머지 주문은 실패해야 합니다.");
+
+        // 재고가 정확히 0이 되었는지 확인
+        Stock finalStock = stockRepository.findBySaleProduct_Id(PRODUCT_ID).orElseThrow();
+        assertEquals(0, finalStock.getQuantity(), "DB 재고가 0이어야 합니다.");
+
+        // Redis 재고도 0인지 확인
+        int redisStock = redisStockService.getStockFromCache(PRODUCT_ID);
+        assertEquals(0, redisStock, "Redis 재고도 0이어야 합니다.");
+
+        // 예외 유형 확인 - 대부분 재고 부족 예외여야 함
+        long outOfStockExceptions = exceptions.stream()
+                .filter(e -> e instanceof DomainException ||
+                        e.getMessage().contains("재고") ||
+                        e.getMessage().contains("stock"))
+                .count();
+        assertTrue(outOfStockExceptions > 0,
+                "재고 부족 관련 예외가 발생해야 합니다.");
     }
 
     // DB와 Redis 모두 재고를 설정하는 메서드
