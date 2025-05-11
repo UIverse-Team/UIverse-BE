@@ -34,7 +34,7 @@ public class OrderGuestControllerImpl implements OrderGuestController {
     @Override
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createGuestInstantOrder(@RequestBody @Valid OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderCreationService.createInstantOrder(orderRequest);
+        OrderResponse orderResponse = orderCreationService.createOrder(orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }

@@ -17,9 +17,6 @@ public class OrderStatusScheduler {
 
     private final OrderRepository orderRepository;
 
-    //매일 특정 시간
-    //@Scheduled(cron = "0 0 0 * * ?")
-
     @Transactional
     @Scheduled(fixedRate = 3600000) //1시간마다 실행
     public void updateOrderStatus(){
