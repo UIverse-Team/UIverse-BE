@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "sales_products")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaleProduct extends BaseEntity {
 

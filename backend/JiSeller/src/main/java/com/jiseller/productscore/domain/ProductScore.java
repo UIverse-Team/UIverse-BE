@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Getter
+@Table(name = "product_scores")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductScore extends BaseEntity {
 

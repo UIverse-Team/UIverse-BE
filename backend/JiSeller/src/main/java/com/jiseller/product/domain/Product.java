@@ -19,6 +19,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Table(name = "products")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 

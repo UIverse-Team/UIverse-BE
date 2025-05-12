@@ -1,16 +1,14 @@
 package com.jiseller.option.domain;
 
 import com.jiseller.common.util.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "options")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Option extends BaseEntity {
 
