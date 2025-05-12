@@ -14,7 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,34 +22,43 @@ import java.util.List;
 public record RegisterProductRequest(
         @NotBlank(message = "상품명은 필수입니다")
         String name,
-        @NotBlank(message = "StoreSeq는 필수입니다")
+
+        @NotNull(message = "StoreSeq는 필수입니다")
         Long mallSeq,
-        @NotBlank(message = "제조 일자는 필수입니다")
+
+        @NotNull(message = "제조 일자는 필수입니다")
         LocalDateTime manufactureDate,
+
         String description,
-        @NotBlank(message = "판매가는 필수입니다")
+
+        @NotNull(message = "판매가는 필수입니다")
         @Min(value = 0, message = "판매가는 0원 이상이어야 합니다")
         Integer originPrice,
-        @NotBlank(message = "할인가는 필수입니다")
+
+        @NotNull(message = "할인가는 필수입니다")
         @Min(value = 0, message = "할인가는 0원 이상이어야 합니다")
         Integer discountPrice,
 
-        @NotBlank(message = "lCatId는 필수입니다")
+        @NotNull(message = "lCatId는 필수입니다")
         Long lCatId,
         Long mCatId,
         Long sCatId,
 
-        @NotBlank(message = "MainImage는 필수입니다")
-        MultipartFile mainImage,
-        List<MultipartFile> additionalImages,
-        @NotBlank(message = "DetailImage는 필수입니다")
-        MultipartFile detailImage,
+//        @NotNull(message = "MainImage는 필수입니다")
+//        MultipartFile mainImage,
 
-        @NotBlank(message = "상품상태는 필수입니다")
+//        List<MultipartFile> additionalImages,
+
+//        @NotNull(message = "DetailImage는 필수입니다")
+//        MultipartFile detailImage,
+
+        @NotNull(message = "상품상태는 필수입니다")
         SaleStatus saleStatus,
-        @NotBlank(message = "라벨은 필수입니다")
+
+        @NotNull(message = "라벨은 필수입니다")
         Labels labels,
-        @NotBlank(message = "할인상태는 필수입니다")
+
+        @NotNull(message = "할인상태는 필수입니다")
         DiscountStatus discountStatus,
 
         @NotEmpty(message = "최소 하나 이상의 옵션 및 재고 정보가 필요합니다.")
