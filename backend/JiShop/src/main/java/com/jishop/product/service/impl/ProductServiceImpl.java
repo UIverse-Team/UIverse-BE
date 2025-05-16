@@ -2,6 +2,7 @@ package com.jishop.product.service.impl;
 
 import com.jishop.common.exception.DomainException;
 import com.jishop.common.exception.ErrorType;
+import com.jishop.common.response.PageResponse;
 import com.jishop.member.domain.User;
 import com.jishop.option.dto.FashionClothesOptionResponse;
 import com.jishop.option.dto.GeneralOptionResponse;
@@ -18,11 +19,6 @@ import com.jishop.reviewproduct.domain.ReviewProduct;
 import com.jishop.reviewproduct.repository.ReviewProductRepository;
 import com.jishop.saleproduct.repository.SaleProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,19 +37,19 @@ public class ProductServiceImpl implements ProductService {
     private final ProductCategoryService productCategoryService;
 
     @Override
-    public PagedModel<ProductResponse> getProductList(final ProductRequest productRequest,
-                                                      final int page, final int size) {
-        final List<Long> categoryIds = productCategoryService.getCategoryIdsWithSubcategories(productRequest.categoryId());
+    public PageResponse<ProductResponse> getProductList(
+            final ProductRequest productRequest, final int page, final int size) {
+        final List<Long> categoryIds = productCategoryService
+                .getCategoryIdsWithSubcategories(productRequest.categoryId());
 
-        final List<Product> selectedProducts = productRepository.findProductsByCondition(productRequest, page, size, categoryIds);
+        final List<Product> selectedProducts = productRepository
+                .findProductsByCondition(productRequest, page, size, categoryIds);
         final List<ProductResponse> productListResponse = selectedProducts.stream()
                 .map(ProductResponse::from).toList();
 
         final long totalCount = productRepository.countProductsByCondition(productRequest, categoryIds);
-        final Pageable pageable = PageRequest.of(page, size);
-        final Page<ProductResponse> pagedProductsResponse = new PageImpl<>(productListResponse, pageable, totalCount);
 
-        return new PagedModel<>(pagedProductsResponse);
+        return PageResponse.from(productListResponse, page, size, totalCount);
     }
 
     @Override
@@ -69,13 +65,13 @@ public class ProductServiceImpl implements ProductService {
         if (categoryType == 50000000L) {
             final List<SizeOption> fashionClothesOptions = saleProductRepository
                     .findFashionClothesOptionsByProductId(productId);
-                    productsOptions = fashionClothesOptions.isEmpty() ?
-                              List.of() :
-                              FashionClothesOptionResponse.from(fashionClothesOptions);
+            productsOptions = fashionClothesOptions.isEmpty() ?
+                    List.of() :
+                    FashionClothesOptionResponse.from(fashionClothesOptions);
         } else {
             final List<SizeOption> generalOptions = saleProductRepository
                     .findGeneralOptionsByProductId(productId);
-                    productsOptions = GeneralOptionResponse.from(generalOptions);
+            productsOptions = GeneralOptionResponse.from(generalOptions);
         }
 
         final List<ReviewProduct> productsReviews = reviewProductRepository.findAllByProduct(product);

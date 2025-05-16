@@ -1,5 +1,6 @@
 package com.jishop.product.controller;
 
+import com.jishop.common.response.PageResponse;
 import com.jishop.member.domain.User;
 import com.jishop.product.dto.request.ProductRequest;
 import com.jishop.product.dto.response.ProductDetailResponse;
@@ -7,7 +8,6 @@ import com.jishop.product.dto.response.ProductResponse;
 import com.jishop.product.dto.response.TodaySpecialListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.data.web.PagedModel;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import java.util.List;
 public interface ProductController {
 
     @Operation(summary = "상품 목록 조회")
-    PagedModel<ProductResponse> getProductList(final ProductRequest productRequest, final int page, final int size);
+    PageResponse<ProductResponse> getProductList(final ProductRequest productRequest, final int page, final int size);
 
     // user가 null일 수 있음(비회원)
     @Operation(summary = "상품 단건 조회")
@@ -25,8 +25,8 @@ public interface ProductController {
     List<ProductResponse> getProductsByWishTopTen(final int page, final int size);
 
     @Operation(summary = "오늘의 특가 상품 조회")
-    PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size);
+    PageResponse<TodaySpecialListResponse> getProductsByTodaySpecial(final int page, final int size);
 
     @Operation(summary = "헤더 카테고리 상품 조회")
-    PagedModel<ProductResponse> getProductsByCategory(final Long CategoryId, final int page, final int size);
+    PageResponse<ProductResponse> getProductsByCategory(final Long CategoryId, final int page, final int size);
 }

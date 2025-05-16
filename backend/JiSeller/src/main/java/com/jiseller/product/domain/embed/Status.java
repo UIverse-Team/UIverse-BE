@@ -1,0 +1,44 @@
+package com.jiseller.product.domain.embed;
+
+import com.jiseller.product.domain.DiscountStatus;
+import com.jiseller.product.domain.Labels;
+import com.jiseller.product.domain.SaleStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Status {
+
+    @Column(name = "secret", nullable = false)
+    private Boolean secret;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sale_status", nullable = false)
+    private SaleStatus saleStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "labels", length = 50, nullable = false)
+    private Labels labels;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discount_status", nullable = false)
+    private DiscountStatus discountStatus;
+
+    @Column(name = "is_discount", nullable = false)
+    private Boolean isDiscount;
+
+    @Builder
+    public Status(Boolean secret, SaleStatus saleStatus, Labels labels, DiscountStatus discountStatus, Boolean isDiscount
+    ) {
+        this.secret = secret;
+        this.saleStatus = saleStatus;
+        this.labels = labels;
+        this.isDiscount = isDiscount;
+        this.discountStatus = discountStatus;
+    }
+}
