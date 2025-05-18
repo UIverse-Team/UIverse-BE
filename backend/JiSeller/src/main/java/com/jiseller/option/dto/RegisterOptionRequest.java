@@ -1,5 +1,7 @@
 package com.jiseller.option.dto;
 
+import com.jiseller.common.exception.DomainException;
+import com.jiseller.common.exception.ErrorType;
 import com.jiseller.option.domain.Option;
 import com.jiseller.option.domain.OptionCategory;
 import jakarta.validation.constraints.*;
@@ -23,5 +25,13 @@ public record RegisterOptionRequest(
                 .optionValue(this.optionValue)
                 .optionExtra(this.optionExtra)
                 .build();
+    }
+
+    public void validateFashionClothesOptionFormat() {
+        if (this.categoryType() == OptionCategory.FASHION_CLOTHES) {
+            if (!this.optionValue().matches("^[가-힣a-zA-Z0-9]+/[가-힣a-zA-Z0-9]+$")) {
+                throw new DomainException(ErrorType.VALIDATION_ERROR);
+            }
+        }
     }
 }

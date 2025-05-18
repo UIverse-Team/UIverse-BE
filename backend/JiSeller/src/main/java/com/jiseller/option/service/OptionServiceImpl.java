@@ -15,10 +15,8 @@ public class OptionServiceImpl implements OptionService {
     @Override
     @Transactional
     public void createOption(final RegisterOptionRequest registerOptionRequest) {
+        registerOptionRequest.validateFashionClothesOptionFormat();
+
         optionRepository.save(registerOptionRequest.toEntity());
-    }
-
-    public void validateOptionRequest(RegisterOptionRequest registerOptionRequest) {
-
     }
 }

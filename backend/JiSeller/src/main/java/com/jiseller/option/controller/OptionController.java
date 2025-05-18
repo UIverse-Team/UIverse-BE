@@ -2,6 +2,7 @@ package com.jiseller.option.controller;
 
 import com.jiseller.option.dto.RegisterOptionRequest;
 import com.jiseller.option.service.OptionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ public class OptionController {
     private final OptionService optionService;
 
     @PostMapping("/create")
-    public void createOption(@RequestBody RegisterOptionRequest registerOptionRequest) {
+    public void createOption(@RequestBody @Valid RegisterOptionRequest registerOptionRequest) {
         optionService.createOption(registerOptionRequest);
     }
 }
