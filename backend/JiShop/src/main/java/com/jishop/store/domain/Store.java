@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Store extends BaseEntity {
 
     @Column(name = "mall_seq", nullable = false, unique = true)
-    private String mallSeq;
+    private Long mallSeq;
 
     @Column(name = "mall_name", nullable = false)
     private String mallName;
@@ -23,7 +23,7 @@ public class Store extends BaseEntity {
     @Column(name = "wish_count", nullable = false, columnDefinition = "int default 0")
     private int wishCount;
 
-    public Store(String mallSeq, String mallName) {
+    public Store(Long mallSeq, String mallName) {
         this.mallSeq = mallSeq;
         this.mallName = mallName;
     }

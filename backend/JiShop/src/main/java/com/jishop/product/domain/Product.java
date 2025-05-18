@@ -39,7 +39,7 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<SaleProduct> saleProducts = new ArrayList<>();
     @OneToOne(mappedBy = "product",
             cascade = CascadeType.ALL,
@@ -47,14 +47,13 @@ public class Product extends BaseEntity {
             orphanRemoval = true)
     private ProductScore productScore;
 
-    public Product(ProductInfo productInfo,  CategoryInfo categoryInfo, Status status, ImageUrl image,
-            Category category, int wishListCount, int productViewCount
+    public Product(ProductInfo productInfo, CategoryInfo categoryInfo, Status status, ImageUrl image,
+            int wishListCount, int productViewCount
     ) {
         this.productInfo = productInfo;
         this.categoryInfo = categoryInfo;
         this.status = status;
         this.image = image;
-        this.category = category;
         this.wishListCount = wishListCount;
         this.productViewCount = productViewCount;
     }
@@ -64,14 +63,12 @@ public class Product extends BaseEntity {
     }
 
     public void decrementWishCount() {
-        if (this.wishListCount > 0) { this.wishListCount--;}
+        if (this.wishListCount > 0) { this.wishListCount--; }
     }
 
     public void setProductScore(ProductScore productScore) {
         this.productScore = productScore;
-        if(productScore != null && productScore.getProduct() != this){
-            productScore.setProduct(this);
-        }
+        if (productScore != null && productScore.getProduct() != this) { productScore.setProduct(this); }
     }
 }
 

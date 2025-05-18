@@ -28,7 +28,7 @@ public class RecentProductResponse {
     public static class ProductResponse {
         private Long ProductId;
         private String productName;
-        private String mallSeq;
+        private Long mallSeq;
         private String brand;
         private String description;
         private int originPrice;
