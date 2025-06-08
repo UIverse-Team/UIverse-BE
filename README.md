@@ -328,7 +328,7 @@
 
 
 ## 🕊️ 9. Infra Structure
-![아키텍쳐](https://github.com/user-attachments/assets/b8189da9-56dc-4390-9e15-dc43ccd3e65f)
+![아키텍처](https://github.com/user-attachments/assets/af37938c-f600-4d87-95e1-9ef331aad942)
 
 
 ## 🕊️ 10. 코드 스타일 가이드
@@ -336,6 +336,7 @@
 ```java
     @GetMapping
     public PagedModel<PostResponse> getAllPosts(@RequestParam int page,
+
                                                 @RequestParam int size) {
          ...     
     }
