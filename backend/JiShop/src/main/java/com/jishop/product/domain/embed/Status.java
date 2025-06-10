@@ -22,7 +22,7 @@ public class Status {
     @Column(name = "sale_status", nullable = false)
     private SaleStatus saleStatus;
     @Enumerated(EnumType.STRING)
-    @Column(name = "labels", length = 50)
+    @Column(name = "labels", length = 50, nullable = false)
     private Labels labels;
     @Enumerated(EnumType.STRING)
     @Column(name = "discount_status", nullable = false)
@@ -32,7 +32,7 @@ public class Status {
     @Column(name = "is_discount", nullable = false)
     private Boolean isDiscount;
 
-    public Status(Boolean secret, SaleStatus saleStatus, Labels labels, Boolean isDiscount, DiscountStatus discountStatus
+    public Status(Boolean secret, SaleStatus saleStatus, Labels labels, DiscountStatus discountStatus, Boolean isDiscount
     ) {
         this.secret = secret;
         this.saleStatus = saleStatus;

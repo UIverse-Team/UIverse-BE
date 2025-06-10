@@ -102,11 +102,11 @@ public class ReviewIntegrationTest {
         categoryRepository.save(category1);
         categoryRepository.save(category2);
 
-        ProductInfo productInfo = new ProductInfo("테스트 상품", "14154", LocalDateTime.now(), "테스트 브랜드", "설명", 1000, 0, 0);
+        ProductInfo productInfo = new ProductInfo("테스트 상품", 14154L, LocalDateTime.now(), "테스트 브랜드", "설명", 1000, 0, 0);
         CategoryInfo categoryInfo = new CategoryInfo(5000L, 5010L, 5100L);
-        Status status = new Status(false, SaleStatus.SELLING, Labels.SPECIAL_PRICE, false, DiscountStatus.NONE);
+        Status status = new Status(false, SaleStatus.SELLING, Labels.SPECIAL_PRICE, DiscountStatus.NONE, false);
         ImageUrl imageUrl = new ImageUrl("main.jpg", "image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg", "detail.jpg");
-        Product product = new Product(productInfo, categoryInfo, status, imageUrl, category, 0, 0);
+        Product product = new Product(productInfo, categoryInfo, status, imageUrl, 0, 0);
 
         productRepository.save(product);
 

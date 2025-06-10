@@ -1,5 +1,6 @@
 package com.jishop.product.controller;
 
+import com.jishop.common.response.PageResponse;
 import com.jishop.member.annotation.CurrentUser;
 import com.jishop.member.domain.User;
 import com.jishop.product.dto.request.ProductRequest;
@@ -11,7 +12,6 @@ import com.jishop.product.service.ProductDiscountService;
 import com.jishop.product.service.ProductService;
 import com.jishop.product.service.ProductWishlistService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.web.PagedModel;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping
-    public PagedModel<ProductResponse> getProductList(
+    public PageResponse<ProductResponse> getProductList(
             @Validated final ProductRequest productRequest,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size
@@ -61,7 +61,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping("/specialPrices")
-    public PagedModel<TodaySpecialListResponse> getProductsByTodaySpecial(
+    public PageResponse<TodaySpecialListResponse> getProductsByTodaySpecial(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size
     ) {
@@ -73,7 +73,7 @@ public class ProductControllerImpl implements ProductController {
 
     @Override
     @GetMapping("/category/{categoryId}")
-    public PagedModel<ProductResponse> getProductsByCategory(
+    public PageResponse<ProductResponse> getProductsByCategory(
             @PathVariable final Long categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size) {

@@ -9,7 +9,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -27,7 +26,7 @@ public class SaleProduct extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Option option;
 
-    @OneToOne(mappedBy = "saleProduct")
+    @OneToOne(mappedBy = "saleProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private Stock stock;
 
     @Builder
