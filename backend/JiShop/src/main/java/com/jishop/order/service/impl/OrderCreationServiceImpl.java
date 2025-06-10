@@ -2,6 +2,8 @@ package com.jishop.order.service.impl;
 
 import com.jishop.address.repository.AddressRepository;
 import com.jishop.cart.repository.CartRepository;
+import com.jishop.common.exception.DomainException;
+import com.jishop.common.exception.ErrorType;
 import com.jishop.member.domain.User;
 import com.jishop.order.domain.Order;
 import com.jishop.order.domain.OrderDetail;
@@ -13,13 +15,16 @@ import com.jishop.order.repository.OrderRepository;
 import com.jishop.order.service.DistributedLockService;
 import com.jishop.order.service.OrderCreationService;
 import com.jishop.order.service.OrderUtilService;
+import com.jishop.stock.service.RedisStockService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderCreationServiceImpl implements OrderCreationService {
@@ -29,6 +34,7 @@ public class OrderCreationServiceImpl implements OrderCreationService {
     private final OrderUtilService orderUtilService;
     private final DistributedLockService distributedLockService;
     private final CartRepository cartRepository;
+    private final RedisStockService redisStockService;
 
     //비회원 주문 생성
     @Override
@@ -37,39 +43,67 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         return createOrder(null, orderRequest);
     }
 
-    //비회원 바로 주문 생성
-    @Override
-    @Transactional
-    public OrderResponse createInstantOrder(OrderRequest orderRequest) {
-        return createInstantOrder(null, orderRequest);
-    }
-
     // 회원 주문 생성
     @Override
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest orderRequest) {
-        //상품 Id 목록 가져오기
-        List<Long> productIds = orderRequest.orderDetailRequestList().stream()
-                .map(OrderDetailRequest::saleProductId)
-                .toList();
+        List<OrderDetailRequest> orderDetails = orderRequest.orderDetailRequestList();
 
-        //락 키 생성(상품 ID 목록을 기반으로)
-        String lockKey = "order:creation:" + String.join("-", productIds.stream().map(String::valueOf).toList());
+        //1. 주문 상품 ID와 수량 매핑
+        Map<Long, Integer> productQuantityMap = orderDetails.stream()
+                .collect(Collectors.toMap(
+                        OrderDetailRequest::saleProductId,
+                        OrderDetailRequest::quantity
+                ));
 
-        //분산 락을 사용하여 주문 생성 처리
-        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, orderRequest));
+        //2. 락 없이 재고 확인 (빠른 실패)
+        if (!redisStockService.checkMultipleStocks(productQuantityMap))
+            throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+        //3. 필요한 상품 Id 목록 불러오기 (락을 위해 정렬)
+        List<Long> productIds = new ArrayList<>(productQuantityMap.keySet());
+        Collections.sort(productIds);
+
+        //4. 주문 생성에 필요한 준비 작업
+        String lockKey = "order:stock:" + String.join(":", productIds.stream()
+                .map(String::valueOf)
+                .toList());
+
+        try {
+            //5. 복합 락을 사용하여 원자적 주문 처리
+            return distributedLockService.executeWithLock(lockKey, () -> {
+                //6. 락 획득 후 다시 재고 확인
+                if (!redisStockService.checkMultipleStocks(productQuantityMap))
+                    throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                //7. 주문 처리 및 DB 저장
+                OrderResponse response = processOrderCreation(user, orderRequest);
+
+                //8. 재고 차감 - 일괄 처리
+                try {
+                    boolean stockDecreased = redisStockService.decreaseMultipleStocks(productQuantityMap);
+
+                    if (!stockDecreased)
+                        throw new DomainException(ErrorType.INSUFFICIENT_STOCK);
+
+                    //9. 비동기로 DB 동기화 처리
+                    productQuantityMap.forEach(redisStockService::syncStockDecrease);
+
+                    return response;
+                } catch (Exception e) {
+                    log.error("주문 재고 처리 중 오류 발생: {}", e.getMessage(), e);
+                    throw new DomainException(ErrorType.ORDER_CREATION_FAILED);
+                }
+            });
+        } catch (Exception e) {
+            if (e instanceof DomainException)
+                throw (DomainException) e;
+            log.error("주문 재고 처리 중 오류 발생: {}", e.getMessage(), e);
+            throw new DomainException(ErrorType.ORDER_CREATION_FAILED);
+        }
     }
 
-    // 회원 바로 주문
-    @Override
     @Transactional
-    public OrderResponse createInstantOrder(User user, OrderRequest instantOrderRequest) {
-        //락키 생성 (상품 ID를 기반으로)
-        String lockKey = "order:instant:" + instantOrderRequest.orderDetailRequestList().get(0).saleProductId();
-
-        return distributedLockService.executeWithLock(lockKey, () -> processOrderCreation(user, instantOrderRequest));
-    }
-
     public OrderResponse processOrderCreation(User user, OrderRequest orderRequest) {
         // 주소 저장 (회원인 경우만)
         if (user != null) {
@@ -115,6 +149,4 @@ public class OrderCreationServiceImpl implements OrderCreationService {
         List<OrderProductResponse> orderProductResponses = orderUtilService.convertToOrderDetailResponses(order.getOrderDetails(), user);
         return OrderResponse.fromOrder(order, orderProductResponses);
     }
-
-
 }

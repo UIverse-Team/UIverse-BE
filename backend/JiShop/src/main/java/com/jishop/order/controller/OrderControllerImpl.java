@@ -70,7 +70,7 @@ public class OrderControllerImpl implements OrderController {
     @Override
     @PostMapping("/instant")
     public ResponseEntity<OrderResponse> createInstantOrder(@CurrentUser User user, @RequestBody @Valid OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderCreationService.createInstantOrder(user, orderRequest);
+        OrderResponse orderResponse = orderCreationService.createOrder(user, orderRequest);
 
         return ResponseEntity.ok(orderResponse);
     }

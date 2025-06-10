@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 public class LogDBConfig {
 
     @Bean(name = "logDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.logdb") // 소문자 logdb로 수정
+    @ConfigurationProperties(prefix = "spring.datasource.logdb")
     protected DataSource logDataSource(){
         return DataSourceBuilder.create().build();
     }

@@ -13,7 +13,6 @@ import com.jishop.order.service.OrderUtilService;
 import com.jishop.review.repository.ReviewRepository;
 import com.jishop.saleproduct.domain.SaleProduct;
 import com.jishop.saleproduct.repository.SaleProductRepository;
-import com.jishop.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +27,6 @@ public class OrderUtilServiceImpl implements OrderUtilService {
 
     private final OrderRepository orderRepository;
     private final SaleProductRepository saleProductRepository;
-    private final StockService stockService;
     private final ReviewRepository reviewRepository;
 
     // 주문 번호 생성
@@ -73,12 +71,6 @@ public class OrderUtilServiceImpl implements OrderUtilService {
             SaleProduct saleProduct = Optional.ofNullable(saleProductMap.get(orderDetailRequest.saleProductId()))
                     .orElseThrow(() -> new DomainException(ErrorType.PRODUCT_NOT_FOUND));
 
-            try {
-                // 수량 줄이기
-                stockService.decreaseStock(saleProduct.getStock(), orderDetailRequest.quantity());
-            } catch (Exception e) {
-                throw new DomainException(ErrorType.STOCK_OPERATION_FAILED);
-            }
             OrderDetail orderDetail = OrderDetail.from(order, saleProduct, orderDetailRequest.quantity());
             orderDetails.add(orderDetail);
         }
